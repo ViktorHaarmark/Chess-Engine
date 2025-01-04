@@ -1,5 +1,6 @@
 package chess.engine.GUI;
 
+import java.util.Collections;
 import java.util.List;
 
 import chess.engine.GUI.Table.TilePanel;
@@ -22,7 +23,8 @@ public enum BoardDirection {
 
         @Override
         List<TilePanel> traverse(List<TilePanel> boardTiles) {
-            return boardTiles.reversed();
+            Collections.reverse(boardTiles);
+            return boardTiles;
         }
 
         @Override

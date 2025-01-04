@@ -18,13 +18,13 @@ public class BoardUtils {
     private static Map<String, Integer> initializePositionToCoordinate() {
         final Map<String, Integer> positionToCoordinate = new HashMap<>();
 
-        for(int i = 0; i < NUM_TILES; i++) {
+        for (int i = 0; i < NUM_TILES; i++) {
             positionToCoordinate.put(getPositionAtCoordinate(i), i);
         }
         return ImmutableMap.copyOf(positionToCoordinate);
     }
 
-    
+
     public static boolean isValidTileCoordinate(int coordinate) {
         return (coordinate >= 0 && coordinate < NUM_TILES);
     }
@@ -42,18 +42,17 @@ public class BoardUtils {
     }
 
     private static String[] initializeAlgebraicNotationColumn() {
-        return new String[] {"a", "b", "c", "d", "e", "f", "g", "h"};
+        return new String[]{"a", "b", "c", "d", "e", "f", "g", "h"};
     }
 
     private static String[] initializeAlgebraicNotationRow() {
-        return new String[] {"8", "7", "6", "5", "4", "3", "2", "1"};
+        return new String[]{"8", "7", "6", "5", "4", "3", "2", "1"};
     }
 
     public static String getPositionAtCoordinate(final int coordinate) {
         int row = coordinate / 8;
         int column = coordinate % 8;
         return ALGEBRAIC_NOTATION_COLUMN[column] + ALGEBRAIC_NOTATION_ROW[row];
-
 
 
     }
@@ -63,5 +62,5 @@ public class BoardUtils {
         return (board.currentPlayer().isInCheckMate() ||
                 board.currentPlayer().isInStaleMate());
     }
-    
+
 }

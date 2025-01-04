@@ -15,7 +15,7 @@ import chess.engine.GUI.Table.MoveLog;
 import chess.engine.board.Board;
 import chess.engine.board.Move;
 
-public class GameHistoryPanel extends JPanel{
+public class GameHistoryPanel extends JPanel {
 
     private final DataModel model;
     private final JScrollPane scrollPane;
@@ -32,15 +32,15 @@ public class GameHistoryPanel extends JPanel{
         scrollPane.setPreferredSize(HISTORY_PANEL_DIMENSION);
         this.add(scrollPane, BorderLayout.CENTER);
         this.setVisible(true);
-        
+
     }
 
     void redo(final Board board, final MoveLog moveLog) {
         int currentRow = 0;
         this.model.clear();
-        for(final Move move : moveLog.getMoves()) {
+        for (final Move move : moveLog.getMoves()) {
             final String moveText = move.toString();
-            if(move.getMovedPiece().getPieceColor().isWhite()) {
+            if (move.getMovedPiece().getPieceColor().isWhite()) {
                 this.model.setValueAt(moveText, currentRow, 0);
             } else if (move.getMovedPiece().getPieceColor().isBlack()) {
                 this.model.setValueAt(moveText, currentRow, 1);
@@ -48,33 +48,33 @@ public class GameHistoryPanel extends JPanel{
             }
         }
 
-        if(moveLog.getMoves().size() > 0) {
+        if (!moveLog.getMoves().isEmpty()) {
             final Move lastMove = moveLog.getMoves().get(moveLog.size() - 1);
             final String moveText = lastMove.toString();
 
             if (lastMove.getMovedPiece().getPieceColor().isWhite()) {
-                this.model.setValueAt(moveText + calculateCheckAndCheckMateHash(board), currentRow , 0);
+                this.model.setValueAt(moveText + calculateCheckAndCheckMateHash(board), currentRow, 0);
             } else if (lastMove.getMovedPiece().getPieceColor().isBlack()) {
                 this.model.setValueAt(moveText + calculateCheckAndCheckMateHash(board), currentRow - 1, 1);
             }
         }
-                
+
         final JScrollBar vertical = scrollPane.getVerticalScrollBar();
-        vertical.setValue(vertical.getMaximum());               
+        vertical.setValue(vertical.getMaximum());
     }
-    
+
     private String calculateCheckAndCheckMateHash(final Board board) {
-        if(board.currentPlayer().isInCheckMate()) {
+        if (board.currentPlayer().isInCheckMate()) {
             return "#";
         } else if (board.currentPlayer().isInCheck()) {
             return "+";
         }
         return "";
     }
-                    
-                
-     private static class DataModel extends DefaultTableModel {
-        
+
+
+    private static class DataModel extends DefaultTableModel {
+
         private final List<Row> values;
         private static final String[] NAMES = {"White", "Black"};
 
@@ -89,7 +89,7 @@ public class GameHistoryPanel extends JPanel{
 
         @Override
         public int getRowCount() {
-            if(this.values == null) {
+            if (this.values == null) {
                 return 0;
             }
             return this.values.size();
@@ -105,8 +105,7 @@ public class GameHistoryPanel extends JPanel{
             final Row currentRow = this.values.get(row);
             if (column == 0) {
                 return currentRow.getWhiteMove();
-            }
-            else if (column == 1) {
+            } else if (column == 1) {
                 return currentRow.getBlackMove();
             }
             return null;
@@ -141,7 +140,6 @@ public class GameHistoryPanel extends JPanel{
         }
 
 
-        
     }
 
     private static class Row {

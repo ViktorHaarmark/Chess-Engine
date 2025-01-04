@@ -26,9 +26,9 @@ public class Rook extends Piece {
 
     @Override
     public List<Move> calculateLegalMoves(final Board board) {
-        
+
         int candidateDestinationCoordinate;
-        final List<Move> legalMoves = new ArrayList<Move>();
+        final List<Move> legalMoves = new ArrayList<>();
 
         for (final int direction : DIRECTION) {
 
@@ -39,13 +39,13 @@ public class Rook extends Piece {
                 }
                 final Tile candidateDestinationTile = board.getTile(candidateDestinationCoordinate);
                 if (!candidateDestinationTile.isTileOccupied()) {
-                    legalMoves.add( new MajorPieceMove(board, this, candidateDestinationCoordinate));
+                    legalMoves.add(new MajorPieceMove(board, this, candidateDestinationCoordinate));
                 } else {
                     final Piece pieceOnDestination = candidateDestinationTile.getPiece();
                     if (pieceOnDestination.getPieceColor() != this.color) {
-                        legalMoves.add (new CaptureMove(board, this, pieceOnDestination, candidateDestinationCoordinate) ); 
+                        legalMoves.add(new CaptureMove(board, this, pieceOnDestination, candidateDestinationCoordinate));
                     }
-                    break; 
+                    break;
                 }
             }
         }
@@ -61,5 +61,5 @@ public class Rook extends Piece {
     @Override
     public Rook movePiece(Move move) {
         return new Rook(move.getDestinationCoordinate(), move.getMovedPiece().getPieceColor(), false);
-    }    
+    }
 }

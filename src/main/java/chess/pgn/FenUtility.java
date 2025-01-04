@@ -20,10 +20,10 @@ public class FenUtility { //TODO: When rook moves, remove castling rights
 
     public static String createFENFromGame(final Board board) {
         return calculateBoardText(board) + " " +
-               calculateCurrentPlayerText(board) + " " +
-               calculateCastlingInformation(board) + " " +
-               calculateEnPassantSquare(board) + " " +
-               "0 1";
+                calculateCurrentPlayerText(board) + " " +
+                calculateCastlingInformation(board) + " " +
+                calculateEnPassantSquare(board) + " " +
+                "0 1";
     }
 
     public static Board createGameFromFEN(final String fenString) {
@@ -36,7 +36,7 @@ public class FenUtility { //TODO: When rook moves, remove castling rights
         for (int i = 0; i < BoardUtils.NUM_TILES; i++) {
             final String tileText = board.getPiece(i) == null ? "-" :
                     board.getPiece(i).getPieceColor().isWhite() ? board.getPiece(i).toString() :
-                    board.getPiece(i).toString().toLowerCase();
+                            board.getPiece(i).toString().toLowerCase();
             builder.append(tileText);
         }
         builder.insert(8, "/");
@@ -59,12 +59,12 @@ public class FenUtility { //TODO: When rook moves, remove castling rights
 
     private static String calculateCurrentPlayerText(final Board board) {
         return board.currentPlayer().toString().substring(0, 1).toLowerCase();
-        
+
     }
 
     private static String calculateCastlingInformation(final Board board) {
         final StringBuilder builder = new StringBuilder();
-        
+
         if (board.whitePlayer().isKingSideCastleCapable()) {
             builder.append("K");
         }
@@ -87,7 +87,7 @@ public class FenUtility { //TODO: When rook moves, remove castling rights
         if (board.getEnPassantPawn() != null) {
             return BoardUtils.getPositionAtCoordinate(board.getEnPassantPawn().getPiecePosition() - (8 * board.getEnPassantPawn().getPieceColor().getDirection()));
         }
-            
+
         return "-";
     }
 
@@ -95,7 +95,6 @@ public class FenUtility { //TODO: When rook moves, remove castling rights
 
     //Region createGameFromFEN
 
-    
 
     private static Board parseFEN(final String fenString) {
         final String[] fenPartitions = fenString.trim().split(" ");
@@ -144,7 +143,7 @@ public class FenUtility { //TODO: When rook moves, remove castling rights
                     i++;
                     break;
                 case 'R':
-                    builder.setPiece(new Rook(i, Color.WHITE,true ));
+                    builder.setPiece(new Rook(i, Color.WHITE, true));
                     i++;
                     break;
                 case 'N':
@@ -171,7 +170,7 @@ public class FenUtility { //TODO: When rook moves, remove castling rights
                     i++;
                     break;
                 default:
-                    throw new RuntimeException("Invalid FEN String " +gameConfiguration);
+                    throw new RuntimeException("Invalid FEN String " + gameConfiguration);
             }
         }
         builder.setMoveMaker(moveMaker(fenPartitions[1]));
@@ -199,5 +198,5 @@ public class FenUtility { //TODO: When rook moves, remove castling rights
     }
 
     // Region end 
-    
+
 }

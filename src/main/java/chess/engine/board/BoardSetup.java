@@ -12,7 +12,7 @@ import chess.pgn.FenUtility;
 
 public class BoardSetup {
 
-        public static Board createStandardBoard() { //Standard position
+    public static Board createStandardBoard() { //Standard position
         final Builder builder = new Builder();
 
         // Black pieces
@@ -80,7 +80,7 @@ public class BoardSetup {
 
         // Black Layout
         builder.setPiece(new Rook(0, Color.BLACK, true));
-        builder.setPiece(new Rook(5, Color.BLACK,false));
+        builder.setPiece(new Rook(5, Color.BLACK, false));
         builder.setPiece(new Pawn(8, Color.BLACK, false));
         builder.setPiece(new Pawn(9, Color.BLACK, false));
         builder.setPiece(new Pawn(10, Color.BLACK, false));
@@ -124,7 +124,7 @@ public class BoardSetup {
     }
 
     public static Board createBug2Board() {
-    return FenUtility.createGameFromFEN("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 0 1");
+        return FenUtility.createGameFromFEN("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 0 1");
     }
-    
+
 }

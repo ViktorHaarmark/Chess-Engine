@@ -1,38 +1,23 @@
 package chess.engine.GUI;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
-
 import chess.engine.Players.PlayerType;
 import chess.engine.Players.ai.MiniMax;
 import chess.engine.Players.ai.MoveStrategy;
-import chess.engine.board.Board;
-import chess.engine.board.BoardSetup;
-import chess.engine.board.BoardUtils;
-import chess.engine.board.Move;
-import chess.engine.board.MoveTransition;
-import chess.engine.board.Tile;
+import chess.engine.board.*;
 import chess.engine.pieces.Piece;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Image;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.beans.PropertyChangeEvent;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.*;
 
 public class Table extends Observable {
 
@@ -83,7 +68,6 @@ public class Table extends Observable {
         this.gameFrame.add(this.gameHistoryPanel, BorderLayout.EAST);
 
 
-
         this.gameFrame.setSize(OUTER_FRAME_DIMENSION);
         this.gameFrame.setVisible(true);
     }
@@ -131,9 +115,9 @@ public class Table extends Observable {
         this.computerMove = move;
     }
 
-    private void moveMadeUpdate(final PlayerType playerType) {
+    private void moveMadeUpdate() {
         setChanged();
-        notifyObservers(playerType);
+        notifyObservers(PlayerType.HUMAN);
     }
 
     private JMenuBar createTableMenuBar() {
@@ -150,12 +134,7 @@ public class Table extends Observable {
         final JMenu fileMenu = new JMenu("File");
 
         final JMenuItem openPGN = new JMenuItem("Load PGN file");
-        openPGN.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("Open up that pgn file");
-            }
-        });
+        openPGN.addActionListener(e -> System.out.println("Open up that pgn file"));
         fileMenu.add(openPGN);
         return fileMenu;
     }
@@ -164,12 +143,9 @@ public class Table extends Observable {
         final JMenu preferenceMenu = new JMenu("Preference");
 
         final JMenuItem flipBoardMenuItem = new JMenuItem("Flip board");
-        flipBoardMenuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                boardDirection = boardDirection.opposite();
-                boardPanel.drawBoard(chessBoard);
-            }
+        flipBoardMenuItem.addActionListener(e -> {
+            boardDirection = boardDirection.opposite();
+            boardPanel.drawBoard(chessBoard);
         });
         preferenceMenu.add(flipBoardMenuItem);
 
@@ -177,12 +153,7 @@ public class Table extends Observable {
 
         final JCheckBoxMenuItem highlightLegalMovesCheckBox = new JCheckBoxMenuItem("Highlight legal moves", true);
 
-        highlightLegalMovesCheckBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                showLegalMoves = highlightLegalMovesCheckBox.isSelected();
-            }
-        });
+        highlightLegalMovesCheckBox.addActionListener(e -> showLegalMoves = highlightLegalMovesCheckBox.isSelected());
         preferenceMenu.add(highlightLegalMovesCheckBox);
 
         return preferenceMenu;
@@ -193,12 +164,9 @@ public class Table extends Observable {
 
         final JMenuItem setupGameMenuItem = new JMenuItem("Setup Game");
 
-        setupGameMenuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Table.get().getGameSetup().promptUser();
-                Table.get().setupUpdate(Table.get().getGameSetup());
-            }
+        setupGameMenuItem.addActionListener(e -> {
+            Table.get().getGameSetup().promptUser();
+            Table.get().setupUpdate(Table.get().getGameSetup());
         });
 
         optionsMenu.add(setupGameMenuItem);
@@ -212,27 +180,27 @@ public class Table extends Observable {
     }
 
     private static class TableGameAIWatcher implements Observer {
-        
+
         @Override
         public void update(Observable o, Object arg) {
-            if(Table.get().getGameSetup().isAIPlayer(Table.get().getGameBoard().currentPlayer()) &&
+            if (Table.get().getGameSetup().isAIPlayer(Table.get().getGameBoard().currentPlayer()) &&
                     !Table.get().chessBoard.currentPlayer().isInCheckMate() &&
                     !Table.get().chessBoard.currentPlayer().isInStaleMate()) {
                 final AIThinkTank thinkTank = new AIThinkTank();
                 thinkTank.execute();
             }
-            if(Table.get().chessBoard.currentPlayer().isInCheckMate()) {
+            if (Table.get().chessBoard.currentPlayer().isInCheckMate()) {
                 System.out.println("Game Over, " + Table.get().chessBoard.currentPlayer() + " is in checkmate!");
             }
-            if(Table.get().chessBoard.currentPlayer().isInStaleMate()) {
+            if (Table.get().chessBoard.currentPlayer().isInStaleMate()) {
                 System.out.println("Game Over, " + Table.get().chessBoard.currentPlayer() + " is in stalemate!");
             }
         }
-        
+
     }
 
     private static class AIThinkTank extends SwingWorker<Move, String> {
-        
+
         private AIThinkTank() {
 
         }
@@ -279,7 +247,7 @@ public class Table extends Observable {
 
         public void drawBoard(final Board board) {
             removeAll();
-            for(final TilePanel tilePanel : boardDirection.traverse(boardTiles)) {
+            for (final TilePanel tilePanel : boardDirection.traverse(boardTiles)) {
                 tilePanel.drawTile(board);
                 add(tilePanel);
             }
@@ -324,7 +292,7 @@ public class Table extends Observable {
 
     class TilePanel extends JPanel {
         private final Color LightTileColor = new Color(210, 165, 125);
-        private final Color darkTileColor = new Color(175,115,70);
+        private final Color darkTileColor = new Color(175, 115, 70);
         private final int tileId;
 
         TilePanel(final BoardPanel boardPanel,
@@ -339,7 +307,7 @@ public class Table extends Observable {
 
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    if(SwingUtilities.isRightMouseButton(e)) {
+                    if (SwingUtilities.isRightMouseButton(e)) {
                         sourceTile = null;
                         destinationTile = null;
                         humanMovedPiece = null;
@@ -362,42 +330,39 @@ public class Table extends Observable {
                             destinationTile = null;
                             humanMovedPiece = null;
                         }
-                        SwingUtilities.invokeLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                gameHistoryPanel.redo(chessBoard, moveLog);
-                                takenPiecePanel.redo(moveLog);
+                        SwingUtilities.invokeLater(() -> {
+                            gameHistoryPanel.redo(chessBoard, moveLog);
+                            takenPiecePanel.redo(moveLog);
 
-                                if(gameSetup.isAIPlayer(chessBoard.currentPlayer())) {
-                                    Table.get().moveMadeUpdate(PlayerType.HUMAN);
-                                }
-                                boardPanel.drawBoard(chessBoard);
-
+                            if (gameSetup.isAIPlayer(chessBoard.currentPlayer())) {
+                                Table.get().moveMadeUpdate();
                             }
-                        } );
-                    }     
+                            boardPanel.drawBoard(chessBoard);
+
+                        });
+                    }
                 }
 
                 @Override
                 public void mousePressed(MouseEvent e) {
-                    
+
                 }
 
                 @Override
                 public void mouseReleased(MouseEvent e) {
-                    
+
                 }
 
                 @Override
                 public void mouseEntered(MouseEvent e) {
-                    
+
                 }
 
                 @Override
                 public void mouseExited(MouseEvent e) {
-                    
+
                 }
-                
+
             });
 
             validate();
@@ -413,9 +378,9 @@ public class Table extends Observable {
         }
 
         private void highlightLegalMoves(final Board board) {
-            if(showLegalMoves) {
-                for( final Move move : pieceLegalMoves(board)) {
-                    if(move.getDestinationCoordinate() == this.tileId) {
+            if (showLegalMoves) {
+                for (final Move move : pieceLegalMoves(board)) {
+                    if (move.getDestinationCoordinate() == this.tileId) {
                         String fileString = "/art/misc/blue_dot.png";
                         try {
                             InputStream resourceStream = getClass().getResourceAsStream(fileString);
@@ -431,13 +396,13 @@ public class Table extends Observable {
                             e.printStackTrace();
                         }
                     }
-                }    
+                }
             }
         }
 
         private Collection<Move> pieceLegalMoves(final Board board) {
             Collection<Move> pieceLegalMoves = new ArrayList<>();
-            if(humanMovedPiece != null && humanMovedPiece.getPieceColor() == board.currentPlayer().getColor()) {
+            if (humanMovedPiece != null && humanMovedPiece.getPieceColor() == board.currentPlayer().getColor()) {
                 Collection<Move> legalMoveList = board.currentPlayer().getLegalMoves();
                 for (Move move : legalMoveList) {
                     if (move.getMovedPiece().equals(humanMovedPiece)) {
@@ -455,10 +420,10 @@ public class Table extends Observable {
 
         private void assignTilePieceIcon(final Board board) {
             this.removeAll();
-            if(board.getTile(this.tileId).isTileOccupied()) {
+            if (board.getTile(this.tileId).isTileOccupied()) {
                 String pieceIconPath = "/art/pieces/";
                 String fileString = pieceIconPath + board.getTile(this.tileId).getPiece().getPieceColor().toString()
-                                         + "_" + board.getTile(this.tileId).getPiece().toString() + ".png";
+                        + "_" + board.getTile(this.tileId).getPiece().toString() + ".png";
 
                 try {
                     InputStream resourceStream = getClass().getResourceAsStream(fileString);
@@ -474,11 +439,10 @@ public class Table extends Observable {
                     e.printStackTrace();
                 }
             }
-            
+
         }
 
     }
 
 
-    
 }

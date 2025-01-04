@@ -6,11 +6,11 @@ import chess.Color;
 import chess.engine.board.*;
 
 public abstract class Piece {
-    
+
     protected final PieceType pieceType;
     protected final int piecePosition;
     protected final Color color;
-    private boolean isFirstMove;
+    private final boolean isFirstMove;
     private final int cachedHashCode;
 
     Piece(final int piecePosition, final Color color, final PieceType pieceType, final boolean isFirstMove) {
@@ -32,13 +32,12 @@ public abstract class Piece {
 
     @Override
     public boolean equals(final Object other) {
-        if(this == other) {
+        if (this == other) {
             return true;
         }
-        if (!(other instanceof Piece)) {
+        if (!(other instanceof Piece otherPiece)) {
             return false;
         }
-        final Piece otherPiece = (Piece) other;
         return (color == otherPiece.getPieceColor() && pieceType == otherPiece.getPieceType() && piecePosition == otherPiece.getPiecePosition());
     }
 
@@ -107,8 +106,8 @@ public abstract class Piece {
         };
 
 
-        private String pieceName;
-        private int pieceValue;
+        private final String pieceName;
+        private final int pieceValue;
 
         PieceType(final String pieceName, final int pieceValue) {
             this.pieceName = pieceName;
@@ -133,6 +132,6 @@ public abstract class Piece {
         }
 
     }
-    
+
 
 }

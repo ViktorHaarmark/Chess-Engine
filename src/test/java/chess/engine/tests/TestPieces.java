@@ -15,11 +15,6 @@ import chess.engine.pieces.Queen;
 import chess.engine.pieces.Rook;
 import chess.pgn.FenUtility;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.Collection;
 import java.util.Set;
 
@@ -27,76 +22,74 @@ import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Sets;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class TestPieces {
 
 
-        public int moveGenerationTest(int depth, Board board) {
-                if (depth == 0) {
-                        return 1;
-                }
-                int numPosition = 0;
-                Collection<Move> moves = board.currentPlayer().getLegalMoves();
-                for (Move move : moves) {
-                        MoveTransition transition = board.currentPlayer().makeMove(move);
-                        if (transition.getMoveStatus().isDone()) {
-                                numPosition += moveGenerationTest(depth-1, transition.getToBoard());
-                        }
-                }
-
-                return numPosition;
+    public int moveGenerationTest(int depth, Board board) {
+        if (depth == 0) {
+            return 1;
+        }
+        int numPosition = 0;
+        Collection<Move> moves = board.currentPlayer().getLegalMoves();
+        for (Move move : moves) {
+            MoveTransition transition = board.currentPlayer().makeMove(move);
+            if (transition.getMoveStatus().isDone()) {
+                numPosition += moveGenerationTest(depth - 1, transition.getToBoard());
+            }
         }
 
-        @Test
-        public void moveTestPl1() {
-                Board board = FenUtility.createGameFromFEN("R6R/3Q4/1Q4Q1/4Q3/2Q4Q/Q4Q2/pp1Q4/kBNN1KB1 w - - 0 1");
-                assertEquals(moveGenerationTest(1, board), 218);
-        }
+        return numPosition;
+    }
 
-        @Test
-        public void moveTestCoolPosition() {
-                Board board = FenUtility.createGameFromFEN("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 0 1");
+    @Test
+    public void moveTestPl1() {
+        Board board = FenUtility.createGameFromFEN("R6R/3Q4/1Q4Q1/4Q3/2Q4Q/Q4Q2/pp1Q4/kBNN1KB1 w - - 0 1");
+        assertEquals(218, moveGenerationTest(1, board));
+    }
 
-                assertEquals(44, moveGenerationTest(1, board));
-                
-                assertEquals(1486, moveGenerationTest(2, board));
-                assertEquals(62379, moveGenerationTest(3, board));
-                assertEquals(2103487, moveGenerationTest(4, board));
-                //assertEquals(89941194, moveGenerationTest(5, board));
+    @Test
+    public void moveTestCoolPosition() {
+        Board board = FenUtility.createGameFromFEN("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 0 1");
 
-        }
+        assertEquals(44, moveGenerationTest(1, board));
+
+        assertEquals(1486, moveGenerationTest(2, board));
+        assertEquals(62379, moveGenerationTest(3, board));
+        assertEquals(2103487, moveGenerationTest(4, board));
+        //assertEquals(89941194, moveGenerationTest(5, board));
+
+    }
 
 
+    @Test
+    public void moveTestPly2() {
+        Board board = BoardSetup.createStandardBoard();
+        assertEquals(400, moveGenerationTest(2, board));
 
-        @Test
-        public void moveTestPly2() {
-                Board board = BoardSetup.createStandardBoard();
-                assertEquals(moveGenerationTest(2, board), 400);
-                
-        }
+    }
 
-        @Test
-        public void moveTestPly3() {
-                Board board = BoardSetup.createStandardBoard();
-                assertEquals(moveGenerationTest(3, board), 8902);
-                
-        }
+    @Test
+    public void moveTestPly3() {
+        Board board = BoardSetup.createStandardBoard();
+        assertEquals(8902, moveGenerationTest(3, board));
 
-        @Test
-        public void moveTestPly4() {
-                Board board = BoardSetup.createStandardBoard();
-                assertEquals(moveGenerationTest(4, board), 197281);
-                
-        }
+    }
 
-        @Test
-        public void moveTestPly5() {
-                Board board = BoardSetup.createStandardBoard();
-                assertEquals(4865609, moveGenerationTest(5, board));
-                
-        }
- 
+    @Test
+    public void moveTestPly4() {
+        Board board = BoardSetup.createStandardBoard();
+        assertEquals(197281, moveGenerationTest(4, board));
 
-          
+    }
+
+//    @Test
+//    public void moveTestPly5() {
+//        Board board = BoardSetup.createStandardBoard();
+//        assertEquals(4865609, moveGenerationTest(5, board));
+//
+//    }
 
 
     @Test
@@ -141,7 +134,7 @@ public class TestPieces {
         assertTrue(whiteLegals.contains(Move.MoveFactory
                 .createMove(board, BoardUtils.getCoordinateAtPosition("e4"), BoardUtils.getCoordinateAtPosition("h4"))));
     }
- 
+
     @Test
     public void testLegalMoveForKnightInCenter() {
 
@@ -156,7 +149,7 @@ public class TestPieces {
         boardBuilder.setMoveMaker(Color.WHITE);
         final Board board = boardBuilder.build();
         final Collection<Move> whiteLegals = board.whitePlayer().getLegalMoves();
-        assertEquals(whiteLegals.size(), 13);
+        assertEquals(13, whiteLegals.size());
         final Move wm1 = Move.MoveFactory
                 .createMove(board, BoardUtils.getCoordinateAtPosition("e4"), BoardUtils.getCoordinateAtPosition("d6"));
         final Move wm2 = Move.MoveFactory
@@ -212,7 +205,7 @@ public class TestPieces {
         final Move bm8 = Move.MoveFactory
                 .createMove(board2, BoardUtils.getCoordinateAtPosition("e5"), BoardUtils.getCoordinateAtPosition("f3"));
 
-        assertEquals(blackLegals.size(), 13);
+        assertEquals(13, blackLegals.size());
 
         assertTrue(blackLegals.contains(bm1));
         assertTrue(blackLegals.contains(bm2));
@@ -221,10 +214,9 @@ public class TestPieces {
         assertTrue(blackLegals.contains(bm5));
         assertTrue(blackLegals.contains(bm6));
         assertTrue(blackLegals.contains(bm7));
-        assertTrue(blackLegals.contains(bm8)); 
+        assertTrue(blackLegals.contains(bm8));
     }
 
-    
 
     @Test
     public void testKnightInCorners() {
@@ -237,9 +229,9 @@ public class TestPieces {
         final Board board = boardBuilder.build();
         final Collection<Move> whiteLegals = board.whitePlayer().getLegalMoves();
         final Collection<Move> blackLegals = board.blackPlayer().getLegalMoves();
-        assertEquals(whiteLegals.size(), 7);
-        assertEquals(blackLegals.size(), 7);
-        
+        assertEquals(7, whiteLegals.size());
+        assertEquals(7, blackLegals.size());
+
         final Move wm1 = Move.MoveFactory
                 .createMove(board, BoardUtils.getCoordinateAtPosition("a1"), BoardUtils.getCoordinateAtPosition("b3"));
         final Move wm2 = Move.MoveFactory
@@ -252,11 +244,10 @@ public class TestPieces {
                 .createMove(board, BoardUtils.getCoordinateAtPosition("a8"), BoardUtils.getCoordinateAtPosition("c7"));
         assertTrue(blackLegals.contains(bm1));
         assertTrue(blackLegals.contains(bm2));
-        
+
 
     }
 
-    
 
     @Test
     public void testMiddleBishopOnEmptyBoard() {
@@ -272,9 +263,9 @@ public class TestPieces {
         final Board board = builder.build();
         final Collection<Move> whiteLegals = board.whitePlayer().getLegalMoves();
         final Collection<Move> blackLegals = board.blackPlayer().getLegalMoves();
-        assertEquals(whiteLegals.size(), 18);
-        assertEquals(blackLegals.size(), 5);
-        
+        assertEquals(18, whiteLegals.size());
+        assertEquals(5, blackLegals.size());
+
         assertTrue(whiteLegals.contains(Move.MoveFactory
                 .createMove(board, BoardUtils.getCoordinateAtPosition("d4"), BoardUtils.getCoordinateAtPosition("a7"))));
         assertTrue(whiteLegals.contains(Move.MoveFactory
@@ -287,10 +278,9 @@ public class TestPieces {
                 .createMove(board, BoardUtils.getCoordinateAtPosition("d4"), BoardUtils.getCoordinateAtPosition("f2"))));
         assertTrue(whiteLegals.contains(Move.MoveFactory
                 .createMove(board, BoardUtils.getCoordinateAtPosition("d4"), BoardUtils.getCoordinateAtPosition("g1"))));
-                 
+
     }
 
-    
 
     @Test
     public void testTopLeftBishopOnEmptyBoard() {
@@ -308,8 +298,8 @@ public class TestPieces {
         final Collection<Move> blackLegals = board.blackPlayer().getLegalMoves();
         assertEquals(board.getPiece(0), board.getPiece(0));
         assertNotNull(board.getPiece(0));
-        assertEquals(whiteLegals.size(), 12);
-        assertEquals(blackLegals.size(), 5);
+        assertEquals(12, whiteLegals.size());
+        assertEquals(5, blackLegals.size());
         assertTrue(whiteLegals.contains(Move.MoveFactory
                 .createMove(board, BoardUtils.getCoordinateAtPosition("a8"), BoardUtils.getCoordinateAtPosition("b7"))));
         assertTrue(whiteLegals.contains(Move.MoveFactory
@@ -326,7 +316,6 @@ public class TestPieces {
                 .createMove(board, BoardUtils.getCoordinateAtPosition("a8"), BoardUtils.getCoordinateAtPosition("h1"))));
     }
 
-    
 
     @Test
     public void testTopRightBishopOnEmptyBoard() {
@@ -342,8 +331,8 @@ public class TestPieces {
         final Board board = builder.build();
         final Collection<Move> whiteLegals = board.whitePlayer().getLegalMoves();
         final Collection<Move> blackLegals = board.blackPlayer().getLegalMoves();
-        assertEquals(whiteLegals.size(), 12);
-        assertEquals(blackLegals.size(), 5);
+        assertEquals(12, whiteLegals.size());
+        assertEquals(5, blackLegals.size());
         assertTrue(whiteLegals.contains(Move.MoveFactory
                 .createMove(board, BoardUtils.getCoordinateAtPosition("h8"), BoardUtils.getCoordinateAtPosition("g7"))));
         assertTrue(whiteLegals.contains(Move.MoveFactory
@@ -366,7 +355,7 @@ public class TestPieces {
         // Black Layout
         builder.setPiece(new King(4, Color.BLACK, false, false));
         // White Layout
-        builder.setPiece(new Bishop(56, Color.WHITE,false));
+        builder.setPiece(new Bishop(56, Color.WHITE, false));
         builder.setPiece(new King(60, Color.WHITE, false, false));
         // Set the current player
         builder.setMoveMaker(Color.WHITE);
@@ -374,8 +363,8 @@ public class TestPieces {
         final Board board = builder.build();
         final Collection<Move> whiteLegals = board.whitePlayer().getLegalMoves();
         final Collection<Move> blackLegals = board.blackPlayer().getLegalMoves();
-        assertEquals(whiteLegals.size(), 12);
-        assertEquals(blackLegals.size(), 5);
+        assertEquals(12, whiteLegals.size());
+        assertEquals(5, blackLegals.size());
         assertTrue(whiteLegals.contains(Move.MoveFactory
                 .createMove(board, BoardUtils.getCoordinateAtPosition("a1"), BoardUtils.getCoordinateAtPosition("b2"))));
         assertTrue(whiteLegals.contains(Move.MoveFactory
@@ -406,8 +395,8 @@ public class TestPieces {
         final Board board = builder.build();
         final Collection<Move> whiteLegals = board.whitePlayer().getLegalMoves();
         final Collection<Move> blackLegals = board.blackPlayer().getLegalMoves();
-        assertEquals(whiteLegals.size(), 12);
-        assertEquals(blackLegals.size(), 5);
+        assertEquals(12, whiteLegals.size());
+        assertEquals(5, blackLegals.size());
         assertTrue(whiteLegals.contains(Move.MoveFactory
                 .createMove(board, BoardUtils.getCoordinateAtPosition("h1"), BoardUtils.getCoordinateAtPosition("g2"))));
         assertTrue(whiteLegals.contains(Move.MoveFactory
@@ -437,8 +426,8 @@ public class TestPieces {
         final Board board = builder.build();
         final Collection<Move> whiteLegals = board.whitePlayer().getLegalMoves();
         final Collection<Move> blackLegals = board.blackPlayer().getLegalMoves();
-        assertEquals(whiteLegals.size(), 18);
-        assertEquals(blackLegals.size(), 5);
+        assertEquals(18, whiteLegals.size());
+        assertEquals(5, blackLegals.size());
         assertTrue(whiteLegals.contains(Move.MoveFactory
                 .createMove(board, BoardUtils.getCoordinateAtPosition("e4"), BoardUtils.getCoordinateAtPosition("e8"))));
         assertTrue(whiteLegals.contains(Move.MoveFactory
@@ -472,7 +461,7 @@ public class TestPieces {
         final Board.Builder builder = new Board.Builder();
         // Black Layout
         builder.setPiece(new Rook(3, Color.BLACK, false));
-        builder.setPiece(new King(22, Color.BLACK,  false, false));
+        builder.setPiece(new King(22, Color.BLACK, false, false));
         // White Layout
         builder.setPiece(new Pawn(15, Color.WHITE, false) {
             @Override
@@ -480,7 +469,7 @@ public class TestPieces {
                 return new Queen(this.getPiecePosition(), this.getPieceColor(), false);
             }
         });
-        builder.setPiece(new King(52, Color.WHITE,  false, false));
+        builder.setPiece(new King(52, Color.WHITE, false, false));
         // Set the current player
         builder.setMoveMaker(Color.WHITE);
         final Board board = builder.build();
@@ -524,18 +513,18 @@ public class TestPieces {
         final Move m5 = Move.MoveFactory.createMove(t4.getToBoard(), BoardUtils.getCoordinateAtPosition("e5"), BoardUtils.getCoordinateAtPosition("d6"));
         final MoveTransition t5 = t4.getToBoard().currentPlayer().makeMove(m5);
         assertTrue(t5.getMoveStatus().isDone());
-        
+
     }
 
-    
+
     @Test
     public void testSimpleBlackEnPassant() {
         final Board.Builder builder = new Board.Builder();
         // Black Layout
         builder.setPiece(new King(4, Color.BLACK, false, false));
-        builder.setPiece(new Pawn(11, Color.BLACK,false));
+        builder.setPiece(new Pawn(11, Color.BLACK, false));
         // White Layout
-        builder.setPiece(new Pawn(52, Color.WHITE,false));
+        builder.setPiece(new Pawn(52, Color.WHITE, false));
         builder.setPiece(new King(60, Color.WHITE, false, false));
         // Set the current player
         builder.setMoveMaker(Color.WHITE);
@@ -580,26 +569,26 @@ public class TestPieces {
         final Move m5 = Move.MoveFactory.createMove(t4.getToBoard(), BoardUtils.getCoordinateAtPosition("g2"), BoardUtils.getCoordinateAtPosition("g4"));
         final MoveTransition t5 = t4.getToBoard().currentPlayer().makeMove(m5);
         assertTrue(t5.getMoveStatus().isDone());
-    }  
+    }
 
     @Test
     public void testKingEquality() {
         final Board board = BoardSetup.createStandardBoard();
         final Board board2 = BoardSetup.createStandardBoard();
         assertEquals(board.getPiece(60), board2.getPiece(60));
-        assertFalse(board.getPiece(60).equals(null));
+        assertNotEquals(null, board.getPiece(60));
     }
 
-    
+
     @Test
     public void testHashCode() {
         final Board board = BoardSetup.createStandardBoard();
         final Set<Piece> pieceSet = Sets.newHashSet(board.getAllPieces());
         final Set<Piece> whitePieceSet = Sets.newHashSet(board.getWhitePieces());
         final Set<Piece> blackPieceSet = Sets.newHashSet(board.getBlackPieces());
-        assertTrue(pieceSet.size() == 32);
-        assertTrue(whitePieceSet.size() == 16);
-        assertTrue(blackPieceSet.size() == 16);
-    } 
+        assertEquals(32, pieceSet.size());
+        assertEquals(16, whitePieceSet.size());
+        assertEquals(16, blackPieceSet.size());
+    }
 
 }

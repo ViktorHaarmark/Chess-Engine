@@ -15,11 +15,11 @@ import chess.engine.board.Tile;
 import chess.engine.pieces.Piece;
 import chess.engine.pieces.Rook;
 
-public class WhitePlayer extends Player{
+public class WhitePlayer extends Player {
 
-    public WhitePlayer(final Board board, 
-        final Collection<Move> whiteStandardLegalMoves,
-        final Collection<Move> blackStandardLegalMoves) {
+    public WhitePlayer(final Board board,
+                       final Collection<Move> whiteStandardLegalMoves,
+                       final Collection<Move> blackStandardLegalMoves) {
         super(board, whiteStandardLegalMoves, blackStandardLegalMoves);
     }
 
@@ -49,36 +49,36 @@ public class WhitePlayer extends Player{
 
         final List<Move> castlingMoves = new ArrayList<>();
 
-        if(!this.isInCheck() && this.playerKing.getPiecePosition() == 60) {
+        if (!this.isInCheck() && this.playerKing.getPiecePosition() == 60) {
 
             // Kingside castling
             if (this.playerKing.isKingSideCastleCapable() && !this.board.getTile(61).isTileOccupied() && !this.board.getTile(62).isTileOccupied()) {
-                if(Player.calculateAttacksOnTile(61, opponentsLegals).isEmpty() && Player.calculateAttacksOnTile(62, opponentsLegals).isEmpty()) {
+                if (Player.calculateAttacksOnTile(61, opponentsLegals).isEmpty() && Player.calculateAttacksOnTile(62, opponentsLegals).isEmpty()) {
                     final Tile rookTile = this.board.getTile(63);
-                
+
                     if (rookTile.isTileOccupied() && rookTile.getPiece().getPieceType().isRook() && rookTile.getPiece().isFirstMove()) {
-                    castlingMoves.add(new KingsideCastlingMove(this.board,
-                                                               this.playerKing,
-                                                               62,
-                                                               (Rook)rookTile.getPiece(),
-                                                               rookTile.getTileCoordinate(),
-                                                               61));
+                        castlingMoves.add(new KingsideCastlingMove(this.board,
+                                this.playerKing,
+                                62,
+                                (Rook) rookTile.getPiece(),
+                                rookTile.getTileCoordinate(),
+                                61));
                     }
                 }
             }
 
             // Queenside castling
-            if (this.playerKing.isQueenSideCastleCapable() && !this.board.getTile(57).isTileOccupied() && !this.board.getTile(58).isTileOccupied() && !this.board.getTile(59).isTileOccupied() ) {
-                if(Player.calculateAttacksOnTile(58, opponentsLegals).isEmpty() && Player.calculateAttacksOnTile(59, opponentsLegals).isEmpty()) {
+            if (this.playerKing.isQueenSideCastleCapable() && !this.board.getTile(57).isTileOccupied() && !this.board.getTile(58).isTileOccupied() && !this.board.getTile(59).isTileOccupied()) {
+                if (Player.calculateAttacksOnTile(58, opponentsLegals).isEmpty() && Player.calculateAttacksOnTile(59, opponentsLegals).isEmpty()) {
                     final Tile rookTile = this.board.getTile(56);
-                
+
                     if (rookTile.isTileOccupied() && rookTile.getPiece().getPieceType().isRook() && rookTile.getPiece().isFirstMove()) {
                         castlingMoves.add(new QueensideCastlingMove(this.board,
-                                                                    this.playerKing,
-                                                                    58,
-                                                                    (Rook)rookTile.getPiece(),
-                                                                    rookTile.getTileCoordinate(),
-                                                                    59));
+                                this.playerKing,
+                                58,
+                                (Rook) rookTile.getPiece(),
+                                rookTile.getTileCoordinate(),
+                                59));
                     }
                 }
             }

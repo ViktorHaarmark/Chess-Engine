@@ -1,23 +1,16 @@
 package chess.engine.board;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableList;
-
 import chess.Color;
 import chess.engine.Players.BlackPlayer;
 import chess.engine.Players.Player;
 import chess.engine.Players.WhitePlayer;
 import chess.engine.pieces.Pawn;
 import chess.engine.pieces.Piece;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
+
+import java.util.*;
+import java.util.stream.Stream;
 
 public class Board {
 
@@ -194,11 +187,11 @@ public class Board {
     public Iterable<Move> getAllLegalMoves() {
 
     Stream<Move> combinedStream = Stream.concat(
-        StreamSupport.stream(this.whitePlayer.getLegalMoves().spliterator(), false),
-        StreamSupport.stream(this.blackPlayer.getLegalMoves().spliterator(), false)
+            this.whitePlayer.getLegalMoves().stream(),
+            this.blackPlayer.getLegalMoves().stream()
     );
     
-    return Collections.unmodifiableList(combinedStream.toList());
+    return combinedStream.toList();
 }
 
 

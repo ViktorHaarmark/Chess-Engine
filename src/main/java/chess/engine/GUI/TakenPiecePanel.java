@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -51,13 +52,12 @@ public class TakenPiecePanel extends JPanel {
         final List<Piece> whiteTakenPieces = new ArrayList<>();
         final List<Piece> blackTakenPieces = new ArrayList<>();
 
-        for(final Move move : moveLog.getMoves()) {
-            if(move.isCapture()) {
+        for (final Move move : moveLog.getMoves()) {
+            if (move.isCapture()) {
                 final Piece takenPiece = move.getCapturedPiece();
-                if(takenPiece.getPieceColor().isWhite()) {
+                if (takenPiece.getPieceColor().isWhite()) {
                     whiteTakenPieces.add(takenPiece);
-                }
-                else if (takenPiece.getPieceColor().isBlack()) {
+                } else if (takenPiece.getPieceColor().isBlack()) {
                     blackTakenPieces.add(takenPiece);
                 } else {
                     throw new RuntimeException("Show not reach here, piece is either white or black");
@@ -65,8 +65,8 @@ public class TakenPiecePanel extends JPanel {
             }
         }
 
-        Collections.sort(whiteTakenPieces, (o1, o2) -> Integer.compare(o1.getPieceValue(), o2.getPieceValue()));
-        Collections.sort(blackTakenPieces, (o1, o2) -> Integer.compare(o1.getPieceValue(), o2.getPieceValue()));
+        whiteTakenPieces.sort(Comparator.comparingInt(Piece::getPieceValue));
+        blackTakenPieces.sort(Comparator.comparingInt(Piece::getPieceValue));
 
         addTakenPieces(whiteTakenPieces, southPanel);
         addTakenPieces(blackTakenPieces, northPanel);
@@ -76,8 +76,8 @@ public class TakenPiecePanel extends JPanel {
     private void addTakenPieces(final List<Piece> pieceList, final JPanel Panel) {
         for (final Piece takenPiece : pieceList) {
             String pieceIconPath = "/art/pieces/";
-            String fileString = pieceIconPath + takenPiece.getPieceColor().toString() + "_" + takenPiece.toString() + ".png";
-                
+            String fileString = pieceIconPath + takenPiece.getPieceColor().toString() + "_" + takenPiece + ".png";
+
             try {
                 InputStream resourceStream = getClass().getResourceAsStream(fileString);
                 if (resourceStream == null) {

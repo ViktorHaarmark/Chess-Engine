@@ -7,12 +7,10 @@ public enum MoveStatus {
             return true;
         }
     },
-
     ILLEGAL_MOVE,
-    
     LEAVES_PLAYER_IN_CHECK;
-    
-    
+
+
     public boolean isDone() {
         return false;
     }

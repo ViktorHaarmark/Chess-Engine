@@ -17,9 +17,9 @@ import chess.engine.pieces.Rook;
 
 public class BlackPlayer extends Player {
 
-    public BlackPlayer(final Board board, 
-            final Collection<Move> whiteStandardLegalMoves,
-            final Collection<Move> blackStandardLegalMoves) {
+    public BlackPlayer(final Board board,
+                       final Collection<Move> whiteStandardLegalMoves,
+                       final Collection<Move> blackStandardLegalMoves) {
         super(board, blackStandardLegalMoves, whiteStandardLegalMoves);
     }
 
@@ -51,38 +51,38 @@ public class BlackPlayer extends Player {
 
         //Kingside castling
 
-        if( !this.isInCheck() && this.playerKing.getPiecePosition() == 4) {
+        if (!this.isInCheck() && this.playerKing.getPiecePosition() == 4) {
 
             // Kingside castling
             if (this.playerKing.isKingSideCastleCapable() &&
-               !this.board.getTile(5).isTileOccupied() &&
-               !this.board.getTile(6).isTileOccupied()) {
-                if(Player.calculateAttacksOnTile(5, opponentsLegals).isEmpty() && Player.calculateAttacksOnTile(6, opponentsLegals).isEmpty()) {
+                    !this.board.getTile(5).isTileOccupied() &&
+                    !this.board.getTile(6).isTileOccupied()) {
+                if (Player.calculateAttacksOnTile(5, opponentsLegals).isEmpty() && Player.calculateAttacksOnTile(6, opponentsLegals).isEmpty()) {
                     final Tile rookTile = this.board.getTile(7);
-                
+
                     if (rookTile.isTileOccupied() && rookTile.getPiece().getPieceType().isRook() && rookTile.getPiece().isFirstMove()) {
-                    castlingMoves.add(new KingsideCastlingMove(this.board,
-                                                               this.playerKing,
-                                                               6,
-                                                               (Rook)rookTile.getPiece(),
-                                                               rookTile.getTileCoordinate(),
-                                                               5));
+                        castlingMoves.add(new KingsideCastlingMove(this.board,
+                                this.playerKing,
+                                6,
+                                (Rook) rookTile.getPiece(),
+                                rookTile.getTileCoordinate(),
+                                5));
                     }
                 }
             }
 
             // Queenside Castling
-            if (this.playerKing.isQueenSideCastleCapable() && !this.board.getTile(1).isTileOccupied() && !this.board.getTile(2).isTileOccupied() && !this.board.getTile(3).isTileOccupied() ) {
-                if(Player.calculateAttacksOnTile(2, opponentsLegals).isEmpty() && Player.calculateAttacksOnTile(3, opponentsLegals).isEmpty()) {
+            if (this.playerKing.isQueenSideCastleCapable() && !this.board.getTile(1).isTileOccupied() && !this.board.getTile(2).isTileOccupied() && !this.board.getTile(3).isTileOccupied()) {
+                if (Player.calculateAttacksOnTile(2, opponentsLegals).isEmpty() && Player.calculateAttacksOnTile(3, opponentsLegals).isEmpty()) {
                     final Tile rookTile = this.board.getTile(0);
-                
+
                     if (rookTile.isTileOccupied() && rookTile.getPiece().getPieceType().isRook() && rookTile.getPiece().isFirstMove()) {
                         castlingMoves.add(new QueensideCastlingMove(this.board,
-                                                                    this.playerKing,
-                                                                    2,
-                                                                    (Rook)rookTile.getPiece(),
-                                                                    rookTile.getTileCoordinate(),
-                                                                    3));
+                                this.playerKing,
+                                2,
+                                (Rook) rookTile.getPiece(),
+                                rookTile.getTileCoordinate(),
+                                3));
                     }
                 }
             }
@@ -91,6 +91,6 @@ public class BlackPlayer extends Player {
 
         return ImmutableList.copyOf(castlingMoves);
     }
-    
+
 
 }

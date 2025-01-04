@@ -11,5 +11,5 @@ public class JChess {
 
         Table.get().show();
     }
-    
+
 }

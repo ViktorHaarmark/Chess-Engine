@@ -4,6 +4,14 @@
 # Log file
 *.log
 
+# Ignore IntelliJ IDEA-specific files
+.idea/
+*.iml
+
+# Ignore build directories
+/build/
+out/
+
 # BlueJ files
 *.ctxt
 

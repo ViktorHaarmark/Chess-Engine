@@ -37,15 +37,15 @@ public class MiniMax implements MoveStrategy {
         for (final Move move : board.currentPlayer().getLegalMoves()) {
 
             final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
-            if(moveTransition.getMoveStatus().isDone()) {
+            if (moveTransition.getMoveStatus().isDone()) {
                 currentValue = board.currentPlayer().getColor().isWhite() ?
                         min(moveTransition.getToBoard(), searchDepth - 1) :
                         max(moveTransition.getToBoard(), searchDepth - 1);
 
-                if(board.currentPlayer().getColor().isWhite() && currentValue >= highestSeenValue) {
+                if (board.currentPlayer().getColor().isWhite() && currentValue >= highestSeenValue) {
                     highestSeenValue = currentValue;
                     bestMove = move;
-                } else if(board.currentPlayer().getColor().isBlack() && currentValue <= lowestSeenValue) {
+                } else if (board.currentPlayer().getColor().isBlack() && currentValue <= lowestSeenValue) {
                     lowestSeenValue = currentValue;
                     bestMove = move;
                 }
@@ -73,7 +73,7 @@ public class MiniMax implements MoveStrategy {
             }
         }
         return lowestSeenValue;
-        
+
 
     }
 
@@ -95,7 +95,6 @@ public class MiniMax implements MoveStrategy {
         return highestSeenValue;
 
     }
-
 
 
 }

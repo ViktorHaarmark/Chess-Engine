@@ -24,7 +24,7 @@ public class TestPlayer {
         final Board board = BoardSetup.createStandardBoard();
         final MoveTransition t1 = board.currentPlayer()
                 .makeMove(MoveFactory.createMove(board, BoardUtils.getCoordinateAtPosition("e2"),
-                                BoardUtils.getCoordinateAtPosition("e4")));
+                        BoardUtils.getCoordinateAtPosition("e4")));
         assertTrue(t1.getMoveStatus().isDone());
         final MoveTransition t2 = t1.getToBoard()
                 .currentPlayer()
@@ -39,7 +39,7 @@ public class TestPlayer {
         final Board board = BoardSetup.createStandardBoard();
         final MoveTransition t1 = board.currentPlayer()
                 .makeMove(MoveFactory.createMove(board, BoardUtils.getCoordinateAtPosition("c2"),
-                                BoardUtils.getCoordinateAtPosition("c3")));
+                        BoardUtils.getCoordinateAtPosition("c3")));
         assertTrue(t1.getMoveStatus().isDone());
         final MoveTransition t2 = t1.getToBoard()
                 .currentPlayer()
@@ -73,7 +73,7 @@ public class TestPlayer {
         final Board board = builder.build();
         final MoveTransition t1 = board.currentPlayer()
                 .makeMove(MoveFactory.createMove(board, BoardUtils.getCoordinateAtPosition("e3"),
-                                BoardUtils.getCoordinateAtPosition("b6")));
+                        BoardUtils.getCoordinateAtPosition("b6")));
         assertTrue(t1.getMoveStatus().isDone());
         assertTrue(t1.getToBoard().currentPlayer().isInCheck());
         final MoveTransition t2 = t1.getToBoard()

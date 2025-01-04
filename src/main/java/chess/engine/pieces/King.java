@@ -1,28 +1,25 @@
 package chess.engine.pieces;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import com.google.common.collect.ImmutableList;
-
 import chess.Color;
-import chess.engine.Players.Player;
 import chess.engine.board.Board;
 import chess.engine.board.BoardUtils;
 import chess.engine.board.Move;
 import chess.engine.board.Move.CaptureMove;
-import chess.engine.board.Move.KingsideCastlingMove;
 import chess.engine.board.Move.MajorPieceMove;
 import chess.engine.board.Tile;
+import com.google.common.collect.ImmutableList;
 
-public class King extends Piece{
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+public class King extends Piece {
 
     private final static int[] DIRECTION = {-8, -1, 1, 8, -9, -7, 7, 9};
     private final boolean isKingSideCastleCapable;
     private final boolean isQueenSideCastleCapable;
     private final boolean isCastled;
-    
+
     public King(final int piecePosition, final Color color, final boolean isKingSideCastleCapable, final boolean isQueenSideCastleCapable) {
         super(piecePosition, color, PieceType.KING, false);
         this.isKingSideCastleCapable = isKingSideCastleCapable;
@@ -48,9 +45,9 @@ public class King extends Piece{
 
     @Override
     public Collection<Move> calculateLegalMoves(final Board board) {
-        
+
         int candidateDestinationCoordinate;
-        final List<Move> legalMoves = new ArrayList<Move>();
+        final List<Move> legalMoves = new ArrayList<>();
 
         for (final int direction : DIRECTION) {
 
@@ -60,21 +57,16 @@ public class King extends Piece{
             }
             final Tile candidateDestinationTile = board.getTile(candidateDestinationCoordinate);
             if (!candidateDestinationTile.isTileOccupied()) {
-                legalMoves.add( new MajorPieceMove(board, this, candidateDestinationCoordinate));
+                legalMoves.add(new MajorPieceMove(board, this, candidateDestinationCoordinate));
             } else {
                 final Piece pieceOnDestination = candidateDestinationTile.getPiece();
                 if (pieceOnDestination.getPieceColor() != this.color) {
-                    legalMoves.add (new CaptureMove(board, this, pieceOnDestination, candidateDestinationCoordinate) ); 
+                    legalMoves.add(new CaptureMove(board, this, pieceOnDestination, candidateDestinationCoordinate));
                 }
-                continue; 
             }
         }
         return ImmutableList.copyOf(legalMoves);
     }
-
-
-        
-
 
 
     public boolean isKingMove(final int coordinate) {
@@ -87,10 +79,9 @@ public class King extends Piece{
     }
 
 
-
     @Override
     public King movePiece(Move move) {
-        return new King(move.getDestinationCoordinate(), move.getMovedPiece().getPieceColor(), move.isCastlingMove(), false,  false);
+        return new King(move.getDestinationCoordinate(), move.getMovedPiece().getPieceColor(), move.isCastlingMove(), false, false);
     }
 
 }

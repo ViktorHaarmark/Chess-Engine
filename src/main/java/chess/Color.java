@@ -8,7 +8,7 @@ public enum Color {
     WHITE {
         @Override
         public int getDirection() {
-           return -1;
+            return -1;
         }
 
         @Override
@@ -41,7 +41,7 @@ public enum Color {
             return tileCoordinate / 8 == 0;
         }
     },
-    
+
     BLACK {
         @Override
         public int getDirection() {

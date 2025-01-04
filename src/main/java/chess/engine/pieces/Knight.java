@@ -28,25 +28,25 @@ public class Knight extends Piece {
 
     @Override
     public Collection<Move> calculateLegalMoves(final Board board) {
-        
+
         int candidateDestinationCoordinate;
-        final List<Move> legalMoves = new ArrayList<Move>();
+        final List<Move> legalMoves = new ArrayList<>();
 
         for (final int currentMoveOffset : CANDIDATE_MOVE_COORDINATES) {
 
             candidateDestinationCoordinate = this.piecePosition + currentMoveOffset;
 
-            if (BoardUtils.isValidTileCoordinate(candidateDestinationCoordinate) && isValidKnightMove(currentMoveOffset, candidateDestinationCoordinate) ) { 
+            if (BoardUtils.isValidTileCoordinate(candidateDestinationCoordinate) && isValidKnightMove(currentMoveOffset, candidateDestinationCoordinate)) {
 
                 final Tile candidateDestinationTile = board.getTile(candidateDestinationCoordinate);
 
                 if (!candidateDestinationTile.isTileOccupied()) {
-                    legalMoves.add( new MajorPieceMove(board, this, candidateDestinationCoordinate));
+                    legalMoves.add(new MajorPieceMove(board, this, candidateDestinationCoordinate));
                 } else {
                     final Piece pieceOnDestination = candidateDestinationTile.getPiece();
                     if (pieceOnDestination.getPieceColor() != this.color) {
-                        legalMoves.add (new CaptureMove(board, this, pieceOnDestination, candidateDestinationCoordinate) );
-                    } 
+                        legalMoves.add(new CaptureMove(board, this, pieceOnDestination, candidateDestinationCoordinate));
+                    }
                 }
             }
         }
@@ -54,18 +54,16 @@ public class Knight extends Piece {
     }
 
     private boolean isValidKnightMove(int candidateOffset, int candidateDestinationCoordinate) { //Can be implemented in a different way, see video 5
-        if (Math.abs(candidateOffset) == 6 || Math.abs(candidateOffset) == 10 ) {
+        if (Math.abs(candidateOffset) == 6 || Math.abs(candidateOffset) == 10) {
             if (BoardUtils.rowDifference(candidateDestinationCoordinate, this.piecePosition) == 1 && BoardUtils.columnDifference(candidateDestinationCoordinate, this.piecePosition) == 2) {
                 return true;
             }
         }
 
-        if (Math.abs(candidateOffset) == 15 || Math.abs(candidateOffset) == 17 ) {
-            if (BoardUtils.rowDifference(candidateDestinationCoordinate, this.piecePosition) == 2 && BoardUtils.columnDifference(candidateDestinationCoordinate, this.piecePosition) == 1 ) {
-                return true;
-            }
+        if (Math.abs(candidateOffset) == 15 || Math.abs(candidateOffset) == 17) {
+            return BoardUtils.rowDifference(candidateDestinationCoordinate, this.piecePosition) == 2 && BoardUtils.columnDifference(candidateDestinationCoordinate, this.piecePosition) == 1;
         }
-    return false;
+        return false;
     }
 
     @Override

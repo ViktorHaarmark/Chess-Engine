@@ -1,29 +1,15 @@
 package chess.engine.tests;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import org.junit.jupiter.api.Test;
-
-import com.google.common.collect.Iterables;
-
 import chess.Color;
 import chess.engine.Players.ai.StandardBoardEvaluator;
-import chess.engine.board.Board;
+import chess.engine.board.*;
 import chess.engine.board.Board.Builder;
-import chess.engine.board.BoardSetup;
-import chess.engine.board.BoardUtils;
-import chess.engine.board.Move;
-import chess.engine.board.MoveTransition;
 import chess.engine.board.Move.MoveFactory;
-import chess.engine.pieces.Bishop;
-import chess.engine.pieces.King;
-import chess.engine.pieces.Knight;
-import chess.engine.pieces.Pawn;
-import chess.engine.pieces.Piece;
-import chess.engine.pieces.Queen;
-import chess.engine.pieces.Rook;
+import chess.engine.pieces.*;
+import com.google.common.collect.Iterables;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestBoard {
 
@@ -31,8 +17,8 @@ public class TestBoard {
     public void initialBoard() {
 
         final Board board = BoardSetup.createStandardBoard();
-        assertEquals(board.currentPlayer().getLegalMoves().size(), 20);
-        assertEquals(board.currentPlayer().getOpponent().getLegalMoves().size(), 20);
+        assertEquals(20, board.currentPlayer().getLegalMoves().size());
+        assertEquals(20, board.currentPlayer().getOpponent().getLegalMoves().size());
         assertFalse(board.currentPlayer().isInCheck());
         assertFalse(board.currentPlayer().isInCheckMate());
         assertFalse(board.currentPlayer().isCastled());
@@ -45,23 +31,23 @@ public class TestBoard {
         assertFalse(board.currentPlayer().getOpponent().isCastled());
         //assertTrue(board.currentPlayer().getOpponent().isKingSideCastleCapable());
         //assertTrue(board.currentPlayer().getOpponent().isQueenSideCastleCapable());
-        assertTrue(board.whitePlayer().toString().equals("White"));
-        assertTrue(board.blackPlayer().toString().equals("Black"));
+        assertEquals("White", board.whitePlayer().toString());
+        assertEquals("Black", board.blackPlayer().toString());
 
         final Iterable<Piece> allPieces = board.getAllPieces();
         final Iterable<Move> allMoves = Iterables.concat(board.whitePlayer().getLegalMoves(), board.blackPlayer().getLegalMoves());
-        for(final Move move : allMoves) {
+        for (final Move move : allMoves) {
             assertFalse(move.isCapture());
             assertFalse(move.isCastlingMove());
             //assertEquals(MoveUtils.exchangeScore(move), 1);
         }
 
-        assertEquals(Iterables.size(allMoves), 40);
-        assertEquals(Iterables.size(allPieces), 32);
+        assertEquals(40, Iterables.size(allMoves));
+        assertEquals(32, Iterables.size(allPieces));
         assertFalse(BoardUtils.isEndGame(board));
         //assertFalse(BoardUtils.isThreatenedBoardImmediate(board));
         //assertEquals(StandardBoardEvaluator.get().evaluate(board, 0), 0);
-        assertEquals(board.getPiece(35), null);
+        assertNull(board.getPiece(35));
     }
 
     @Test
@@ -79,8 +65,8 @@ public class TestBoard {
         final Board board = builder.build();
         System.out.println(board);
 
-        assertEquals(board.whitePlayer().getLegalMoves().size(), 6);
-        assertEquals(board.blackPlayer().getLegalMoves().size(), 6);
+        assertEquals(6, board.whitePlayer().getLegalMoves().size());
+        assertEquals(6, board.blackPlayer().getLegalMoves().size());
         assertFalse(board.currentPlayer().isInCheck());
         assertFalse(board.currentPlayer().isInCheckMate());
         assertFalse(board.currentPlayer().getOpponent().isInCheck());
@@ -89,7 +75,7 @@ public class TestBoard {
         assertEquals(board.currentPlayer().getOpponent(), board.blackPlayer());
         StandardBoardEvaluator evaluator = new StandardBoardEvaluator();
         System.out.println(evaluator.evaluate(board, 0));
-        assertEquals(evaluator.evaluate(board, 0), 0); 
+        assertEquals(0, evaluator.evaluate(board, 0));
 
         final Move move = MoveFactory.createMove(board, BoardUtils.getCoordinateAtPosition("e1"),
                 BoardUtils.getCoordinateAtPosition("f1"));
@@ -102,7 +88,7 @@ public class TestBoard {
         assertEquals(moveTransition.getToBoard().currentPlayer(), moveTransition.getToBoard().blackPlayer());
 
         assertTrue(moveTransition.getMoveStatus().isDone());
-        assertEquals(moveTransition.getToBoard().whitePlayer().getPlayerKing().getPiecePosition(), 61);
+        assertEquals(61, moveTransition.getToBoard().whitePlayer().getPlayerKing().getPiecePosition());
         System.out.println(moveTransition.getToBoard());
 
     }
@@ -174,8 +160,8 @@ public class TestBoard {
                 .makeMove(MoveFactory.createMove(t13.getToBoard(), BoardUtils.getCoordinateAtPosition("d5"),
                         BoardUtils.getCoordinateAtPosition("e4")));
 
-        assertTrue(t14.getToBoard().whitePlayer().getActivePieces().size() == calculatedActivesFor(t14.getToBoard(), Color.WHITE));
-        assertTrue(t14.getToBoard().blackPlayer().getActivePieces().size() == calculatedActivesFor(t14.getToBoard(), Color.BLACK));
+        assertEquals(t14.getToBoard().whitePlayer().getActivePieces().size(), calculatedActivesFor(t14.getToBoard(), Color.WHITE));
+        assertEquals(t14.getToBoard().blackPlayer().getActivePieces().size(), calculatedActivesFor(t14.getToBoard(), Color.BLACK));
 
     }
 
@@ -227,14 +213,14 @@ public class TestBoard {
 
     @Test
     public void testAlgebreicNotation() {
-        assertEquals(BoardUtils.getPositionAtCoordinate(0), "a8");
-        assertEquals(BoardUtils.getPositionAtCoordinate(1), "b8");
-        assertEquals(BoardUtils.getPositionAtCoordinate(2), "c8");
-        assertEquals(BoardUtils.getPositionAtCoordinate(3), "d8");
-        assertEquals(BoardUtils.getPositionAtCoordinate(4), "e8");
-        assertEquals(BoardUtils.getPositionAtCoordinate(5), "f8");
-        assertEquals(BoardUtils.getPositionAtCoordinate(6), "g8");
-        assertEquals(BoardUtils.getPositionAtCoordinate(7), "h8");
+        assertEquals("a8", BoardUtils.getPositionAtCoordinate(0));
+        assertEquals("b8", BoardUtils.getPositionAtCoordinate(1));
+        assertEquals("c8", BoardUtils.getPositionAtCoordinate(2));
+        assertEquals("d8", BoardUtils.getPositionAtCoordinate(3));
+        assertEquals("e8", BoardUtils.getPositionAtCoordinate(4));
+        assertEquals("f8", BoardUtils.getPositionAtCoordinate(5));
+        assertEquals("g8", BoardUtils.getPositionAtCoordinate(6));
+        assertEquals("h8", BoardUtils.getPositionAtCoordinate(7));
     }
 
     @Test
@@ -244,10 +230,11 @@ public class TestBoard {
         runtime.gc();
         start = runtime.freeMemory();
         Board board = BoardSetup.createStandardBoard();
-        end =  runtime.freeMemory();
-        System.out.println("That took " + (start-end) + " bytes.");
+        end = runtime.freeMemory();
+        System.out.println("That took " + (start - end) + " bytes.");
 
     }
+
     private static int calculatedActivesFor(final Board board,
                                             final Color color) {
         int count = 0;

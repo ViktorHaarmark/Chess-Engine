@@ -26,15 +26,15 @@ public class Queen extends Piece {
 
     @Override
     public List<Move> calculateLegalMoves(final Board board) {
-        
+
         int candidateDestinationCoordinate;
-        final List<Move> legalMoves = new ArrayList<Move>();
+        final List<Move> legalMoves = new ArrayList<>();
 
         for (final int direction : DIRECTION) {
 
             for (int i = 1; i < 8; i++) {
                 candidateDestinationCoordinate = this.piecePosition + i * direction;
-                if (!BoardUtils.isValidTileCoordinate(candidateDestinationCoordinate))   {
+                if (!BoardUtils.isValidTileCoordinate(candidateDestinationCoordinate)) {
                     break;
                 }
                 if (isRookDirection(direction) && !isRookMove(candidateDestinationCoordinate)) {
@@ -45,13 +45,13 @@ public class Queen extends Piece {
                 }
                 final Tile candidateDestinationTile = board.getTile(candidateDestinationCoordinate);
                 if (!candidateDestinationTile.isTileOccupied()) {
-                    legalMoves.add( new MajorPieceMove(board, this, candidateDestinationCoordinate));
+                    legalMoves.add(new MajorPieceMove(board, this, candidateDestinationCoordinate));
                 } else {
                     final Piece pieceOnDestination = candidateDestinationTile.getPiece();
                     if (pieceOnDestination.getPieceColor() != this.color) {
-                        legalMoves.add (new CaptureMove(board, this, pieceOnDestination, candidateDestinationCoordinate) ); 
+                        legalMoves.add(new CaptureMove(board, this, pieceOnDestination, candidateDestinationCoordinate));
                     }
-                    break; 
+                    break;
                 }
             }
         }
@@ -68,6 +68,5 @@ public class Queen extends Piece {
         return new Queen(move.getDestinationCoordinate(), move.getMovedPiece().getPieceColor(), false);
     }
 
-    
-    
+
 }

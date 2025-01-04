@@ -1,7 +1,6 @@
 package chess.engine.tests;
 
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -17,15 +16,13 @@ import chess.engine.board.MoveTransition;
 import chess.pgn.FenUtility;
 
 
-
-
 public class TestFEN {
 
     @Test
     public void testWriteFEN1() throws IOException {
         final Board board = BoardSetup.createStandardBoard();
         final String fenString = FenUtility.createFENFromGame(board);
-        assertEquals(fenString, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+        assertEquals("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", fenString);
     }
 
     @Test
@@ -36,13 +33,13 @@ public class TestFEN {
                         BoardUtils.getCoordinateAtPosition("e4")));
         assertTrue(t1.getMoveStatus().isDone());
         final String fenString = FenUtility.createFENFromGame(t1.getToBoard());
-        assertEquals(fenString, "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
+        assertEquals("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1", fenString);
         final MoveTransition t2 = t1.getToBoard().currentPlayer()
                 .makeMove(Move.MoveFactory.createMove(t1.getToBoard(), BoardUtils.getCoordinateAtPosition("c7"),
                         BoardUtils.getCoordinateAtPosition("c5")));
         assertTrue(t2.getMoveStatus().isDone());
         final String fenString2 = FenUtility.createFENFromGame(t2.getToBoard());
-        assertEquals(fenString2, "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 1");
+        assertEquals("rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 1", fenString2);
 
     }
 
