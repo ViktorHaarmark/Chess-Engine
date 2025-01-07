@@ -83,12 +83,18 @@ public abstract class Move {
         return false;
     }
 
+    public boolean isPromotionMove() {return false;}
+
     public Piece getCapturedPiece() {
         return null;
     }
 
     public Move getDecoratedMove() {
         return this;
+    }
+
+    public Piece getPromotedPiece() {
+        return null;
     }
 
     public Board execute() {
@@ -314,6 +320,7 @@ public abstract class Move {
 
             builder.setMoveMaker((this.board.currentPlayer().getOpponent().getColor()));
             return builder.build();
+
         }
 
         @Override
@@ -326,12 +333,18 @@ public abstract class Move {
             return this.decoratedMove.getCapturedPiece();
         }
 
+        @Override
         public Piece getPromotedPiece() {
             return this.promotedPiece;
         }
 
         public Move getDecoratedMove() {
             return this.decoratedMove;
+        }
+
+        @Override
+        public boolean isPromotionMove() {
+            return true;
         }
 
         @Override

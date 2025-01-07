@@ -35,10 +35,10 @@ public class TestStalemate {
         final MoveTransition t1 = board.currentPlayer()
                 .makeMove(MoveFactory.createMove(board, BoardUtils.getCoordinateAtPosition("e4"),
                         BoardUtils.getCoordinateAtPosition("f5")));
-        assertTrue(t1.getMoveStatus().isDone());
-        assertTrue(t1.getToBoard().currentPlayer().isInStaleMate());
-        assertFalse(t1.getToBoard().currentPlayer().isInCheck());
-        assertFalse(t1.getToBoard().currentPlayer().isInCheckMate());
+        assertTrue(t1.moveStatus().isDone());
+        assertTrue(t1.toBoard().currentPlayer().isInStaleMate());
+        assertFalse(t1.toBoard().currentPlayer().isInCheck());
+        assertFalse(t1.toBoard().currentPlayer().isInCheckMate());
     }
 
     @Test
@@ -56,10 +56,10 @@ public class TestStalemate {
         final MoveTransition t1 = board.currentPlayer()
                 .makeMove(MoveFactory.createMove(board, BoardUtils.getCoordinateAtPosition("c5"),
                         BoardUtils.getCoordinateAtPosition("c6")));
-        assertTrue(t1.getMoveStatus().isDone());
-        assertTrue(t1.getToBoard().currentPlayer().isInStaleMate());
-        assertFalse(t1.getToBoard().currentPlayer().isInCheck());
-        assertFalse(t1.getToBoard().currentPlayer().isInCheckMate());
+        assertTrue(t1.moveStatus().isDone());
+        assertTrue(t1.toBoard().currentPlayer().isInStaleMate());
+        assertFalse(t1.toBoard().currentPlayer().isInCheck());
+        assertFalse(t1.toBoard().currentPlayer().isInCheckMate());
     }
 
     @Test
@@ -78,9 +78,9 @@ public class TestStalemate {
         final MoveTransition t1 = board.currentPlayer()
                 .makeMove(MoveFactory.createMove(board, BoardUtils.getCoordinateAtPosition("a6"),
                         BoardUtils.getCoordinateAtPosition("a7")));
-        assertTrue(t1.getMoveStatus().isDone());
-        assertTrue(t1.getToBoard().currentPlayer().isInStaleMate());
-        assertFalse(t1.getToBoard().currentPlayer().isInCheck());
-        assertFalse(t1.getToBoard().currentPlayer().isInCheckMate());
+        assertTrue(t1.moveStatus().isDone());
+        assertTrue(t1.toBoard().currentPlayer().isInStaleMate());
+        assertFalse(t1.toBoard().currentPlayer().isInCheck());
+        assertFalse(t1.toBoard().currentPlayer().isInCheckMate());
     }
 }

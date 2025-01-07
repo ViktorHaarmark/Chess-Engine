@@ -37,7 +37,7 @@ public class MiniMax implements MoveStrategy {
         for (final Move move : board.currentPlayer().getLegalMoves()) {
 
             final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
-            if (moveTransition.getMoveStatus().isDone()) {
+            if (moveTransition.moveStatus().isDone()) {
                 currentValue = board.currentPlayer().getColor().isWhite() ?
                         min(moveTransition.getToBoard(), searchDepth - 1) :
                         max(moveTransition.getToBoard(), searchDepth - 1);
@@ -53,6 +53,7 @@ public class MiniMax implements MoveStrategy {
         }
 
         final long executionTime = System.currentTimeMillis() - startTime;
+        System.out.println("Thiking time: " + executionTime / 1000.0);
 
         return bestMove;
     }
@@ -95,6 +96,4 @@ public class MiniMax implements MoveStrategy {
         return highestSeenValue;
 
     }
-
-
 }

@@ -13,15 +13,17 @@ import chess.engine.board.Move.CaptureMove;
 import chess.engine.board.Move.MajorPieceMove;
 import chess.engine.board.Tile;
 
+import static chess.engine.pieces.PieceType.ROOK;
+
 public class Rook extends Piece {
     private final static int[] DIRECTION = {-8, -1, 1, 8};
 
     public Rook(final int piecePosition, final Color color, final boolean isFirstMove) {
-        super(piecePosition, color, PieceType.ROOK, isFirstMove);
+        super(piecePosition, color, ROOK, isFirstMove);
     }
 
     public Rook(final int piecePosition, final Color color) {
-        super(piecePosition, color, PieceType.ROOK, false);
+        super(piecePosition, color, ROOK, false);
     }
 
     @Override
@@ -55,7 +57,7 @@ public class Rook extends Piece {
 
     @Override
     public String toString() {
-        return PieceType.ROOK.toString();
+        return ROOK.toString();
     }
 
     @Override

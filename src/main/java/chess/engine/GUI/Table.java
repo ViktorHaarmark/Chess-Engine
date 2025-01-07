@@ -1,16 +1,15 @@
 package chess.engine.GUI;
 
 import chess.engine.Players.PlayerType;
-import chess.engine.Players.ai.MiniMax;
+import chess.engine.Players.ai.AlphaBeta;
 import chess.engine.Players.ai.MoveStrategy;
 import chess.engine.board.*;
 import chess.engine.pieces.Piece;
+import chess.pgn.PgnUtility;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
@@ -52,8 +51,8 @@ public class Table extends Observable {
 
         final JMenuBar tableMenuBar = createTableMenuBar();
         this.gameFrame.setJMenuBar(tableMenuBar);
-
         this.chessBoard = BoardSetup.createStandardBoard();
+        //this.chessBoard = FenUtility.createGameFromFEN("4k3/8/8/8/8/8/5n2/4K2R b K - 0 1");
         this.boardDirection = BoardDirection.NORMAL;
         this.showLegalMoves = true;
         this.computerMove = null;
@@ -136,6 +135,13 @@ public class Table extends Observable {
         final JMenuItem openPGN = new JMenuItem("Load PGN file");
         openPGN.addActionListener(e -> System.out.println("Open up that pgn file"));
         fileMenu.add(openPGN);
+
+        fileMenu.addSeparator();
+
+        final JMenuItem savePGN = new JMenuItem("Save PGN file");
+        savePGN.addActionListener(e -> System.out.println(PgnUtility.getPgnFromGameHistoryPanel(this.getGameHistoryPanel())));
+        fileMenu.add(savePGN);
+
         return fileMenu;
     }
 
@@ -168,10 +174,45 @@ public class Table extends Observable {
             Table.get().getGameSetup().promptUser();
             Table.get().setupUpdate(Table.get().getGameSetup());
         });
-
         optionsMenu.add(setupGameMenuItem);
 
+        optionsMenu.addSeparator();
+
+        final JMenuItem takebackMoveMenuItem = new JMenuItem("Takeback Move");
+        takebackMoveMenuItem.addActionListener(e -> {
+            if (this.moveLog.size() == 0) {
+                System.out.println("This is the starting board");
+                return;
+            }
+
+            Move lastMove = this.moveLog.removeMove(this.moveLog.size() - 1);
+            this.RedoMove(lastMove);
+
+        });
+
+        optionsMenu.add(takebackMoveMenuItem);
+
+        optionsMenu.addSeparator();
+
+        final JMenuItem NewGameMenuItem = new JMenuItem("New Game");
+        NewGameMenuItem.addActionListener(e -> {
+            while (this.moveLog.size() > 0) {
+                Move lastMove = this.moveLog.removeMove(this.moveLog.size() - 1);
+                this.RedoMove(lastMove);
+            }
+        });
+        optionsMenu.add(NewGameMenuItem);
+
         return optionsMenu;
+    }
+
+    private void RedoMove(Move lastMove) {
+        this.updateGameBoard(lastMove.getBoard());
+        this.getGameHistoryPanel().redo(this.chessBoard, this.getMoveLog());
+        this.getTakenPiecePanel().redo(this.getMoveLog());
+        this.getBoardPanel().drawBoard(this.chessBoard);
+        this.moveMadeUpdate();
+
     }
 
     private void setupUpdate(final GameSetup gameSetup) {
@@ -188,6 +229,7 @@ public class Table extends Observable {
                     !Table.get().chessBoard.currentPlayer().isInStaleMate()) {
                 final AIThinkTank thinkTank = new AIThinkTank();
                 thinkTank.execute();
+
             }
             if (Table.get().chessBoard.currentPlayer().isInCheckMate()) {
                 System.out.println("Game Over, " + Table.get().chessBoard.currentPlayer() + " is in checkmate!");
@@ -207,8 +249,8 @@ public class Table extends Observable {
 
         @Override
         protected Move doInBackground() throws Exception {
-            final MoveStrategy miniMax = new MiniMax(Table.get().getGameSetup().getSearchDepth());
-            final Move bestMove = miniMax.execute(Table.get().getGameBoard());
+            final MoveStrategy engine = new AlphaBeta(Table.get().getGameSetup().getSearchDepth());
+            final Move bestMove = engine.execute(Table.get().getGameBoard());
             return bestMove;
         }
 
@@ -217,11 +259,12 @@ public class Table extends Observable {
             try {
                 final Move bestMove = get();
                 Table.get().updateComputerMove(bestMove);
-                Table.get().updateGameBoard(Table.get().getGameBoard().currentPlayer().makeMove(bestMove).getToBoard());
+                Table.get().updateGameBoard(Table.get().getGameBoard().currentPlayer().makeMove(bestMove).toBoard());
                 Table.get().getMoveLog().addMove(bestMove);
                 Table.get().getGameHistoryPanel().redo(Table.get().getGameBoard(), Table.get().getMoveLog());
                 Table.get().getTakenPiecePanel().redo(Table.get().getMoveLog());
                 Table.get().getBoardPanel().drawBoard(Table.get().getGameBoard());
+                Table.get().moveMadeUpdate();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -262,6 +305,7 @@ public class Table extends Observable {
         private final List<Move> moves;
 
         MoveLog() {
+
             this.moves = new ArrayList<>();
         }
 
@@ -273,6 +317,7 @@ public class Table extends Observable {
             this.moves.add(move);
         }
 
+
         public int size() {
             return this.moves.size();
         }
@@ -281,13 +326,11 @@ public class Table extends Observable {
             this.moves.clear();
         }
 
-        public Move removeMove(int index) {
+        private Move removeMove(int index) {
             return this.moves.remove(index);
         }
 
-        public boolean removeMove(final Move move) {
-            return this.moves.remove(move);
-        }
+
     }
 
     class TilePanel extends JPanel {
@@ -322,8 +365,8 @@ public class Table extends Observable {
                             destinationTile = chessBoard.getTile(tileId);
                             final Move move = Move.MoveFactory.createMove(chessBoard, sourceTile.getTileCoordinate(), destinationTile.getTileCoordinate());
                             final MoveTransition transition = chessBoard.currentPlayer().makeMove(move);
-                            if (transition.getMoveStatus().isDone()) {
-                                chessBoard = transition.getToBoard();
+                            if (transition.moveStatus().isDone()) {
+                                chessBoard = transition.toBoard();
                                 moveLog.addMove(move);
                             }
                             sourceTile = null;

@@ -1,11 +1,5 @@
 package chess.engine.pieces;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import com.google.common.collect.ImmutableList;
-
 import chess.Color;
 import chess.engine.board.Board;
 import chess.engine.board.BoardUtils;
@@ -13,21 +7,27 @@ import chess.engine.board.Move;
 import chess.engine.board.Move.CaptureMove;
 import chess.engine.board.Move.MajorPieceMove;
 import chess.engine.board.Tile;
+import com.google.common.collect.ImmutableList;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static chess.engine.pieces.PieceType.BISHOP;
 
 public class Bishop extends Piece {
 
     private final static int[] DIRECTION = {-9, -7, 7, 9};
 
     public Bishop(final int piecePosition, final Color color, final boolean isFirstMove) {
-        super(piecePosition, color, PieceType.BISHOP, isFirstMove);
+        super(piecePosition, color, BISHOP, isFirstMove);
     }
 
     public Bishop(final int piecePosition, final Color color) {
-        super(piecePosition, color, PieceType.BISHOP, false);
+        super(piecePosition, color, BISHOP, false);
     }
 
     @Override
-    public Collection<Move> calculateLegalMoves(final Board board) {
+    public List<Move> calculateLegalMoves(final Board board) {
 
         int candidateDestinationCoordinate;
         final List<Move> legalMoves = new ArrayList<>();
@@ -55,7 +55,7 @@ public class Bishop extends Piece {
 
     @Override
     public String toString() {
-        return PieceType.BISHOP.toString();
+        return BISHOP.toString();
     }
 
     @Override

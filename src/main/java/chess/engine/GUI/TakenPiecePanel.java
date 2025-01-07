@@ -1,26 +1,19 @@
 package chess.engine.GUI;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridLayout;
+import chess.engine.GUI.Table.MoveLog;
+import chess.engine.board.Move;
+import chess.engine.pieces.Piece;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.border.EtchedBorder;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.border.EtchedBorder;
-
-import chess.engine.GUI.Table.MoveLog;
-import chess.engine.board.Move;
-import chess.engine.pieces.Piece;
 
 public class TakenPiecePanel extends JPanel {
 
@@ -83,8 +76,8 @@ public class TakenPiecePanel extends JPanel {
                 if (resourceStream == null) {
                     throw new IOException("Resource not found: " + fileString);
                 }
-                final BufferedImage image = ImageIO.read(resourceStream);
-                final ImageIcon icon = new ImageIcon(image);
+                //final BufferedImage image = ImageIO.read(resourceStream);
+                //final ImageIcon icon = new ImageIcon(image);
                 final JLabel imageLabel = new JLabel();
                 Panel.add(imageLabel);
                     /*int newWidth = 100;

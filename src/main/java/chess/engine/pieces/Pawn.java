@@ -6,10 +6,10 @@ import chess.engine.board.BoardUtils;
 import chess.engine.board.Move;
 import chess.engine.board.Move.*;
 
-import javax.swing.*;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+
+import static chess.engine.pieces.PieceType.PAWN;
 
 public class Pawn extends Piece {
 
@@ -18,15 +18,15 @@ public class Pawn extends Piece {
     private final String[] PromoList = {"Queen", "Rook", "Bishop", "Knight"};
 
     public Pawn(final int piecePosition, final Color color, final boolean isFirstMove) {
-        super(piecePosition, color, PieceType.PAWN, isFirstMove);
+        super(piecePosition, color, PAWN, isFirstMove);
     }
 
     public Pawn(final int piecePosition, final Color color) {
-        super(piecePosition, color, PieceType.PAWN, false);
+        super(piecePosition, color, PAWN, false);
     }
 
     @Override
-    public Collection<Move> calculateLegalMoves(final Board board) {
+    public List<Move> calculateLegalMoves(final Board board) {
         final List<Move> legalMoves = new ArrayList<>();
 
         for (final int direction : DIRECTION) {
@@ -75,47 +75,11 @@ public class Pawn extends Piece {
 
     @Override
     public String toString() {
-        return PieceType.PAWN.toString();
+        return PAWN.toString();
     }
 
     @Override
     public Pawn movePiece(Move move) {
         return new Pawn(move.getDestinationCoordinate(), move.getMovedPiece().getPieceColor(), false);
     }
-
-
-    public Piece getPromotionPiece2() {
-        // Options for promotion
-        String[] options = {"Queen", "Rook", "Bishop", "Knight"};
-
-        // Show dialog to the user
-        String choice = (String) JOptionPane.showInputDialog(
-                null,
-                "Choose a piece for promotion:",
-                "Pawn Promotion",
-                JOptionPane.PLAIN_MESSAGE,
-                null,
-                options,
-                "Queen" // Default selection
-        );
-
-        // Return the selected piece
-        if (choice != null) {
-            switch (choice) {
-                case "Queen":
-                    return new Queen(this.piecePosition, this.color, false);
-                case "Rook":
-                    return new Rook(this.piecePosition, this.color, false);
-                case "Bishop":
-                    return new Bishop(this.piecePosition, this.color, false);
-                case "Knight":
-                    return new Knight(this.piecePosition, this.color, false);
-            }
-        }
-
-        // Default to Queen if no valid choice is made
-        System.out.println("No valid choice made. Defaulting to Queen.");
-        return new Queen(this.piecePosition, this.color, false);
-    }
-
 }

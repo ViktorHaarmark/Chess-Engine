@@ -10,8 +10,9 @@ import chess.engine.board.Tile;
 import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+
+import static chess.engine.pieces.PieceType.KING;
 
 public class King extends Piece {
 
@@ -21,14 +22,14 @@ public class King extends Piece {
     private final boolean isCastled;
 
     public King(final int piecePosition, final Color color, final boolean isKingSideCastleCapable, final boolean isQueenSideCastleCapable) {
-        super(piecePosition, color, PieceType.KING, false);
+        super(piecePosition, color, KING, false);
         this.isKingSideCastleCapable = isKingSideCastleCapable;
         this.isQueenSideCastleCapable = isQueenSideCastleCapable;
         this.isCastled = false;
     }
 
     public King(final int piecePosition, final Color color, final boolean isCastled, final boolean isKingSideCastleCapable, final boolean isQueenSideCastleCapable) {
-        super(piecePosition, color, PieceType.KING, false);
+        super(piecePosition, color, KING, false);
         this.isKingSideCastleCapable = isKingSideCastleCapable;
         this.isQueenSideCastleCapable = isQueenSideCastleCapable;
         this.isCastled = isCastled;
@@ -44,7 +45,7 @@ public class King extends Piece {
 
 
     @Override
-    public Collection<Move> calculateLegalMoves(final Board board) {
+    public List<Move> calculateLegalMoves(final Board board) {
 
         int candidateDestinationCoordinate;
         final List<Move> legalMoves = new ArrayList<>();
@@ -75,7 +76,7 @@ public class King extends Piece {
 
     @Override
     public String toString() {
-        return PieceType.KING.toString();
+        return KING.toString();
     }
 
 

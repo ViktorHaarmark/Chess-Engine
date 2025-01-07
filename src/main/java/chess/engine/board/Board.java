@@ -15,16 +15,13 @@ import java.util.stream.Stream;
 public class Board {
 
     private final List<Tile> gameBoard;
-    private final Collection<Piece> whitePieces;
-    private final Collection<Piece> blackPieces;
-    private final Collection<Piece> allPieces;
+    private final List<Piece> whitePieces;
+    private final List<Piece> blackPieces;
+    private final List<Piece> allPieces;
 
     private final WhitePlayer whitePlayer;
-    private final boolean whiteKingSideCastle;
-    private final boolean whiteQueenSideCastle;
     private final BlackPlayer blackPlayer;
-    private final boolean blackKingSideCastle;
-    private final boolean blackQueenSideCastle;
+
     private final Player currentPlayer;
 
     private final Pawn enPassantPawn;
@@ -34,18 +31,16 @@ public class Board {
         this.gameBoard = createGameBoard(builder);
         this.whitePieces = calculateActivePieces(this.gameBoard, Color.WHITE);
         this.blackPieces = calculateActivePieces(this.gameBoard, Color.BLACK);
-        this.allPieces = calculateAllActivePieces(this.gameBoard);
+        this.allPieces = getAllActivePieces();
         this.enPassantPawn = builder.enPassantPawn;
 
-        final Collection<Move> whiteStandardLegalMoves = calculateLegalMoves(this.whitePieces);
-        final Collection<Move> blackStandardLegalMoves = calculateLegalMoves(this.blackPieces);
+        final List<Move> whiteStandardPossibleMoves = calculatePossibleMoves(this.whitePieces);
+        final List<Move> blackStandardPossibleMoves = calculatePossibleMoves(this.blackPieces);
 
-        this.whitePlayer = new WhitePlayer(this, whiteStandardLegalMoves, blackStandardLegalMoves);
-        this.whiteKingSideCastle = builder.whiteKingSideCastle;
-        this.whiteQueenSideCastle = builder.whiteQueenSideCastle;
-        this.blackPlayer = new BlackPlayer(this, whiteStandardLegalMoves, blackStandardLegalMoves);
-        this.blackKingSideCastle = builder.blackKingSideCastle;
-        this.blackQueenSideCastle = builder.blackQueenSideCastle;
+        this.whitePlayer = new WhitePlayer(this, whiteStandardPossibleMoves, blackStandardPossibleMoves);
+
+        this.blackPlayer = new BlackPlayer(this, whiteStandardPossibleMoves, blackStandardPossibleMoves);
+
 
         this.currentPlayer = builder.nextPlayer.choosePlayer(this.whitePlayer, this.blackPlayer);
     }
@@ -75,15 +70,15 @@ public class Board {
         return this.currentPlayer;
     }
 
-    public Collection<Piece> getBlackPieces() {
+    public List<Piece> getBlackPieces() {
         return this.blackPieces;
     }
 
-    public Collection<Piece> getWhitePieces() {
+    public List<Piece> getWhitePieces() {
         return this.whitePieces;
     }
 
-    public Collection<Piece> getAllPieces() {
+    public List<Piece> getAllPieces() {
         return this.allPieces;
     }
 
@@ -98,7 +93,7 @@ public class Board {
         return this.getTile(coordinate).getPiece();
     }
 
-    public Collection<Move> calculateLegalMoves(Collection<Piece> pieceList) {
+    public List<Move> calculatePossibleMoves(List<Piece> pieceList) {
         final List<Move> legalMoves = new ArrayList<>();
         for (final Piece piece : pieceList) {
             legalMoves.addAll(piece.calculateLegalMoves(this));
@@ -106,7 +101,7 @@ public class Board {
         return ImmutableList.copyOf(legalMoves);
     }
 
-    private static Collection<Piece> calculateActivePieces(final List<Tile> gameBoard, final Color color) {
+    private static List<Piece> calculateActivePieces(final List<Tile> gameBoard, final Color color) {
         final List<Piece> activePieces = new ArrayList<>();
         for (final Tile tile : gameBoard) {
             if (tile.isTileOccupied()) {
@@ -119,7 +114,14 @@ public class Board {
         return ImmutableList.copyOf(activePieces);
     }
 
-    private static Collection<Piece> calculateAllActivePieces(final List<Tile> gameBoard) {
+    private List<Piece> getAllActivePieces() {
+        final List<Piece> activePieces = new ArrayList<>();
+        activePieces.addAll(this.whitePieces);
+        activePieces.addAll(this.blackPieces);
+        return ImmutableList.copyOf(activePieces);
+    }
+
+    private static List<Piece> calculateAllActivePieces(final List<Tile> gameBoard) {
         final List<Piece> activePieces = new ArrayList<>();
         for (final Tile tile : gameBoard) {
             if (tile.isTileOccupied()) {
@@ -161,9 +163,8 @@ public class Board {
             return this;
         }
 
-        public Builder setMoveMaker(final Color nextMovemaker) {
+        public void setMoveMaker(final Color nextMovemaker) {
             this.nextPlayer = nextMovemaker;
-            return this;
         }
 
         public Board build() {

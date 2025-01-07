@@ -1,11 +1,5 @@
 package chess.engine.Players;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import com.google.common.collect.ImmutableList;
-
 import chess.Color;
 import chess.engine.board.Board;
 import chess.engine.board.Move;
@@ -15,16 +9,19 @@ import chess.engine.board.Tile;
 import chess.engine.pieces.Piece;
 import chess.engine.pieces.Rook;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class BlackPlayer extends Player {
 
     public BlackPlayer(final Board board,
-                       final Collection<Move> whiteStandardLegalMoves,
-                       final Collection<Move> blackStandardLegalMoves) {
+                       final List<Move> whiteStandardLegalMoves,
+                       final List<Move> blackStandardLegalMoves) {
         super(board, blackStandardLegalMoves, whiteStandardLegalMoves);
     }
 
     @Override
-    public Collection<Piece> getActivePieces() {
+    public List<Piece> getActivePieces() {
         return this.board.getBlackPieces();
     }
 
@@ -44,8 +41,8 @@ public class BlackPlayer extends Player {
     }
 
     @Override
-    protected Collection<Move> calculateKingCastlingCollection(final Collection<Move> playerLegals,
-                                                               final Collection<Move> opponentsLegals) {
+    protected List<Move> calculateKingCastlingCollection(final List<Move> playerLegals,
+                                                               final List<Move> opponentsLegals) {
 
         final List<Move> castlingMoves = new ArrayList<>();
 
@@ -89,7 +86,7 @@ public class BlackPlayer extends Player {
 
         }
 
-        return ImmutableList.copyOf(castlingMoves);
+        return castlingMoves;
     }
 
 
