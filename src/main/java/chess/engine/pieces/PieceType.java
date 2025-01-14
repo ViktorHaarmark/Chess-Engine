@@ -3,16 +3,37 @@ package chess.engine.pieces;
 
 public enum PieceType {
 
-    PAWN("P", 100),
-    KNIGHT("N", 300),
-    BISHOP("B", 300),
+    PAWN("P", 100) {
+        @Override
+        public boolean isPawn() {
+            return true;
+        }
+    },
+    KNIGHT("N", 300) {
+        @Override
+        public boolean isKnight() {
+            return true;
+        }
+    },
+    BISHOP("B", 300) {
+        @Override
+        public boolean isBishop() {
+            return true;
+        }
+    },
     ROOK("R", 500) {
         @Override
         public boolean isRook() {
             return true;
         }
     },
-    QUEEN("Q", 900),
+    QUEEN("Q", 900) {
+        @Override
+        public boolean isQueen() {
+            return true;
+        }
+    }
+    ,
     KING("K", 100000) {
         @Override
         public boolean isKing() {
@@ -43,6 +64,22 @@ public enum PieceType {
     }
 
     public boolean isRook() {
+        return false;
+    }
+
+    public boolean isKnight() {
+        return false;
+    }
+
+    public boolean isBishop() {
+        return false;
+    }
+
+    public boolean isQueen() {
+        return false;
+    }
+
+    public boolean isPawn() {
         return false;
     }
 

@@ -21,7 +21,7 @@ public final class StandardBoardEvaluator implements BoardEvaluator {
                             Player player,
                             int depth) {
         return pieceValue(player)
-                + mobility(player)
+                + mobility(board)
                 + check(player)
                 + checkmate(player, depth)
                 + castled(player);
@@ -37,8 +37,8 @@ public final class StandardBoardEvaluator implements BoardEvaluator {
         return pieceValueScore;
     }
 
-    private static int mobility(final Player player) {
-        return player.getLegalMoves().size();
+    private static int mobility(final Board board) {
+        return board.getLegalMoves().size();
     }
 
     private static int check(final Player player) {

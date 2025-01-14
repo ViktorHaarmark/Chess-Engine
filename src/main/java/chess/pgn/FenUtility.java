@@ -77,6 +77,7 @@ public class FenUtility { //TODO: When rook moves, remove castling rights
         if (board.blackPlayer().isQueenSideCastleCapable()) {
             builder.append("q");
         }
+        //TODO: implement this correctly
 
         final String result = builder.toString();
         return result.isEmpty() ? "-" : result;
@@ -85,7 +86,8 @@ public class FenUtility { //TODO: When rook moves, remove castling rights
     private static String calculateEnPassantSquare(final Board board) {
         final Player player = board.currentPlayer();
         if (board.getEnPassantPawn() != null) {
-            return BoardUtils.getPositionAtCoordinate(board.getEnPassantPawn().getPiecePosition() - (8 * board.getEnPassantPawn().getPieceColor().getDirection()));
+            Pawn enPassantPawn = board.getEnPassantPawn();
+            return BoardUtils.getPositionAtCoordinate(enPassantPawn.getPiecePosition() - (8 * enPassantPawn.getPieceColor().getDirection()));
         }
 
         return "-";
@@ -103,6 +105,7 @@ public class FenUtility { //TODO: When rook moves, remove castling rights
         final boolean whiteQueenSideCastle = whiteQueenSideCastle(fenPartitions[2]);
         final boolean blackKingSideCastle = blackKingSideCastle(fenPartitions[2]);
         final boolean blackQueenSideCastle = blackQueenSideCastle(fenPartitions[2]);
+        builder.setCastlingRights(whiteKingSideCastle, whiteQueenSideCastle, blackKingSideCastle, blackQueenSideCastle);
         final String gameConfiguration = fenPartitions[0];
         final char[] boardTiles = gameConfiguration.replaceAll("/", "")
                 .replaceAll("8", "--------")

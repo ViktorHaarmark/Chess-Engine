@@ -48,7 +48,7 @@ public abstract class Piece {
         return cachedHashCode;
     }
 
-    public abstract List<Move> calculateLegalMoves(final Board board);
+    public abstract List<Move> calculatePossibleMoves(final Board board);
 
     public abstract Piece movePiece(Move move);
 
@@ -56,12 +56,12 @@ public abstract class Piece {
         return this.color;
     }
 
-    protected boolean isBishopMove(int tileCoordinate) {
-        return BoardUtils.rowDifference(tileCoordinate, this.piecePosition) == BoardUtils.columnDifference(tileCoordinate, this.piecePosition);
+    public static boolean isValidBishopMove(int startingPosition, int targetPosition) {
+        return BoardUtils.isValidTileCoordinate(targetPosition) && (BoardUtils.rowDifference(startingPosition, targetPosition) == BoardUtils.columnDifference(startingPosition, targetPosition));
     }
 
-    protected boolean isRookMove(int tileCoordinate) {
-        return (BoardUtils.rowDifference(tileCoordinate, this.piecePosition) == 0 || BoardUtils.columnDifference(tileCoordinate, this.piecePosition) == 0);
+    public static boolean isValidRookMove(int startingPosition, int targetPosition) {
+        return BoardUtils.isValidTileCoordinate(targetPosition) && (BoardUtils.rowDifference(startingPosition, targetPosition) == 0 || BoardUtils.columnDifference(startingPosition, targetPosition) == 0);
     }
 
     public int getPiecePosition() {
@@ -80,11 +80,11 @@ public abstract class Piece {
         return this.getPieceType().getPieceValue();
     }
 
-    protected boolean isRookDirection(int direction) {
+    public static boolean isRookDirection(int direction) {
         return direction == -8 || direction == -1 || direction == 1 || direction == 8;
     }
 
-    protected boolean isBishopDirection(int direction) {
+    public static boolean isBishopDirection(int direction) {
         return direction == -9 || direction == -7 || direction == 7 || direction == 9;
     }
 

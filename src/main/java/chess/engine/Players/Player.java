@@ -2,69 +2,122 @@ package chess.engine.Players;
 
 import chess.Color;
 import chess.engine.board.Board;
+import chess.engine.board.BoardUtils;
 import chess.engine.board.Move;
-import chess.engine.board.MoveStatus;
-import chess.engine.board.MoveTransition;
+import chess.engine.board.Tile;
 import chess.engine.pieces.King;
 import chess.engine.pieces.Piece;
-import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static chess.engine.pieces.Knight.isValidKnightMove;
+import static chess.engine.pieces.Piece.*;
+
 public abstract class Player {
+    int[] pawnThreat;
 
-    protected final Board board;
-    protected final King playerKing;
-    protected final List<Move> legalMoves;
-    private final boolean isInCheck;
+    public Board board;
+    public King playerKing;
+    public boolean isInCheck;
 
 
-    Player(final Board board,
-           final List<Move> possibleMoves,
-           final List<Move> opponentMoves) {
+    Player(final Board board) {
         this.board = board;
-        this.playerKing = establishKing();
-        this.isInCheck = !calculateAttacksOnTile(this.playerKing.getPiecePosition(), opponentMoves).isEmpty();
-        this.legalMoves = Stream.concat(
-                possibleMoves.stream(),
-                calculateKingCastlingCollection(possibleMoves, opponentMoves).stream()
-        ).toList();
-    }
-
-    protected static List<Move> calculateAttacksOnTile(int tileCoordinate, List<Move> moves) {
-        final List<Move> attackMoves = new ArrayList<>();
-
-        for (final Move move : moves) {
-            if (tileCoordinate == move.getDestinationCoordinate()) {
-                attackMoves.add(move);
-            }
-        }
-        return ImmutableList.copyOf(attackMoves);
+        this.setPlayerKing( establishKing());
+        this.isInCheck = false;
     }
 
     public King getPlayerKing() {
         return this.playerKing;
     }
 
-    public List<Move> getLegalMoves() {
-        return this.legalMoves;
+    public void setPlayerKing(King king) {
+        this.playerKing = king;
+    }
+
+    public boolean calculateAttackOnSquare(int targetSquare) {
+        Color opponentColor = this.getOpponent().getColor();
+        int[] knightMoves = {-17, -15, -10, -6, 6, 10, 15, 17};
+        for (int knightMove : knightMoves) {
+            if (isValidKnightMove(knightMove, targetSquare + knightMove)) {
+                Tile tile = board.getTile(targetSquare + knightMove);
+                if (tile.isTileOccupied()) {
+                    if (tile.getPiece().getPieceColor() == opponentColor && tile.getPiece().getPieceType().isKnight()) {
+                        return true;
+                    }
+                }
+            }
+        }
+        int[] rookMoves = {1, -1, 8, -8};
+        for (int rookMove : rookMoves) {
+            for (int i = 1; i < 8; i++) {
+                int targetCoordinate = targetSquare + i * rookMove;
+                if (isValidRookMove(targetSquare, targetCoordinate)) {
+                    Tile tile = board.getTile(targetCoordinate);
+                    if (tile.isTileOccupied()) {
+                        if (tile.getPiece().getPieceColor() == opponentColor && (tile.getPiece().getPieceType().isRook() || tile.getPiece().getPieceType().isQueen())) {
+                            return true;
+                        } else {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        int[] bishopMoves = {9, 7, -7, -9};
+        for (int bishopMove : bishopMoves) {
+            for (int i = 1; i < 8; i++) {
+                int targetCoordinate = targetSquare + i * bishopMove;
+                if (isValidBishopMove(targetSquare, targetCoordinate)) {
+                    Tile tile = board.getTile(targetCoordinate);
+                    if (tile.isTileOccupied()) {
+                        if (tile.getPiece().getPieceColor() == opponentColor && (tile.getPiece().getPieceType().isBishop() || tile.getPiece().getPieceType().isQueen())) {
+                            return true;
+                        } else {
+                            break;
+                        }
+                        //if (i == 1 && this.pawnThreat.contains(bishopMove)) TODO: add pawn check here
+                    }
+                }
+            }
+        }
+        int[] kingMoves = {1, -1, 8, -8, 9, 7, -7, -9};
+        for (int kingMove : kingMoves) {
+            int targetCoordinate = targetSquare + kingMove;
+            if (BoardUtils.isValidTileCoordinate(targetCoordinate) && BoardUtils.rowDifference(targetCoordinate, targetSquare) + BoardUtils.columnDifference(targetCoordinate, targetSquare) <= 2) {
+                Tile tile = board.getTile(targetCoordinate);
+                if (tile.isTileOccupied()) {
+                    if (tile.getPiece().getPieceColor() != this.playerKing.getPieceColor() && tile.getPiece().getPieceType().isKing()) {
+                        return true;
+                    }
+                }
+            }
+        }
+        for (int pawnAttacks : this.pawnThreat) {
+            int targetCoordinate = targetSquare + pawnAttacks;
+            if (BoardUtils.isValidTileCoordinate(targetCoordinate)) {
+                Tile tile = board.getTile(targetCoordinate);
+                if (tile.isTileOccupied()) {
+                    if (tile.getPiece().getPieceColor() != this.playerKing.getPieceColor() && tile.getPiece().getPieceType().isPawn()) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
 
-    private King establishKing() {
+    public King establishKing() {
 
         for (final Piece piece : getActivePieces()) {
-            if (piece.getPieceType().isKing()) {
+            if (piece.getPieceType().isKing() && piece.getPieceColor() == this.getColor()) {
                 return (King) piece;
             }
         }
         throw new RuntimeException("Should not reach here! No king on this board");
-    }
-
-    public boolean isMoveLegal(final Move move) {
-        return this.legalMoves.contains(move);
     }
 
     public boolean isInCheck() {
@@ -80,43 +133,29 @@ public abstract class Player {
     }
 
     public boolean isKingSideCastleCapable() {
-        return this.playerKing.isKingSideCastleCapable();
-    }
+        if (this.getColor().isWhite()) {
+            return !this.board.getWhiteKingsideCastlingRight().contains(false);
+        } else if (this.getColor().isBlack()) {
+            return !this.board.getBlackKingsideCastlingRight().contains(false);
+        }
+        return true;
+    };
 
     public boolean isQueenSideCastleCapable() {
-        return this.playerKing.isQueenSideCastleCapable();
-    }
-
-    protected boolean hasNoLegalMove() {
-        for (final Move move : this.legalMoves) {
-            final MoveTransition transition = makeMove(move);
-            if (transition.moveStatus().isDone()) {
-                return false;
-            }
+        if (this.getColor().isWhite()) {
+            return !this.board.getWhiteQueensideCastlingRight().contains(false);
+        } else if (this.getColor().isBlack()) {
+            return !this.board.getBlackQueensideCastlingRight().contains(false);
         }
         return true;
     }
 
-    public boolean isCastled() {
-        return false;
+    protected boolean hasNoLegalMove() {
+        return board.getLegalMoves().isEmpty();
     }
 
-    public MoveTransition makeMove(final Move move) {
-
-        if (!isMoveLegal(move)) {
-            return new MoveTransition(this.board, this.board, move, MoveStatus.ILLEGAL_MOVE);
-        }
-
-        final Board boardAfterMove = move.execute();
-
-        final List<Move> kingAttacks = Player.calculateAttacksOnTile(boardAfterMove.currentPlayer().getOpponent().getPlayerKing().getPiecePosition(),
-                boardAfterMove.currentPlayer().getLegalMoves());
-
-        if (!kingAttacks.isEmpty()) {
-            return new MoveTransition(this.board, this.board, move, MoveStatus.LEAVES_PLAYER_IN_CHECK);
-        }
-
-        return new MoveTransition(this.board, boardAfterMove, move, MoveStatus.DONE);
+    public boolean isCastled() {
+        return false;
     }
 
     public abstract List<Piece> getActivePieces();
@@ -125,5 +164,5 @@ public abstract class Player {
 
     public abstract Player getOpponent();
 
-    protected abstract List<Move> calculateKingCastlingCollection(List<Move> playerLegals, List<Move> opponentsLegals);
+    public abstract List<Move> calculateCastlingMoves(List<Move> opponentsLegals);
 }

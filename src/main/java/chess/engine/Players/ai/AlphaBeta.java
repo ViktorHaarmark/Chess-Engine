@@ -3,7 +3,6 @@ package chess.engine.Players.ai;
 import chess.engine.board.Board;
 import chess.engine.board.BoardUtils;
 import chess.engine.board.Move;
-import chess.engine.board.MoveTransition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,13 +30,13 @@ public class AlphaBeta implements MoveStrategy {
 
         System.out.println(board.currentPlayer() + "THINKING with alphaBeta search and depth = " + searchDepth);
 
-        for (final Move move : board.currentPlayer().getLegalMoves()) {
-
-            final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
-            if (moveTransition.moveStatus().isDone()) {
+        for (final Move move : board.getLegalMoves()) {
+            if (move.getMoveStatus().isDone()) {//Can probably delete, all moves should be legal anyway
+                board.execute(move);
                 currentValue = board.currentPlayer().getColor().isWhite() ?
-                        alphaBetaSearch(moveTransition.toBoard(), searchDepth-1, Integer.MIN_VALUE, Integer.MAX_VALUE, false) :
-                        alphaBetaSearch(moveTransition.toBoard(), searchDepth-1, Integer.MAX_VALUE, Integer.MAX_VALUE, true);
+                        alphaBetaSearch(board, searchDepth-1, -100000, 100000, false) :
+                        alphaBetaSearch(board, searchDepth-1, -100000, 100000, true);
+                board.takeback(move);
 
                 if (board.currentPlayer().getColor().isWhite() && currentValue >= highestSeenValue) {
                     highestSeenValue = currentValue;
@@ -61,12 +60,13 @@ public class AlphaBeta implements MoveStrategy {
         }
         if (!maximizingPlayer) {
             int lowestSeenValue = Integer.MAX_VALUE;
-            List<Move> legalMoves = new ArrayList<>(board.currentPlayer().getLegalMoves());
-            //legalMoves.sort(new MoveSorter());
+            List<Move> legalMoves = new ArrayList<>(board.getLegalMoves());
+            legalMoves.sort(new MoveSorter());
             for (final Move move : legalMoves) {
-                final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
-                if (moveTransition.moveStatus().isDone()) {
-                    final int currentValue = alphaBetaSearch(moveTransition.toBoard(), depth - 1, alpha, beta, true);
+                if (move.getMoveStatus().isDone()) {
+                    board.execute(move);
+                    final int currentValue = alphaBetaSearch(board, depth - 1, alpha, beta, true);
+                    board.takeback(move);
                     lowestSeenValue = Math.min(lowestSeenValue, currentValue);
                     beta = Math.min(beta, currentValue);
                     if (beta <= alpha) {
@@ -78,10 +78,10 @@ public class AlphaBeta implements MoveStrategy {
         }
         else {
             int highestSeenValue = Integer.MIN_VALUE;
-            for (final Move move : board.currentPlayer().getLegalMoves()) {
-                final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
-                if (moveTransition.moveStatus().isDone()) {
-                    final int currentValue = alphaBetaSearch(moveTransition.toBoard(), depth - 1, alpha, beta, false );
+            for (final Move move : board.getLegalMoves()) {
+                if (move.getMoveStatus().isDone()) {
+                    final int currentValue = alphaBetaSearch(board, depth - 1, alpha, beta, false );
+                    board.takeback(move);
                     highestSeenValue = Math.max(highestSeenValue, currentValue);
                     alpha = Math.max(alpha, currentValue);
                     if (beta <= alpha) {

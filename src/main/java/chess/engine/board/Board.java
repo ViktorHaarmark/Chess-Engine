@@ -7,42 +7,80 @@ import chess.engine.Players.WhitePlayer;
 import chess.engine.pieces.Pawn;
 import chess.engine.pieces.Piece;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableList;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 public class Board {
 
-    private final List<Tile> gameBoard;
-    private final List<Piece> whitePieces;
-    private final List<Piece> blackPieces;
-    private final List<Piece> allPieces;
+    List<Tile> gameBoard;
+    List<Piece> whitePieces;
+    List<Piece> blackPieces;
 
     private final WhitePlayer whitePlayer;
     private final BlackPlayer blackPlayer;
+    public List<Move> whiteMoves = null;
+    public List<Move> blackMoves = null;
 
-    private final Player currentPlayer;
+    private Player currentPlayer;
 
-    private final Pawn enPassantPawn;
+    List<Pawn> enPassantPawnList;
+    List<Boolean> whiteKingsideCastlingRight = new ArrayList<>();
+    List<Boolean> whiteQueensideCastlingRight = new ArrayList<>();
+    List<Boolean> blackKingsideCastlingRight = new ArrayList<>();
+    List<Boolean> blackQueensideCastlingRight = new ArrayList<>();
 
     @VisibleForTesting
     private Board(Builder builder) {
         this.gameBoard = createGameBoard(builder);
         this.whitePieces = calculateActivePieces(this.gameBoard, Color.WHITE);
         this.blackPieces = calculateActivePieces(this.gameBoard, Color.BLACK);
-        this.allPieces = getAllActivePieces();
-        this.enPassantPawn = builder.enPassantPawn;
+        this.enPassantPawnList = builder.enPassantPawnList;
 
-        final List<Move> whiteStandardPossibleMoves = calculatePossibleMoves(this.whitePieces);
-        final List<Move> blackStandardPossibleMoves = calculatePossibleMoves(this.blackPieces);
-
-        this.whitePlayer = new WhitePlayer(this, whiteStandardPossibleMoves, blackStandardPossibleMoves);
-
-        this.blackPlayer = new BlackPlayer(this, whiteStandardPossibleMoves, blackStandardPossibleMoves);
-
-
+        this.whitePlayer = new WhitePlayer(this);
+        this.blackPlayer = new BlackPlayer(this);
         this.currentPlayer = builder.nextPlayer.choosePlayer(this.whitePlayer, this.blackPlayer);
+        this.whiteKingsideCastlingRight.add(builder.whiteKingSideCastle);
+        this.whiteQueensideCastlingRight.add(builder.whiteQueenSideCastle);
+        this.blackKingsideCastlingRight.add(builder.blackKingSideCastle);
+        this.blackQueensideCastlingRight.add(builder.blackQueenSideCastle);
+
+        this.whiteMoves = calculateLegalMoves(Color.WHITE);
+        this.blackMoves = calculateLegalMoves(Color.BLACK);
+        blackMoves.addAll(blackPlayer.calculateCastlingMoves(whiteMoves));
+        whiteMoves.addAll(whitePlayer.calculateCastlingMoves(blackMoves));
+    }
+
+    public List<Boolean> getWhiteKingsideCastlingRight() {
+        return this.whiteKingsideCastlingRight;
+    }
+
+    public List<Boolean> getWhiteQueensideCastlingRight() {
+        return this.whiteQueensideCastlingRight;
+    }
+
+    public List<Boolean> getBlackKingsideCastlingRight() {
+        return this.blackKingsideCastlingRight;
+    }
+
+    public List<Boolean> getBlackQueensideCastlingRight() {
+        return this.blackQueensideCastlingRight;
+    }
+
+    private List<Move> calculateLegalMoves(Color color) {
+        List<Piece> pieces = new ArrayList<>();
+        if (color.isWhite()) {
+            pieces.addAll(this.whitePieces);
+        } else {
+            pieces.addAll(this.blackPieces);
+        }
+        final List<Move> legalMoves = new ArrayList<>();
+        for (final Piece piece : pieces) {
+            List<Move> pieceMoves = piece.calculatePossibleMoves(this);
+            if (pieceMoves != null) {
+                legalMoves.addAll(pieceMoves);
+            }
+        }
+        return legalMoves;
     }
 
     @Override
@@ -51,18 +89,59 @@ public class Board {
         for (int i = 0; i < BoardUtils.NUM_TILES; i++) {
             final String tileText = this.gameBoard.get(i).toString();
             builder.append(String.format("%3s", tileText));
-            if((i+1) % BoardUtils.ROW_LENGTH == 0) {
+            if ((i + 1) % BoardUtils.ROW_LENGTH == 0) {
                 builder.append("\n");
             }
         }
         return builder.toString();
     }
 
-    public Player blackPlayer() {
+    public void execute(Move move) {
+        updatePieceListsAndGameState(move);
+        updatePlayers(false);
+        changeCurrentPlayer();
+        updateLegalMoves();
+    }
+
+    public void takeback(Move move) {
+        takebackPieceListsAndGameState(move);
+        updatePlayers(true);
+        changeCurrentPlayer();
+        updateLegalMoves();
+    }
+
+    private void updatePlayers(Boolean takeback) {
+        whitePlayer.setPlayerKing(whitePlayer.establishKing());
+        blackPlayer.setPlayerKing(blackPlayer.establishKing());//TODO: remove probably
+        whitePlayer.isInCheck = whitePlayer.calculateAttackOnSquare(this.whitePlayer.playerKing.getPiecePosition());
+        blackPlayer.isInCheck = blackPlayer.calculateAttackOnSquare(this.blackPlayer.playerKing.getPiecePosition());
+    }
+
+    private void updateLegalMoves() {
+        whiteMoves = calculateLegalMoves(Color.WHITE);
+        whiteMoves.addAll(whitePlayer.calculateCastlingMoves(blackMoves));
+        blackMoves = calculateLegalMoves(Color.BLACK);
+        blackMoves.addAll(blackPlayer.calculateCastlingMoves(whiteMoves));
+    }
+
+    private void changeCurrentPlayer() {
+        this.currentPlayer = currentPlayer().getOpponent();
+    }
+
+    public void updatePieceListsAndGameState(Move move) {
+        move.updatePieceList();
+    }
+
+    public void takebackPieceListsAndGameState(Move move) {
+        move.undoMove();
+    }
+
+
+    public BlackPlayer blackPlayer() {
         return this.blackPlayer;
     }
 
-    public Player whitePlayer() {
+    public WhitePlayer whitePlayer() {
         return this.whitePlayer;
     }
 
@@ -79,11 +158,17 @@ public class Board {
     }
 
     public List<Piece> getAllPieces() {
-        return this.allPieces;
+        final List<Piece> allPieces = new ArrayList<>();
+        allPieces.addAll(getWhitePieces());
+        allPieces.addAll(getBlackPieces());
+        return allPieces;
     }
 
     public Pawn getEnPassantPawn() {
-        return this.enPassantPawn;
+        if (this.enPassantPawnList.isEmpty()) {
+            return null;
+        }
+        return this.enPassantPawnList.get(enPassantPawnList.size() - 1);
     }
 
     public Piece getPiece(final int coordinate) {
@@ -93,12 +178,20 @@ public class Board {
         return this.getTile(coordinate).getPiece();
     }
 
-    public List<Move> calculatePossibleMoves(List<Piece> pieceList) {
-        final List<Move> legalMoves = new ArrayList<>();
-        for (final Piece piece : pieceList) {
-            legalMoves.addAll(piece.calculateLegalMoves(this));
+    public List<Move> getLegalMoves() {
+        if (this.currentPlayer.getColor().isWhite()) {
+            return this.whiteMoves;
+        } else {
+            return this.blackMoves;
         }
-        return ImmutableList.copyOf(legalMoves);
+    }
+
+    public List<Move> getOpponentLegalMoves() {
+        if (this.currentPlayer.getColor().isWhite()) {
+            return this.blackMoves;
+        } else {
+            return this.whiteMoves;
+        }
     }
 
     private static List<Piece> calculateActivePieces(final List<Tile> gameBoard, final Color color) {
@@ -111,43 +204,35 @@ public class Board {
                 }
             }
         }
-        return ImmutableList.copyOf(activePieces);
+        return activePieces;
     }
 
-    private List<Piece> getAllActivePieces() {
-        final List<Piece> activePieces = new ArrayList<>();
-        activePieces.addAll(this.whitePieces);
-        activePieces.addAll(this.blackPieces);
-        return ImmutableList.copyOf(activePieces);
-    }
-
-    private static List<Piece> calculateAllActivePieces(final List<Tile> gameBoard) {
-        final List<Piece> activePieces = new ArrayList<>();
-        for (final Tile tile : gameBoard) {
-            if (tile.isTileOccupied()) {
-                activePieces.add(tile.getPiece());
-            }
-        }
-        return ImmutableList.copyOf(activePieces);
+    public List<Move> getAllMoves() {
+        final List<Move> allMoves = new ArrayList<>();
+        allMoves.addAll(this.whiteMoves);
+        allMoves.addAll(this.blackMoves);
+        return allMoves;
     }
 
     public Tile getTile(int tileCoordinate) {
         return gameBoard.get(tileCoordinate);
     }
 
+
     private static List<Tile> createGameBoard(final Builder builder) {
-        final Tile[] tiles = new Tile[BoardUtils.NUM_TILES];
-        for(int i = 0; i < BoardUtils.NUM_TILES; i++) {
+        Tile[] tiles = new Tile[BoardUtils.NUM_TILES];
+        for (int i = 0; i < BoardUtils.NUM_TILES; i++) {
             tiles[i] = Tile.createTile(i, builder.boardConfig.get(i));
         }
-        return ImmutableList.copyOf(tiles); 
+        return new ArrayList<>(List.of(tiles));
     }
-    
+
+
     public static class Builder {
 
         Map<Integer, Piece> boardConfig;
         Color nextPlayer;
-        Pawn enPassantPawn;
+        List<Pawn> enPassantPawnList = new ArrayList<>();
         boolean whiteKingSideCastle;
         boolean whiteQueenSideCastle;
         boolean blackKingSideCastle;
@@ -171,9 +256,11 @@ public class Board {
             return new Board(this);
         }
 
-		public void setEnPassant(Pawn enPassantPawn) {
-			this.enPassantPawn = enPassantPawn;
-		}
+        public void setEnPassant(Pawn enPassantPawn) {
+            this.enPassantPawnList = new ArrayList<>();
+            enPassantPawnList.add(enPassantPawn);
+
+        }
 
         public void setCastlingRights(boolean whiteKingSideCastle, boolean whiteQueenSideCastle, boolean blackKingSideCastle, boolean blackQueenSideCastle) {
             this.whiteKingSideCastle = whiteKingSideCastle;
@@ -185,15 +272,6 @@ public class Board {
 
     }
 
-    public Iterable<Move> getAllLegalMoves() {
-
-    Stream<Move> combinedStream = Stream.concat(
-            this.whitePlayer.getLegalMoves().stream(),
-            this.blackPlayer.getLegalMoves().stream()
-    );
-    
-    return combinedStream.toList();
-}
-
 
 }
+

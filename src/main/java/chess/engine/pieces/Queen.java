@@ -1,17 +1,12 @@
 package chess.engine.pieces;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.google.common.collect.ImmutableList;
-
 import chess.Color;
-import chess.engine.board.Board;
-import chess.engine.board.BoardUtils;
-import chess.engine.board.Move;
+import chess.engine.board.*;
 import chess.engine.board.Move.CaptureMove;
 import chess.engine.board.Move.MajorPieceMove;
-import chess.engine.board.Tile;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static chess.engine.pieces.PieceType.QUEEN;
 
@@ -27,7 +22,7 @@ public class Queen extends Piece {
     }
 
     @Override
-    public List<Move> calculateLegalMoves(final Board board) {
+    public List<Move> calculatePossibleMoves(final Board board) {
 
         int candidateDestinationCoordinate;
         final List<Move> legalMoves = new ArrayList<>();
@@ -36,28 +31,31 @@ public class Queen extends Piece {
 
             for (int i = 1; i < 8; i++) {
                 candidateDestinationCoordinate = this.piecePosition + i * direction;
-                if (!BoardUtils.isValidTileCoordinate(candidateDestinationCoordinate)) {
+                if (isRookDirection(direction) && !isValidRookMove(this.piecePosition, candidateDestinationCoordinate)) {
                     break;
                 }
-                if (isRookDirection(direction) && !isRookMove(candidateDestinationCoordinate)) {
-                    break;
-                }
-                if (isBishopDirection(direction) && !isBishopMove(candidateDestinationCoordinate)) {
+                if (isBishopDirection(direction) && !isValidBishopMove(this.piecePosition, candidateDestinationCoordinate)) {
                     break;
                 }
                 final Tile candidateDestinationTile = board.getTile(candidateDestinationCoordinate);
                 if (!candidateDestinationTile.isTileOccupied()) {
-                    legalMoves.add(new MajorPieceMove(board, this, candidateDestinationCoordinate));
+                    Move move = new MajorPieceMove(board, this, candidateDestinationCoordinate);
+                    if (move.getMoveStatus() == MoveStatus.DONE) {
+                        legalMoves.add(move);
+                    }
                 } else {
                     final Piece pieceOnDestination = candidateDestinationTile.getPiece();
                     if (pieceOnDestination.getPieceColor() != this.color) {
-                        legalMoves.add(new CaptureMove(board, this, pieceOnDestination, candidateDestinationCoordinate));
+                        Move move = new CaptureMove(board, this, pieceOnDestination, candidateDestinationCoordinate);
+                        if (move.getMoveStatus() == MoveStatus.DONE) {
+                            legalMoves.add(move);
+                        }
                     }
                     break;
                 }
             }
         }
-        return ImmutableList.copyOf(legalMoves);
+        return legalMoves;
     }
 
     @Override

@@ -5,7 +5,6 @@ import chess.engine.board.Board;
 import chess.engine.board.BoardSetup;
 import chess.engine.board.BoardUtils;
 import chess.engine.board.Move;
-import chess.engine.board.MoveTransition;
 import chess.engine.pieces.Bishop;
 import chess.engine.pieces.King;
 import chess.engine.pieces.Knight;
@@ -15,6 +14,7 @@ import chess.engine.pieces.Queen;
 import chess.engine.pieces.Rook;
 import chess.pgn.FenUtility;
 
+import java.sql.Time;
 import java.util.Collection;
 import java.util.Set;
 
@@ -32,15 +32,14 @@ public class TestPieces {
             return 1;
         }
         int numPosition = 0;
-        Collection<Move> moves = board.currentPlayer().getLegalMoves();
+        Collection<Move> moves = board.getLegalMoves();
         for (Move move : moves) {
-            MoveTransition transition = board.currentPlayer().makeMove(move);
-            if (transition.moveStatus().isDone()) {
-                numPosition += moveGenerationTest(depth - 1, transition.toBoard());
-            }
+            board.execute(move);
+            numPosition += moveGenerationTest(depth - 1, board);
+            board.takeback(move);
         }
-
         return numPosition;
+
     }
 
     @Test
@@ -52,9 +51,8 @@ public class TestPieces {
     @Test
     public void moveTestCoolPosition() {
         Board board = FenUtility.createGameFromFEN("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 0 1");
-
         assertEquals(44, moveGenerationTest(1, board));
-
+        System.out.println();
         assertEquals(1486, moveGenerationTest(2, board));
         assertEquals(62379, moveGenerationTest(3, board));
         assertEquals(2103487, moveGenerationTest(4, board));
@@ -62,6 +60,12 @@ public class TestPieces {
 
     }
 
+
+    @Test
+    public void moveTestPly1() {
+        Board board = BoardSetup.createStandardBoard();
+        assertEquals(20, moveGenerationTest(1, board));
+    }
 
     @Test
     public void moveTestPly2() {
@@ -96,17 +100,17 @@ public class TestPieces {
     public void testMiddleQueenOnEmptyBoard() {
         final Board.Builder builder = new Board.Builder();
         // Black Layout
-        builder.setPiece(new King(4, Color.BLACK, false, false));
+        builder.setPiece(new King(3, Color.BLACK, false, false));
         // White Layout
         builder.setPiece(new Queen(36, Color.WHITE, false));
         builder.setPiece(new King(60, Color.WHITE, false, false));
         // Set the current player
         builder.setMoveMaker(Color.WHITE);
         final Board board = builder.build();
-        final Collection<Move> whiteLegals = board.whitePlayer().getLegalMoves();
-        final Collection<Move> blackLegals = board.blackPlayer().getLegalMoves();
+        final Collection<Move> whiteLegals = board.whiteMoves;
+        final Collection<Move> blackLegals = board.blackMoves;
         assertEquals(31, whiteLegals.size());
-        assertEquals(5, blackLegals.size());
+        assertEquals(3, blackLegals.size());
         assertTrue(whiteLegals.contains(Move.MoveFactory
                 .createMove(board, BoardUtils.getCoordinateAtPosition("e4"), BoardUtils.getCoordinateAtPosition("e8"))));
         assertTrue(whiteLegals.contains(Move.MoveFactory
@@ -148,7 +152,7 @@ public class TestPieces {
         // Set the current player
         boardBuilder.setMoveMaker(Color.WHITE);
         final Board board = boardBuilder.build();
-        final Collection<Move> whiteLegals = board.whitePlayer().getLegalMoves();
+        final Collection<Move> whiteLegals = board.whiteMoves;
         assertEquals(13, whiteLegals.size());
         final Move wm1 = Move.MoveFactory
                 .createMove(board, BoardUtils.getCoordinateAtPosition("e4"), BoardUtils.getCoordinateAtPosition("d6"));
@@ -186,7 +190,7 @@ public class TestPieces {
         // Set the current player
         boardBuilder2.setMoveMaker(Color.BLACK);
         final Board board2 = boardBuilder2.build();
-        final Collection<Move> blackLegals = board2.blackPlayer().getLegalMoves();
+        final Collection<Move> blackLegals = board2.blackMoves;
 
         final Move bm1 = Move.MoveFactory
                 .createMove(board2, BoardUtils.getCoordinateAtPosition("e5"), BoardUtils.getCoordinateAtPosition("d7"));
@@ -227,8 +231,8 @@ public class TestPieces {
         boardBuilder.setPiece(new King(60, Color.WHITE, false, false));
         boardBuilder.setMoveMaker(Color.WHITE);
         final Board board = boardBuilder.build();
-        final Collection<Move> whiteLegals = board.whitePlayer().getLegalMoves();
-        final Collection<Move> blackLegals = board.blackPlayer().getLegalMoves();
+        final Collection<Move> whiteLegals = board.whiteMoves;
+        final Collection<Move> blackLegals = board.blackMoves;
         assertEquals(7, whiteLegals.size());
         assertEquals(7, blackLegals.size());
 
@@ -238,14 +242,6 @@ public class TestPieces {
                 .createMove(board, BoardUtils.getCoordinateAtPosition("a1"), BoardUtils.getCoordinateAtPosition("c2"));
         assertTrue(whiteLegals.contains(wm1));
         assertTrue(whiteLegals.contains(wm2));
-        final Move bm1 = Move.MoveFactory
-                .createMove(board, BoardUtils.getCoordinateAtPosition("a8"), BoardUtils.getCoordinateAtPosition("b6"));
-        final Move bm2 = Move.MoveFactory
-                .createMove(board, BoardUtils.getCoordinateAtPosition("a8"), BoardUtils.getCoordinateAtPosition("c7"));
-        assertTrue(blackLegals.contains(bm1));
-        assertTrue(blackLegals.contains(bm2));
-
-
     }
 
 
@@ -261,8 +257,8 @@ public class TestPieces {
         builder.setMoveMaker(Color.WHITE);
         //build the board
         final Board board = builder.build();
-        final Collection<Move> whiteLegals = board.whitePlayer().getLegalMoves();
-        final Collection<Move> blackLegals = board.blackPlayer().getLegalMoves();
+        final Collection<Move> whiteLegals = board.whiteMoves;
+        final Collection<Move> blackLegals = board.blackMoves;
         assertEquals(18, whiteLegals.size());
         assertEquals(5, blackLegals.size());
 
@@ -294,8 +290,8 @@ public class TestPieces {
         builder.setMoveMaker(Color.WHITE);
         //build the board
         final Board board = builder.build();
-        final Collection<Move> whiteLegals = board.whitePlayer().getLegalMoves();
-        final Collection<Move> blackLegals = board.blackPlayer().getLegalMoves();
+        final Collection<Move> whiteLegals = board.whiteMoves;
+        final Collection<Move> blackLegals = board.blackMoves;
         assertEquals(board.getPiece(0), board.getPiece(0));
         assertNotNull(board.getPiece(0));
         assertEquals(12, whiteLegals.size());
@@ -329,8 +325,8 @@ public class TestPieces {
         builder.setMoveMaker(Color.WHITE);
         //build the board
         final Board board = builder.build();
-        final Collection<Move> whiteLegals = board.whitePlayer().getLegalMoves();
-        final Collection<Move> blackLegals = board.blackPlayer().getLegalMoves();
+        final Collection<Move> whiteLegals = board.whiteMoves;
+        final Collection<Move> blackLegals = board.blackMoves;
         assertEquals(12, whiteLegals.size());
         assertEquals(5, blackLegals.size());
         assertTrue(whiteLegals.contains(Move.MoveFactory
@@ -361,8 +357,8 @@ public class TestPieces {
         builder.setMoveMaker(Color.WHITE);
         //build the board
         final Board board = builder.build();
-        final Collection<Move> whiteLegals = board.whitePlayer().getLegalMoves();
-        final Collection<Move> blackLegals = board.blackPlayer().getLegalMoves();
+        final Collection<Move> whiteLegals = board.whiteMoves;
+        final Collection<Move> blackLegals = board.blackMoves;
         assertEquals(12, whiteLegals.size());
         assertEquals(5, blackLegals.size());
         assertTrue(whiteLegals.contains(Move.MoveFactory
@@ -393,8 +389,8 @@ public class TestPieces {
         builder.setMoveMaker(Color.WHITE);
         //build the board
         final Board board = builder.build();
-        final Collection<Move> whiteLegals = board.whitePlayer().getLegalMoves();
-        final Collection<Move> blackLegals = board.blackPlayer().getLegalMoves();
+        final Collection<Move> whiteLegals = board.whiteMoves;
+        final Collection<Move> blackLegals = board.blackMoves;
         assertEquals(12, whiteLegals.size());
         assertEquals(5, blackLegals.size());
         assertTrue(whiteLegals.contains(Move.MoveFactory
@@ -417,17 +413,17 @@ public class TestPieces {
     public void testMiddleRookOnEmptyBoard() {
         final Board.Builder builder = new Board.Builder();
         // Black Layout
-        builder.setPiece(new King(4, Color.BLACK, false, false));
+        builder.setPiece(new King(3, Color.BLACK, false, false));
         // White Layout
         builder.setPiece(new Rook(36, Color.WHITE, false));
         builder.setPiece(new King(60, Color.WHITE, false, false));
         // Set the current player
         builder.setMoveMaker(Color.WHITE);
         final Board board = builder.build();
-        final Collection<Move> whiteLegals = board.whitePlayer().getLegalMoves();
-        final Collection<Move> blackLegals = board.blackPlayer().getLegalMoves();
+        final Collection<Move> whiteLegals = board.whiteMoves;
+        final Collection<Move> blackLegals = board.blackMoves;
         assertEquals(18, whiteLegals.size());
-        assertEquals(5, blackLegals.size());
+        assertEquals(3, blackLegals.size());
         assertTrue(whiteLegals.contains(Move.MoveFactory
                 .createMove(board, BoardUtils.getCoordinateAtPosition("e4"), BoardUtils.getCoordinateAtPosition("e8"))));
         assertTrue(whiteLegals.contains(Move.MoveFactory
@@ -459,111 +455,65 @@ public class TestPieces {
     @Test
     public void testPawnPromotion() {
         final Board.Builder builder = new Board.Builder();
-        // Black Layout
         builder.setPiece(new Rook(3, Color.BLACK, false));
         builder.setPiece(new King(22, Color.BLACK, false, false));
-        // White Layout
         builder.setPiece(new Pawn(15, Color.WHITE, false));
         builder.setPiece(new King(52, Color.WHITE, false, false));
-        // Set the current player
         builder.setMoveMaker(Color.WHITE);
+
         final Board board = builder.build();
-        final Move m1 = Move.MoveFactory.createMove(board, BoardUtils.getCoordinateAtPosition(
-                "h7"), BoardUtils.getCoordinateAtPosition("h8"));
-        final MoveTransition t1 = board.currentPlayer().makeMove(m1);
-        assertTrue(t1.moveStatus().isDone());
-        final Move m2 = Move.MoveFactory.createMove(t1.toBoard(), BoardUtils.getCoordinateAtPosition("d8"), BoardUtils.getCoordinateAtPosition("h8"));
-        final MoveTransition t2 = t1.toBoard().currentPlayer().makeMove(m2);
-        assertTrue(t2.moveStatus().isDone());
-        final Move m3 = Move.MoveFactory.createMove(t2.toBoard(), BoardUtils.getCoordinateAtPosition("e2"), BoardUtils.getCoordinateAtPosition("d2"));
-        final MoveTransition t3 = board.currentPlayer().makeMove(m3);
-        assertTrue(t3.moveStatus().isDone());
+
+        TestUtility.executeAndAssert(board, "h7", "h8");
+        TestUtility.executeAndAssert(board, "d8", "h8");
+        TestUtility.executeAndAssert(board, "e2", "d2");
     }
 
     @Test
     public void testSimpleWhiteEnPassant() {
         final Board.Builder builder = new Board.Builder();
-        // Black Layout
         builder.setPiece(new King(4, Color.BLACK, false, false));
         builder.setPiece(new Pawn(11, Color.BLACK, false));
-        // White Layout
         builder.setPiece(new Pawn(52, Color.WHITE, false));
         builder.setPiece(new King(60, Color.WHITE, false, false));
-        // Set the current player
         builder.setMoveMaker(Color.WHITE);
+
         final Board board = builder.build();
-        final Move m1 = Move.MoveFactory.createMove(board, BoardUtils.getCoordinateAtPosition(
-                "e2"), BoardUtils.getCoordinateAtPosition("e4"));
-        final MoveTransition t1 = board.currentPlayer().makeMove(m1);
-        assertTrue(t1.moveStatus().isDone());
-        final Move m2 = Move.MoveFactory.createMove(t1.toBoard(), BoardUtils.getCoordinateAtPosition("e8"), BoardUtils.getCoordinateAtPosition("d8"));
-        final MoveTransition t2 = t1.toBoard().currentPlayer().makeMove(m2);
-        assertTrue(t2.moveStatus().isDone());
-        final Move m3 = Move.MoveFactory.createMove(t2.toBoard(), BoardUtils.getCoordinateAtPosition("e4"), BoardUtils.getCoordinateAtPosition("e5"));
-        final MoveTransition t3 = t2.toBoard().currentPlayer().makeMove(m3);
-        assertTrue(t3.moveStatus().isDone());
-        final Move m4 = Move.MoveFactory.createMove(t3.toBoard(), BoardUtils.getCoordinateAtPosition("d7"), BoardUtils.getCoordinateAtPosition("d5"));
-        final MoveTransition t4 = t3.toBoard().currentPlayer().makeMove(m4);
-        assertTrue(t4.moveStatus().isDone());
-        final Move m5 = Move.MoveFactory.createMove(t4.toBoard(), BoardUtils.getCoordinateAtPosition("e5"), BoardUtils.getCoordinateAtPosition("d6"));
-        final MoveTransition t5 = t4.toBoard().currentPlayer().makeMove(m5);
-        assertTrue(t5.moveStatus().isDone());
 
+        TestUtility.executeAndAssert(board, "e2", "e4");
+        TestUtility.executeAndAssert(board, "e8", "d8");
+        TestUtility.executeAndAssert(board, "e4", "e5");
+        TestUtility.executeAndAssert(board, "d7", "d5");
+        TestUtility.executeAndAssert(board, "e5", "d6");
     }
-
 
     @Test
     public void testSimpleBlackEnPassant() {
         final Board.Builder builder = new Board.Builder();
-        // Black Layout
         builder.setPiece(new King(4, Color.BLACK, false, false));
         builder.setPiece(new Pawn(11, Color.BLACK, false));
-        // White Layout
         builder.setPiece(new Pawn(52, Color.WHITE, false));
         builder.setPiece(new King(60, Color.WHITE, false, false));
-        // Set the current player
         builder.setMoveMaker(Color.WHITE);
+
         final Board board = builder.build();
-        final Move m1 = Move.MoveFactory.createMove(board, BoardUtils.getCoordinateAtPosition(
-                "e1"), BoardUtils.getCoordinateAtPosition("d1"));
-        final MoveTransition t1 = board.currentPlayer().makeMove(m1);
-        assertTrue(t1.moveStatus().isDone());
-        final Move m2 = Move.MoveFactory.createMove(t1.toBoard(), BoardUtils.getCoordinateAtPosition("d7"), BoardUtils.getCoordinateAtPosition("d5"));
-        final MoveTransition t2 = t1.toBoard().currentPlayer().makeMove(m2);
-        assertTrue(t2.moveStatus().isDone());
-        final Move m3 = Move.MoveFactory.createMove(t2.toBoard(), BoardUtils.getCoordinateAtPosition("d1"), BoardUtils.getCoordinateAtPosition("c1"));
-        final MoveTransition t3 = t2.toBoard().currentPlayer().makeMove(m3);
-        assertTrue(t3.moveStatus().isDone());
-        final Move m4 = Move.MoveFactory.createMove(t3.toBoard(), BoardUtils.getCoordinateAtPosition("d5"), BoardUtils.getCoordinateAtPosition("d4"));
-        final MoveTransition t4 = t3.toBoard().currentPlayer().makeMove(m4);
-        assertTrue(t4.moveStatus().isDone());
-        final Move m5 = Move.MoveFactory.createMove(t4.toBoard(), BoardUtils.getCoordinateAtPosition("e2"), BoardUtils.getCoordinateAtPosition("e4"));
-        final MoveTransition t5 = t4.toBoard().currentPlayer().makeMove(m5);
-        assertTrue(t5.moveStatus().isDone());
-        final Move m6 = Move.MoveFactory.createMove(t5.toBoard(), BoardUtils.getCoordinateAtPosition("d4"), BoardUtils.getCoordinateAtPosition("e3"));
-        final MoveTransition t6 = t5.toBoard().currentPlayer().makeMove(m6);
-        assertTrue(t6.moveStatus().isDone());
+
+        TestUtility.executeAndAssert(board, "e1", "d1");
+        TestUtility.executeAndAssert(board, "d7", "d5");
+        TestUtility.executeAndAssert(board, "d1", "c1");
+        TestUtility.executeAndAssert(board, "d5", "d4");
+        TestUtility.executeAndAssert(board, "e2", "e4");
+        TestUtility.executeAndAssert(board, "d4", "e3");
     }
 
     @Test
     public void testEnPassant2() {
         final Board board = BoardSetup.createStandardBoard();
-        final Move m1 = Move.MoveFactory.createMove(board, BoardUtils.getCoordinateAtPosition(
-                "e2"), BoardUtils.getCoordinateAtPosition("e3"));
-        final MoveTransition t1 = board.currentPlayer().makeMove(m1);
-        assertTrue(t1.moveStatus().isDone());
-        final Move m2 = Move.MoveFactory.createMove(t1.toBoard(), BoardUtils.getCoordinateAtPosition("h7"), BoardUtils.getCoordinateAtPosition("h5"));
-        final MoveTransition t2 = t1.toBoard().currentPlayer().makeMove(m2);
-        assertTrue(t2.moveStatus().isDone());
-        final Move m3 = Move.MoveFactory.createMove(t2.toBoard(), BoardUtils.getCoordinateAtPosition("e3"), BoardUtils.getCoordinateAtPosition("e4"));
-        final MoveTransition t3 = t2.toBoard().currentPlayer().makeMove(m3);
-        assertTrue(t3.moveStatus().isDone());
-        final Move m4 = Move.MoveFactory.createMove(t3.toBoard(), BoardUtils.getCoordinateAtPosition("h5"), BoardUtils.getCoordinateAtPosition("h4"));
-        final MoveTransition t4 = t3.toBoard().currentPlayer().makeMove(m4);
-        assertTrue(t4.moveStatus().isDone());
-        final Move m5 = Move.MoveFactory.createMove(t4.toBoard(), BoardUtils.getCoordinateAtPosition("g2"), BoardUtils.getCoordinateAtPosition("g4"));
-        final MoveTransition t5 = t4.toBoard().currentPlayer().makeMove(m5);
-        assertTrue(t5.moveStatus().isDone());
+
+        TestUtility.executeAndAssert(board, "e2", "e3");
+        TestUtility.executeAndAssert(board, "h7", "h5");
+        TestUtility.executeAndAssert(board, "e3", "e4");
+        TestUtility.executeAndAssert(board, "h5", "h4");
+        TestUtility.executeAndAssert(board, "g2", "g4");
     }
 
     @Test

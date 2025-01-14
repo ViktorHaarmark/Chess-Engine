@@ -14,10 +14,9 @@ import java.util.List;
 
 public class BlackPlayer extends Player {
 
-    public BlackPlayer(final Board board,
-                       final List<Move> whiteStandardLegalMoves,
-                       final List<Move> blackStandardLegalMoves) {
-        super(board, blackStandardLegalMoves, whiteStandardLegalMoves);
+    public BlackPlayer(final Board board) {
+        super(board);
+        this.pawnThreat = new int[]{7, 9};
     }
 
     @Override
@@ -41,23 +40,17 @@ public class BlackPlayer extends Player {
     }
 
     @Override
-    protected List<Move> calculateKingCastlingCollection(final List<Move> playerLegals,
-                                                               final List<Move> opponentsLegals) {
-
+    public List<Move> calculateCastlingMoves(final List<Move> opponentsLegals) {
         final List<Move> castlingMoves = new ArrayList<>();
-
-        //Kingside castling
-
         if (!this.isInCheck() && this.playerKing.getPiecePosition() == 4) {
-
             // Kingside castling
-            if (this.playerKing.isKingSideCastleCapable() &&
+            if (this.isKingSideCastleCapable() &&
                     !this.board.getTile(5).isTileOccupied() &&
                     !this.board.getTile(6).isTileOccupied()) {
-                if (Player.calculateAttacksOnTile(5, opponentsLegals).isEmpty() && Player.calculateAttacksOnTile(6, opponentsLegals).isEmpty()) {
+                if (!this.calculateAttackOnSquare(5) && !this.calculateAttackOnSquare(6)) {
                     final Tile rookTile = this.board.getTile(7);
 
-                    if (rookTile.isTileOccupied() && rookTile.getPiece().getPieceType().isRook() && rookTile.getPiece().isFirstMove()) {
+                    if (rookTile.isTileOccupied() && rookTile.getPiece().getPieceType().isRook()) {
                         castlingMoves.add(new KingsideCastlingMove(this.board,
                                 this.playerKing,
                                 6,
@@ -67,12 +60,10 @@ public class BlackPlayer extends Player {
                     }
                 }
             }
-
             // Queenside Castling
-            if (this.playerKing.isQueenSideCastleCapable() && !this.board.getTile(1).isTileOccupied() && !this.board.getTile(2).isTileOccupied() && !this.board.getTile(3).isTileOccupied()) {
-                if (Player.calculateAttacksOnTile(2, opponentsLegals).isEmpty() && Player.calculateAttacksOnTile(3, opponentsLegals).isEmpty()) {
+            if (this.isQueenSideCastleCapable() && !this.board.getTile(1).isTileOccupied() && !this.board.getTile(2).isTileOccupied() && !this.board.getTile(3).isTileOccupied()) {
+                if (!this.calculateAttackOnSquare(2) && !this.calculateAttackOnSquare(3)) {
                     final Tile rookTile = this.board.getTile(0);
-
                     if (rookTile.isTileOccupied() && rookTile.getPiece().getPieceType().isRook() && rookTile.getPiece().isFirstMove()) {
                         castlingMoves.add(new QueensideCastlingMove(this.board,
                                 this.playerKing,
@@ -83,11 +74,8 @@ public class BlackPlayer extends Player {
                     }
                 }
             }
-
         }
-
         return castlingMoves;
     }
-
 
 }

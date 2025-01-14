@@ -1,18 +1,16 @@
 package chess.engine.board;
 
+import chess.engine.pieces.Piece;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import com.google.common.collect.ImmutableMap;
-
-import chess.engine.pieces.Piece;
 
 
 public abstract class Tile {
 
     protected final int tileCoordinate;
 
-    private static final Map<Integer, EmptyTile> EMPTY_TILES_CACHE = createAllPossibleEmptyTiles();
+    private static Map<Integer, EmptyTile> EMPTY_TILES_CACHE = createAllPossibleEmptyTiles();
 
     private static Map<Integer, EmptyTile> createAllPossibleEmptyTiles() {
         final Map<Integer, EmptyTile> emptyTileMap = new HashMap<>();
@@ -20,7 +18,7 @@ public abstract class Tile {
         for (int i = 0; i < BoardUtils.NUM_TILES; i++) {
             emptyTileMap.put(i, new EmptyTile(i));
         }
-        return ImmutableMap.copyOf(emptyTileMap);
+        return emptyTileMap;
     }
 
     public static Tile createTile(int tileCoordinate, Piece piece) {

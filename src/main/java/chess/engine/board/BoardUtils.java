@@ -3,8 +3,6 @@ package chess.engine.board;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.common.collect.ImmutableMap;
-
 public class BoardUtils {
 
     public static final int NUM_TILES = 64;
@@ -21,7 +19,7 @@ public class BoardUtils {
         for (int i = 0; i < NUM_TILES; i++) {
             positionToCoordinate.put(getPositionAtCoordinate(i), i);
         }
-        return ImmutableMap.copyOf(positionToCoordinate);
+        return Map.copyOf(positionToCoordinate);
     }
 
 

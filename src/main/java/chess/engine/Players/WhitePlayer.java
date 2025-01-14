@@ -14,10 +14,9 @@ import java.util.List;
 
 public class WhitePlayer extends Player {
 
-    public WhitePlayer(final Board board,
-                       final List<Move> whiteStandardPossibleMoves,
-                       final List<Move> blackStandardPossibleMoves) {
-        super(board, whiteStandardPossibleMoves, blackStandardPossibleMoves);
+    public WhitePlayer(final Board board) {
+        super(board);
+        this.pawnThreat = new int[]{-7, -9};
     }
 
     @Override
@@ -41,16 +40,15 @@ public class WhitePlayer extends Player {
     }
 
     @Override
-    protected List<Move> calculateKingCastlingCollection(final List<Move> playerLegals,
-                                                               final List<Move> opponentsLegals) {
+    public List<Move> calculateCastlingMoves(final List<Move> opponentControls) {
 
         final List<Move> castlingMoves = new ArrayList<>();
 
         if (!this.isInCheck() && this.playerKing.getPiecePosition() == 60) {
 
             // Kingside castling
-            if (this.playerKing.isKingSideCastleCapable() && !this.board.getTile(61).isTileOccupied() && !this.board.getTile(62).isTileOccupied()) {
-                if (Player.calculateAttacksOnTile(61, opponentsLegals).isEmpty() && Player.calculateAttacksOnTile(62, opponentsLegals).isEmpty()) {
+            if (this.isKingSideCastleCapable() && !this.board.getTile(61).isTileOccupied() && !this.board.getTile(62).isTileOccupied()) {
+                if (!this.calculateAttackOnSquare(61) && !this.calculateAttackOnSquare(62)) {
                     final Tile rookTile = this.board.getTile(63);
 
                     if (rookTile.isTileOccupied() && rookTile.getPiece().getPieceType().isRook() && rookTile.getPiece().isFirstMove()) {
@@ -63,12 +61,13 @@ public class WhitePlayer extends Player {
                     }
                 }
             }
-
             // Queenside castling
-            if (this.playerKing.isQueenSideCastleCapable() && !this.board.getTile(57).isTileOccupied() && !this.board.getTile(58).isTileOccupied() && !this.board.getTile(59).isTileOccupied()) {
-                if (Player.calculateAttacksOnTile(58, opponentsLegals).isEmpty() && Player.calculateAttacksOnTile(59, opponentsLegals).isEmpty()) {
+            if (this.isQueenSideCastleCapable() &&
+                    !this.board.getTile(57).isTileOccupied() &&
+                    !this.board.getTile(58).isTileOccupied() &&
+                    !this.board.getTile(59).isTileOccupied()) {
+                if (!this.calculateAttackOnSquare(58) && !this.calculateAttackOnSquare(59)) {
                     final Tile rookTile = this.board.getTile(56);
-
                     if (rookTile.isTileOccupied() && rookTile.getPiece().getPieceType().isRook() && rookTile.getPiece().isFirstMove()) {
                         castlingMoves.add(new QueensideCastlingMove(this.board,
                                 this.playerKing,

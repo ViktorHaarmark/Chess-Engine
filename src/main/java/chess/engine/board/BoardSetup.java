@@ -53,8 +53,13 @@ public class BoardSetup {
         builder.setPiece(new Pawn(55, Color.WHITE, true));
 
         builder.setMoveMaker(Color.WHITE);
+        builder.setCastlingRights(true, true, true, true);
 
         return builder.build();
+    }
+
+    public static Board createEnPassantBug() {
+        return FenUtility.createGameFromFEN("3k4/7p/8/6P1/8/8/8/4K3 b - - 0 0");
     }
 
     public static Board createTwoBishopCheckMate() {
@@ -125,6 +130,14 @@ public class BoardSetup {
 
     public static Board createBug2Board() {
         return FenUtility.createGameFromFEN("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 0 1");
+    }
+
+    public static Board interestingTactic() {
+        return FenUtility.createGameFromFEN("1r6/2qnbpk1/pp2p1p1/3bP2r/P2N1BQp/2P1R2P/2B2PP1/1R4K1 w - - 0 1");
+    }
+
+    public static Board mateWith2Rooks() {
+        return FenUtility.createGameFromFEN("r3k2r/8/8/4K3/8/8/8/8 b KQkq - 1 1");
     }
 
 }

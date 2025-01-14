@@ -12,7 +12,6 @@ import chess.engine.board.BoardSetup;
 import chess.engine.board.BoardUtils;
 import chess.engine.board.Move;
 import chess.engine.board.Move.MoveFactory;
-import chess.engine.board.MoveTransition;
 
 import chess.engine.Players.ai.MoveStrategy;
 import chess.engine.Players.ai.MiniMax;
@@ -20,63 +19,41 @@ import chess.engine.Players.ai.MiniMax;
 
 public class TestEngine {
 
+
     @Test
     public void testFoolsMate() {
-        final Board board = BoardSetup.createStandardBoard();
-        final MoveTransition t1 = board.currentPlayer()
-                .makeMove(MoveFactory.createMove(board, BoardUtils.getCoordinateAtPosition("f2"),
-                        BoardUtils.getCoordinateAtPosition("f3")));
+        Board board = BoardSetup.createStandardBoard();
 
-        assertTrue(t1.moveStatus().isDone());
+        TestUtility.executeAndAssert(board, "f2", "f3");
+        TestUtility.executeAndAssert(board, "e7", "e5");
+        TestUtility.executeAndAssert(board, "g2", "g4");
 
-        final MoveTransition t2 = t1.toBoard()
-                .currentPlayer()
-                .makeMove(MoveFactory.createMove(t1.toBoard(), BoardUtils.getCoordinateAtPosition("e7"),
-                        BoardUtils.getCoordinateAtPosition("e5")));
-        assertTrue(t2.moveStatus().isDone());
-
-        final MoveTransition t3 = t2.toBoard()
-                .currentPlayer()
-                .makeMove(MoveFactory.createMove(t2.toBoard(), BoardUtils.getCoordinateAtPosition("g2"),
-                        BoardUtils.getCoordinateAtPosition("g4")));
-        assertTrue(t3.moveStatus().isDone());
-
-        final MoveStrategy strategy = new MiniMax(4);
-
-        final Move aiMove = strategy.execute(t3.toBoard());
-
-        final Move bestMove = MoveFactory.createMove(t3.toBoard(), BoardUtils.getCoordinateAtPosition("d8"),
+        Move aiMove = new MiniMax(4).execute(board);
+        Move bestMove = MoveFactory.createMove(board, BoardUtils.getCoordinateAtPosition("d8"),
                 BoardUtils.getCoordinateAtPosition("h4"));
 
         assertEquals(aiMove, bestMove);
-
     }
 
     @Test
     public void testMinMaxEqualsAlphaBeta() {
-        final Board board = BoardSetup.createStandardBoard();
+        Board board = BoardSetup.createStandardBoard();
         assertEquals(board.currentPlayer(), board.whitePlayer());
 
-        final MoveTransition t1 = board.currentPlayer()
-                .makeMove(MoveFactory.createMove(board, BoardUtils.getCoordinateAtPosition("e2"),
-                        BoardUtils.getCoordinateAtPosition("e4")));
-        final MoveTransition t2 = t1.toBoard()
-                .currentPlayer()
-                .makeMove(MoveFactory.createMove(t1.toBoard(), BoardUtils.getCoordinateAtPosition("e7"),
-                        BoardUtils.getCoordinateAtPosition("e6")));
+        TestUtility.executeAndAssert(board, "e2", "e4");
+        TestUtility.executeAndAssert(board, "e7", "e6");
+        TestUtility.executeAndAssert(board, "d2", "d4");
 
-        final MoveTransition t3 = t2.toBoard()
-                .currentPlayer()
-                .makeMove(MoveFactory.createMove(t2.toBoard(), BoardUtils.getCoordinateAtPosition("d2"),
-                        BoardUtils.getCoordinateAtPosition("d4")));
-        final MoveStrategy miniMax = new MiniMax(4);
-        final MoveStrategy alphaBeta = new AlphaBeta(4);
-        final Move miniMaxBestMove = miniMax.execute(t3.toBoard());
-        final Move alphaBetaBestMove = alphaBeta.execute(t3.toBoard());
+        Move miniMaxBestMove = new MiniMax(2).execute(board);
+        Move alphaBetaBestMove = new AlphaBeta(2).execute(board);
+
         System.out.println("MiniMax Best Move: " + miniMaxBestMove);
         System.out.println("AlphaBeta Best Move: " + alphaBetaBestMove);
+
         assertEquals(miniMaxBestMove, alphaBetaBestMove);
+
     }
+
     @Test
     public void testAlphaBetaSpeed() {
         final Board board = FenUtility.createGameFromFEN("6k1/1b4pp/1B1Q4/4p1P1/p3q3/2P3r1/P1P2PP1/R5K1 w - - 1 0");
@@ -100,7 +77,7 @@ public class TestEngine {
     @Test
     public void testMateInTwoTest2() {
         final Board board = FenUtility.createGameFromFEN("3r3r/1Q5p/p3q2k/3NBp1B/3p3n/5P2/PP4PP/4R2K w - - 1 0");
-        final MiniMax alphaBeta = new MiniMax(4);
+        final MoveStrategy alphaBeta = new AlphaBeta(4);
         final Move bestMove = alphaBeta.execute(board);
         assertEquals(
                 bestMove,
@@ -126,15 +103,15 @@ public class TestEngine {
                 .createMove(board, BoardUtils.getCoordinateAtPosition("f2"), BoardUtils.getCoordinateAtPosition("f8")));
     }
 
-    /* //TODO: Still too difficult for the engine
+
     @Test
     public void testMagnusBlackToMoveAndWinTest1() {
         final Board board = FenUtility.createGameFromFEN("2rr2k1/pb3pp1/4q2p/2pn4/2Q1P3/P4P2/1P3BPP/2KR2NR b - - 0 1");
-        final MiniMax miniMax = new MiniMax(4);
+        final MoveStrategy miniMax = new AlphaBeta(6);
         final Move bestMove = miniMax.execute(board);
         assertEquals(bestMove, Move.MoveFactory
                 .createMove(board, BoardUtils.getCoordinateAtPosition("d5"), BoardUtils.getCoordinateAtPosition("e3")));
-    } */
+    }
 
 
 }

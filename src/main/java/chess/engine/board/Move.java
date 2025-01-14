@@ -1,37 +1,54 @@
 package chess.engine.board;
 
-import javax.swing.JOptionPane;
+import chess.Color;
+import chess.engine.Players.Player;
+import chess.engine.pieces.*;
 
-import chess.engine.board.Board.Builder;
-import chess.engine.pieces.Bishop;
-import chess.engine.pieces.King;
-import chess.engine.pieces.Knight;
-import chess.engine.pieces.Pawn;
-import chess.engine.pieces.Piece;
-import chess.engine.pieces.Queen;
-import chess.engine.pieces.Rook;
+import javax.swing.*;
+import java.util.List;
 
 public abstract class Move {
 
     protected Board board;
     protected Piece movedPiece;
     protected int destinationCoordinate;
-    protected final boolean isFirstMove;
+    protected MoveStatus moveStatus;
 
-    private static final Move NULL_MOVE = new NullMove();
+    private static final Move NULL_MOVE = new NullMove(
+    );
 
     Move(final Board board, final Piece movedPiece, final int destinationCoordinate) {
         this.board = board;
         this.movedPiece = movedPiece;
         this.destinationCoordinate = destinationCoordinate;
-        this.isFirstMove = movedPiece.isFirstMove();
+        this.moveStatus = calculateMoveStatus();
+    }
+
+    protected Move() {
+    }
+
+    protected MoveStatus calculateMoveStatus() {
+        updatePieceList();
+        MoveStatus moveStatus = decideMoveStatus();
+        undoMove();
+        return moveStatus;
+
+    }
+
+    private MoveStatus decideMoveStatus() {
+        Player player = movedPiece.getPieceColor().choosePlayer(board.whitePlayer(), board.blackPlayer());
+        if (player.calculateAttackOnSquare(player.getPlayerKing().getPiecePosition())) {
+            return MoveStatus.LEAVES_PLAYER_IN_CHECK;
+        } else {
+            return MoveStatus.DONE;
+        }
     }
 
     Move(final Board board, final int destinationCoordinate) {
         this.board = board;
         this.movedPiece = null;
         this.destinationCoordinate = destinationCoordinate;
-        this.isFirstMove = false;
+        this.moveStatus = null;
     }
 
     @Override
@@ -67,6 +84,10 @@ public abstract class Move {
         return this.board;
     }
 
+    public MoveStatus getMoveStatus() {
+        return this.moveStatus;
+    }
+
     public int getCurrentCoordinate() {
         return this.movedPiece.getPiecePosition();
     }
@@ -83,7 +104,9 @@ public abstract class Move {
         return false;
     }
 
-    public boolean isPromotionMove() {return false;}
+    public boolean isPromotionMove() {
+        return false;
+    }
 
     public Piece getCapturedPiece() {
         return null;
@@ -97,29 +120,144 @@ public abstract class Move {
         return null;
     }
 
-    public Board execute() {
-        final Builder builder = new Builder();
-
-        for (final Piece piece : this.board.currentPlayer().getActivePieces()) {
-            if (!this.movedPiece.equals(piece)) {
-                builder.setPiece(piece);
-            }
-        }
-
-        for (final Piece piece : this.board.currentPlayer().getOpponent().getActivePieces()) {
-            builder.setPiece(piece);
-        }
-        builder.setCastlingRights(this.board.currentPlayer().isKingSideCastleCapable(),
-                this.board.currentPlayer().isQueenSideCastleCapable(),
-                this.board.currentPlayer().getOpponent().isKingSideCastleCapable(),
-                this.board.currentPlayer().getOpponent().isQueenSideCastleCapable());
-
-        builder.setPiece(this.movedPiece.movePiece(this));
-        builder.setMoveMaker(this.board.currentPlayer().getOpponent().getColor());
-
-        return builder.build();
+    public void addEnPassantPawn() {
+        board.enPassantPawnList.add(null);
     }
 
+    public void removeEnPassantPawn() {
+        if (!board.enPassantPawnList.isEmpty()) {
+            board.enPassantPawnList.remove(board.enPassantPawnList.size() - 1);
+        }
+    }
+
+    abstract void updatePieceList();
+
+    protected void updateMovedPiece() {
+        Piece movedPiece = this.getMovedPiece();
+        Piece newPiece = movedPiece.movePiece(this);
+        if (movedPiece.getPieceColor().isWhite()) {
+            board.whitePieces.remove(movedPiece);
+            board.whitePieces.add(newPiece);
+            if (newPiece.getPieceType().isKing()) {
+                board.whitePlayer().setPlayerKing((King) newPiece);
+            }
+
+        } else {
+            board.blackPieces.remove(movedPiece);
+            board.blackPieces.add(newPiece);
+            if (newPiece.getPieceType().isKing()) {
+                board.blackPlayer().setPlayerKing((King) newPiece);
+            }
+
+        }
+        board.gameBoard.set(movedPiece.getPiecePosition(), new Tile.EmptyTile(movedPiece.getPiecePosition()));
+        board.gameBoard.set(newPiece.getPiecePosition(), new Tile.OccupiedTile(newPiece.getPiecePosition(), newPiece));
+        configureCastlingRights(this.movedPiece.getPieceColor(), false);
+        addEnPassantPawn();
+    }
+
+    abstract void undoMove();
+
+    protected void undoMovedPiece() {
+        Piece movedPiece = this.getMovedPiece();
+        Piece newPiece = movedPiece.movePiece(this);
+        if (movedPiece.getPieceColor().isWhite()) {
+            board.whitePieces.remove(newPiece);
+            board.whitePieces.add(movedPiece);
+            if (newPiece.getPieceType().isKing()) {
+                board.whitePlayer().setPlayerKing((King) movedPiece);
+            }
+        } else {
+            board.blackPieces.remove(newPiece);
+            board.blackPieces.add(movedPiece);
+            if (newPiece.getPieceType().isKing()) {
+                board.blackPlayer().setPlayerKing((King) movedPiece);
+            }
+
+        }
+        board.gameBoard.set(movedPiece.getPiecePosition(), new Tile.OccupiedTile(movedPiece.getPiecePosition(), movedPiece));
+        board.gameBoard.set(newPiece.getPiecePosition(), new Tile.EmptyTile(newPiece.getPiecePosition()));
+        configureCastlingRights(movedPiece.getPieceColor(), true);
+        removeEnPassantPawn();
+    }
+
+    private void configureCastlingRights(Color color, Boolean takeback) {
+        PieceType pieceType = movedPiece.getPieceType();
+        if (takeback) {
+            if (pieceType.isKing() || pieceType.isRook()) {
+                if (color.isWhite()) {
+                    if (!board.whiteKingsideCastlingRight.isEmpty()) {
+                        board.whiteKingsideCastlingRight.remove(board.whiteKingsideCastlingRight.size() - 1);
+                        board.whiteQueensideCastlingRight.remove(board.whiteQueensideCastlingRight.size() - 1);
+                    }
+                } else {
+                    if (!board.blackKingsideCastlingRight.isEmpty()) {
+                        board.blackKingsideCastlingRight.remove(board.blackKingsideCastlingRight.size() - 1);
+                        board.blackQueensideCastlingRight.remove(board.blackQueensideCastlingRight.size() - 1);
+                    }
+                }
+            }
+        } else {
+            switch (pieceType) {
+                case KING: {
+                    if (color.isWhite()) {
+                        board.whiteQueensideCastlingRight.add(false);
+                        board.whiteKingsideCastlingRight.add(false);
+                        break;
+                    } else if (color.isBlack()) {
+                        board.blackQueensideCastlingRight.add(false);
+                        board.blackKingsideCastlingRight.add(false);
+                        break;
+                    }
+                }
+                case ROOK: {
+                    if (color.isWhite()) {
+                        if (movedPiece.getPiecePosition() == 63) {
+                            board.whiteKingsideCastlingRight.add(false);
+                            board.whiteQueensideCastlingRight.add(true);
+                        } else if (movedPiece.getPiecePosition() == 56) {
+                            board.whiteKingsideCastlingRight.add(true);
+                            board.whiteQueensideCastlingRight.add(false);
+                        } else {
+                            board.whiteKingsideCastlingRight.add(true);
+                            board.whiteQueensideCastlingRight.add(true);
+                        }
+                    } else {
+                        if (movedPiece.getPiecePosition() == 7) {
+                            board.blackKingsideCastlingRight.add(false);
+                            board.blackQueensideCastlingRight.add(true);
+                        } else if (movedPiece.getPiecePosition() == 0) {
+                            board.blackKingsideCastlingRight.add(true);
+                            board.blackQueensideCastlingRight.add(false);
+                        } else {
+                            board.blackKingsideCastlingRight.add(true);
+                            board.blackQueensideCastlingRight.add(true);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    protected void removeCapturedPiece() {
+        Piece capturedPiece = this.getCapturedPiece();
+        if (capturedPiece.getPieceColor().isWhite()) {
+            board.whitePieces.remove(capturedPiece);
+        } else {
+            board.blackPieces.remove(capturedPiece);
+        }
+    }
+
+    protected void addCapturedPiece() {
+        Piece capturedPiece = this.getCapturedPiece();
+        int capturedPiecePosition = capturedPiece.getPiecePosition();
+        if (capturedPiece.getPieceColor().isWhite()) {
+            board.whitePieces.add(capturedPiece);
+        } else {
+            board.blackPieces.add(capturedPiece);
+        }
+        board.gameBoard.set(capturedPiecePosition, new Tile.OccupiedTile(capturedPiecePosition, capturedPiece));
+    }
 
     public static final class MajorPieceMove extends Move {
 
@@ -133,10 +271,19 @@ public abstract class Move {
         }
 
         @Override
+        void updatePieceList() {
+            updateMovedPiece();
+        }
+
+        @Override
+        void undoMove() {
+            undoMovedPiece();
+        }
+
+        @Override
         public String toString() {
             return movedPiece.getPieceType().toString() + BoardUtils.getPositionAtCoordinate(this.destinationCoordinate);
         }
-
     }
 
     public static class CaptureMove extends Move {
@@ -147,9 +294,13 @@ public abstract class Move {
                            final Piece movedPiece,
                            final Piece capturedPiece,
                            final int destinationCoordinate) {
-            super(board, movedPiece, destinationCoordinate);
+            this.board = board;
+            this.movedPiece = movedPiece;
             this.capturedPiece = capturedPiece;
+            this.destinationCoordinate = destinationCoordinate;
+            this.moveStatus = calculateMoveStatus();
         }
+
 
         @Override
         public int hashCode() {
@@ -169,11 +320,6 @@ public abstract class Move {
         }
 
         @Override
-        public Board execute() {
-            return super.execute();
-        }
-
-        @Override
         public boolean isCapture() {
             return true;
         }
@@ -181,6 +327,18 @@ public abstract class Move {
         @Override
         public Piece getCapturedPiece() {
             return this.capturedPiece;
+        }
+
+        @Override
+        public void updatePieceList() {
+            updateMovedPiece();
+            removeCapturedPiece();
+        }
+
+        @Override
+        void undoMove() {
+            undoMovedPiece();
+            addCapturedPiece();
         }
 
         @Override
@@ -196,6 +354,16 @@ public abstract class Move {
                         final Piece movedPiece,
                         final int destinationCoordinate) {
             super(board, movedPiece, destinationCoordinate);
+        }
+
+        @Override
+        public void updatePieceList() {
+            updateMovedPiece();
+        }
+
+        @Override
+        void undoMove() {
+            undoMovedPiece();
         }
 
         @Override
@@ -227,26 +395,9 @@ public abstract class Move {
             super(board, movedPiece, capturedPiece, destinationCoordinate);
         }
 
-        @Override
-        public Board execute() {
-            final Builder builder = new Builder();
-
-            for (final Piece piece : this.board.currentPlayer().getActivePieces()) {
-                if (!this.movedPiece.equals(piece)) {
-                    builder.setPiece(piece);
-                }
-            }
-
-            for (final Piece piece : this.board.currentPlayer().getOpponent().getActivePieces()) {
-                if (!piece.equals((this.getCapturedPiece()))) {
-                    builder.setPiece(piece);
-                }
-            }
-
-            builder.setPiece(this.movedPiece.movePiece(this));
-            builder.setMoveMaker(this.board.currentPlayer().getOpponent().getColor());
-
-            return builder.build();
+        protected void removeCapturedPiece() {
+            super.removeCapturedPiece();
+            board.gameBoard.set(capturedPiece.getPiecePosition(), new Tile.EmptyTile(capturedPiece.getPiecePosition()));
         }
 
     }
@@ -261,22 +412,10 @@ public abstract class Move {
         }
 
         @Override
-        public Board execute() {
-            final Builder builder = new Builder();
-            for (final Piece piece : this.board.currentPlayer().getActivePieces()) {
-                if (!this.movedPiece.equals(piece)) {
-                    builder.setPiece(piece);
-                }
-            }
-            for (final Piece piece : this.board.currentPlayer().getOpponent().getActivePieces()) {
-                builder.setPiece(piece);
-            }
-            final Pawn movedPawn = (Pawn) this.movedPiece.movePiece(this);
-            builder.setPiece(movedPawn);
-            builder.setEnPassant(movedPawn);
-            builder.setMoveMaker((this.board.currentPlayer().getOpponent().getColor()));
-            return builder.build();
+        public void addEnPassantPawn() {
+            board.enPassantPawnList.add((Pawn) movedPiece.movePiece(this));
         }
+
     }
 
     public static final class PawnPromotionMove extends Move {
@@ -297,30 +436,13 @@ public abstract class Move {
         }
 
         public PawnPromotionMove(final Move decoratedMove, String promotedPiece) {
-            super(decoratedMove.getBoard(), decoratedMove.getMovedPiece(), decoratedMove.getDestinationCoordinate());
+            this.board = decoratedMove.getBoard();
+            this.movedPiece = decoratedMove.getMovedPiece();
+            this.destinationCoordinate = decoratedMove.getDestinationCoordinate();
+            this.moveStatus = decoratedMove.getMoveStatus();
             this.decoratedMove = decoratedMove;
             this.promotedPawn = (Pawn) decoratedMove.getMovedPiece();
             this.promotedPiece = getPromotionPiece(promotedPiece);
-        }
-
-        @Override
-        public Board execute() {
-
-            final Board pawnMovedBoard = this.decoratedMove.execute();
-            final Board.Builder builder = new Builder();
-            for (final Piece piece : pawnMovedBoard.currentPlayer().getActivePieces()) {
-                if (!this.promotedPawn.equals(piece)) {
-                    builder.setPiece(piece);
-                }
-            }
-            for (final Piece piece : pawnMovedBoard.currentPlayer().getOpponent().getActivePieces()) {
-                builder.setPiece(piece);
-            }
-            builder.setPiece(promotedPiece);
-
-            builder.setMoveMaker((this.board.currentPlayer().getOpponent().getColor()));
-            return builder.build();
-
         }
 
         @Override
@@ -336,6 +458,45 @@ public abstract class Move {
         @Override
         public Piece getPromotedPiece() {
             return this.promotedPiece;
+        }
+
+        @Override
+        void updatePieceList() {
+            if (decoratedMove.isCapture()) {
+                decoratedMove.removeCapturedPiece();
+            }
+            removePromotedPawn();
+            addPromotedPiece();
+        }
+
+        @Override
+        void undoMove() {
+            decoratedMove.undoMove();
+
+            if (promotedPiece.getPieceColor().isWhite()) {
+                board.whitePieces.remove(promotedPiece);
+            } else {
+                board.blackPieces.remove(promotedPiece);
+            }
+        }
+
+        private void removePromotedPawn() {
+            if (promotedPawn.getPieceColor().isWhite()) {
+                board.whitePieces.remove(promotedPawn);
+            } else {
+                board.blackPieces.remove(promotedPawn);
+            }
+            board.gameBoard.set(movedPiece.getPiecePosition(), new Tile.EmptyTile(movedPiece.getPiecePosition()));
+        }
+
+        private void addPromotedPiece() {
+            if (promotedPiece.getPieceColor().isWhite()) {
+                board.whitePieces.add(promotedPiece);
+            } else {
+                board.blackPieces.add(promotedPiece);
+            }
+            board.gameBoard.set(promotedPiece.getPiecePosition(), new Tile.OccupiedTile(promotedPiece.getPiecePosition(), promotedPiece));
+
         }
 
         public Move getDecoratedMove() {
@@ -363,15 +524,57 @@ public abstract class Move {
 
 
         public CastlingMove(final Board board,
-                            final Piece movedPiece,
+                            final King movedPiece,
                             final int destinationCoordinate,
                             final Rook castlingRook,
                             final int castlingRookStartPosition,
                             final int castlingRookDestination) {
-            super(board, movedPiece, destinationCoordinate);
+            this.board = board;
+            this.movedPiece = movedPiece;
+            this.destinationCoordinate = destinationCoordinate;
             this.castlingRook = castlingRook;
             this.castlingRookStartPosition = castlingRookStartPosition;
             this.castlingRookDestination = castlingRookDestination;
+            this.moveStatus = calculateMoveStatus();
+        }
+
+        @Override
+        public void updatePieceList() {
+            updateMovedPiece();
+            updateRook();
+        }
+
+        @Override
+        void undoMove() {
+            undoMovedPiece();
+            undoRookMove();
+
+        }
+
+        private void updateRook() {
+            Rook newRook = new Rook(this.castlingRookDestination, this.castlingRook.getPieceColor(), false);
+            if (this.castlingRook.getPieceColor().isWhite()) {
+                board.whitePieces.remove(this.castlingRook);
+                board.whitePieces.add(new Rook(this.castlingRookDestination, this.castlingRook.getPieceColor(), false));
+            } else {
+                board.blackPieces.remove(this.castlingRook);
+                board.blackPieces.add(new Rook(this.castlingRookDestination, this.castlingRook.getPieceColor(), this.castlingRook.isFirstMove()));
+            }
+            board.gameBoard.set(castlingRook.getPiecePosition(), new Tile.EmptyTile(castlingRook.getPiecePosition()));
+            board.gameBoard.set(newRook.getPiecePosition(), new Tile.OccupiedTile(newRook.getPiecePosition(), newRook));
+        }
+
+        private void undoRookMove() {
+            Rook newRook = new Rook(this.castlingRookDestination, this.castlingRook.getPieceColor(), false);
+            if (this.castlingRook.getPieceColor().isWhite()) {
+                board.whitePieces.remove(newRook);
+                board.whitePieces.add(this.castlingRook);
+            } else {
+                board.blackPieces.remove(newRook);
+                board.blackPieces.add(this.castlingRook);
+            }
+            board.gameBoard.set(castlingRook.getPiecePosition(), new Tile.OccupiedTile(castlingRook.getPiecePosition(), castlingRook));
+            board.gameBoard.set(newRook.getPiecePosition(), new Tile.EmptyTile(newRook.getPiecePosition()));
         }
 
         public Rook getCastlingRook() {
@@ -383,32 +586,13 @@ public abstract class Move {
             return true;
         }
 
-        @Override
-        public Board execute() {
-            final Builder builder = new Builder();
-            for (final Piece piece : this.board.currentPlayer().getActivePieces()) {
-                if (!this.movedPiece.equals(piece) && !this.castlingRook.equals(piece)) {
-                    builder.setPiece(piece);
-                }
-            }
-            for (final Piece piece : this.board.currentPlayer().getOpponent().getActivePieces()) {
-                builder.setPiece(piece);
-            }
-            final King castlingKing = (King) this.movedPiece.movePiece(this);
-            builder.setPiece(castlingKing);
-            builder.setPiece(new Rook(castlingRookDestination, this.castlingRook.getPieceColor(), false));
-
-            builder.setMoveMaker((this.board.currentPlayer().getOpponent().getColor()));
-            return builder.build();
-
-        }
 
     }
 
     public static final class KingsideCastlingMove extends CastlingMove {
 
         public KingsideCastlingMove(final Board board,
-                                    final Piece movedPiece,
+                                    final King movedPiece,
                                     final int destinationCoordinate,
                                     final Rook castlingRook,
                                     final int castlingRookStartPosition,
@@ -426,7 +610,7 @@ public abstract class Move {
     public static final class QueensideCastlingMove extends CastlingMove {
 
         public QueensideCastlingMove(final Board board,
-                                     final Piece movedPiece,
+                                     final King movedPiece,
                                      final int destinationCoordinate,
                                      final Rook castlingRook,
                                      final int castlingRookStartPosition,
@@ -444,16 +628,20 @@ public abstract class Move {
 
         public NullMove() {
             super(null, 65);
-        }
-
-        @Override
-        public Board execute() {
-            throw new RuntimeException("Cannot execute the null move");
+            this.moveStatus = MoveStatus.ILLEGAL_MOVE;
         }
 
         @Override
         public int getCurrentCoordinate() {
             return -1;
+        }
+
+        @Override
+        void updatePieceList() {
+        }
+
+        @Override
+        void undoMove() {
         }
     }
 
@@ -464,7 +652,7 @@ public abstract class Move {
         }
 
         public static Move createMove(final Board board, final int currentCoordinate, final int destinationCoordinate) {
-            for (final Move move : board.getAllLegalMoves()) {
+            for (final Move move : board.getLegalMoves()) {
                 if (move.getCurrentCoordinate() == currentCoordinate && move.getDestinationCoordinate() == destinationCoordinate) {
                     if (move instanceof PawnPromotionMove) {
                         return new PawnPromotionMove(move.getDecoratedMove(), getPromotionPiece());
