@@ -14,10 +14,8 @@ import java.util.List;
 
 public class WhitePlayer extends Player {
 
-    public WhitePlayer(final Board board,
-                       final List<Move> whiteStandardPossibleMoves,
-                       final List<Move> blackStandardPossibleMoves) {
-        super(board, whiteStandardPossibleMoves, blackStandardPossibleMoves);
+    public WhitePlayer(final Board board) {
+        super(board);
     }
 
     @Override
@@ -41,8 +39,7 @@ public class WhitePlayer extends Player {
     }
 
     @Override
-    protected List<Move> calculateKingCastlingCollection(final List<Move> playerLegals,
-                                                               final List<Move> opponentsLegals) {
+    public List<Move> getCastlingMoves() {
 
         final List<Move> castlingMoves = new ArrayList<>();
 
@@ -50,7 +47,7 @@ public class WhitePlayer extends Player {
 
             // Kingside castling
             if (this.playerKing.isKingSideCastleCapable() && !this.board.getTile(61).isTileOccupied() && !this.board.getTile(62).isTileOccupied()) {
-                if (Player.calculateAttacksOnTile(61, opponentsLegals).isEmpty() && Player.calculateAttacksOnTile(62, opponentsLegals).isEmpty()) {
+                if (board.getOpponentBoardControl().contains(61) && board.getOpponentBoardControl().contains(62)) {
                     final Tile rookTile = this.board.getTile(63);
 
                     if (rookTile.isTileOccupied() && rookTile.getPiece().getPieceType().isRook() && rookTile.getPiece().isFirstMove()) {
@@ -66,7 +63,7 @@ public class WhitePlayer extends Player {
 
             // Queenside castling
             if (this.playerKing.isQueenSideCastleCapable() && !this.board.getTile(57).isTileOccupied() && !this.board.getTile(58).isTileOccupied() && !this.board.getTile(59).isTileOccupied()) {
-                if (Player.calculateAttacksOnTile(58, opponentsLegals).isEmpty() && Player.calculateAttacksOnTile(59, opponentsLegals).isEmpty()) {
+                if (board.getOpponentBoardControl().contains(58) && board.getOpponentBoardControl().contains(59)) {
                     final Tile rookTile = this.board.getTile(56);
 
                     if (rookTile.isTileOccupied() && rookTile.getPiece().getPieceType().isRook() && rookTile.getPiece().isFirstMove()) {

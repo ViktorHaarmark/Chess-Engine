@@ -10,17 +10,18 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 public class Board {
 
     private final List<Tile> gameBoard;
     private final List<Piece> whitePieces;
     private final List<Piece> blackPieces;
-    private final List<Piece> allPieces;
 
     private final WhitePlayer whitePlayer;
     private final BlackPlayer blackPlayer;
+
+    private final HashSet<Integer> opponentBoardControl;
+    private final List<Move> legalMoves;
 
     private final Player currentPlayer;
 
@@ -31,18 +32,28 @@ public class Board {
         this.gameBoard = createGameBoard(builder);
         this.whitePieces = calculateActivePieces(this.gameBoard, Color.WHITE);
         this.blackPieces = calculateActivePieces(this.gameBoard, Color.BLACK);
-        this.allPieces = getAllActivePieces();
         this.enPassantPawn = builder.enPassantPawn;
 
-        final List<Move> whiteStandardPossibleMoves = calculatePossibleMoves(this.whitePieces);
-        final List<Move> blackStandardPossibleMoves = calculatePossibleMoves(this.blackPieces);
+        this.whitePlayer = new WhitePlayer(this);
 
-        this.whitePlayer = new WhitePlayer(this, whiteStandardPossibleMoves, blackStandardPossibleMoves);
-
-        this.blackPlayer = new BlackPlayer(this, whiteStandardPossibleMoves, blackStandardPossibleMoves);
-
+        this.blackPlayer = new BlackPlayer(this);
 
         this.currentPlayer = builder.nextPlayer.choosePlayer(this.whitePlayer, this.blackPlayer);
+
+        this.opponentBoardControl = currentPlayer.getOpponent().controlSquares();
+        this.legalMoves = createLegalMoves();
+    }
+
+    private List<Move> createLegalMoves() {
+        List<Move> legalStandardMoves = currentPlayer().createLegalStandardMoves();
+        List<Move> castlingMoves = currentPlayer().getCastlingMoves();
+        List<Move> legalMoves = new ArrayList<>(legalStandardMoves);
+        for (Move move : castlingMoves) {
+            if (move.isLegal()) {
+                legalMoves.add(move);
+            }
+        }
+        return ImmutableList.copyOf(legalMoves);
     }
 
     @Override
@@ -78,12 +89,16 @@ public class Board {
         return this.whitePieces;
     }
 
-    public List<Piece> getAllPieces() {
-        return this.allPieces;
-    }
-
     public Pawn getEnPassantPawn() {
         return this.enPassantPawn;
+    }
+
+    public List<Move> getLegalMoves() {
+        return this.legalMoves;
+    }
+
+    public HashSet<Integer> getOpponentBoardControl() {
+        return this.opponentBoardControl;
     }
 
     public Piece getPiece(final int coordinate) {
@@ -91,14 +106,6 @@ public class Board {
             return null;
         }
         return this.getTile(coordinate).getPiece();
-    }
-
-    public List<Move> calculatePossibleMoves(List<Piece> pieceList) {
-        final List<Move> legalMoves = new ArrayList<>();
-        for (final Piece piece : pieceList) {
-            legalMoves.addAll(piece.calculateLegalMoves(this));
-        }
-        return ImmutableList.copyOf(legalMoves);
     }
 
     private static List<Piece> calculateActivePieces(final List<Tile> gameBoard, final Color color) {
@@ -114,21 +121,19 @@ public class Board {
         return ImmutableList.copyOf(activePieces);
     }
 
-    private List<Piece> getAllActivePieces() {
+    public List<Piece> getAllActivePieces() {
         final List<Piece> activePieces = new ArrayList<>();
         activePieces.addAll(this.whitePieces);
         activePieces.addAll(this.blackPieces);
         return ImmutableList.copyOf(activePieces);
     }
 
-    private static List<Piece> calculateAllActivePieces(final List<Tile> gameBoard) {
-        final List<Piece> activePieces = new ArrayList<>();
-        for (final Tile tile : gameBoard) {
-            if (tile.isTileOccupied()) {
-                activePieces.add(tile.getPiece());
-            }
+    public static boolean isSquareAttackedByPieceList(int square, List<Piece> pieceList, HashSet<Integer> nonEmptySquares) {
+        HashSet<Integer> controlledSquares = new HashSet<>();
+        for (Piece piece : pieceList) {
+            controlledSquares.addAll(piece.controlSquares(nonEmptySquares));
         }
-        return ImmutableList.copyOf(activePieces);
+        return controlledSquares.contains(square);
     }
 
     public Tile getTile(int tileCoordinate) {
@@ -181,19 +186,7 @@ public class Board {
             this.blackKingSideCastle = blackKingSideCastle;
             this.blackQueenSideCastle = blackQueenSideCastle;
         }
-
-
     }
-
-    public Iterable<Move> getAllLegalMoves() {
-
-    Stream<Move> combinedStream = Stream.concat(
-            this.whitePlayer.getLegalMoves().stream(),
-            this.blackPlayer.getLegalMoves().stream()
-    );
-    
-    return combinedStream.toList();
-}
 
 
 }

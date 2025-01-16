@@ -2,21 +2,19 @@ package chess.engine.board;
 
 import javax.swing.JOptionPane;
 
+import chess.Color;
 import chess.engine.board.Board.Builder;
-import chess.engine.pieces.Bishop;
-import chess.engine.pieces.King;
-import chess.engine.pieces.Knight;
-import chess.engine.pieces.Pawn;
-import chess.engine.pieces.Piece;
-import chess.engine.pieces.Queen;
-import chess.engine.pieces.Rook;
+import chess.engine.pieces.*;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 public abstract class Move {
 
     protected Board board;
     protected Piece movedPiece;
     protected int destinationCoordinate;
-    protected final boolean isFirstMove;
 
     private static final Move NULL_MOVE = new NullMove();
 
@@ -24,14 +22,12 @@ public abstract class Move {
         this.board = board;
         this.movedPiece = movedPiece;
         this.destinationCoordinate = destinationCoordinate;
-        this.isFirstMove = movedPiece.isFirstMove();
     }
 
     Move(final Board board, final int destinationCoordinate) {
         this.board = board;
         this.movedPiece = null;
         this.destinationCoordinate = destinationCoordinate;
-        this.isFirstMove = false;
     }
 
     @Override
@@ -118,6 +114,51 @@ public abstract class Move {
         builder.setMoveMaker(this.board.currentPlayer().getOpponent().getColor());
 
         return builder.build();
+    }
+
+    public Boolean isLegal() {
+        Color currentColor = board.currentPlayer().getColor();
+        List<Piece> simulatedPieceList = this.simulatePieceList();
+        HashSet<Integer> nonEmptySquares = new HashSet<>();
+        for (Piece piece : simulatedPieceList) {
+            nonEmptySquares.add(piece.getPiecePosition());
+        }
+        int kingPosition = this.getKing(simulatedPieceList, currentColor);
+        List<Piece> opponentsPieceList = new ArrayList<>();
+        for (Piece piece : simulatedPieceList) {
+            if (piece.getPieceColor().equals(currentColor.getOpponentColor())) {
+                opponentsPieceList.add(piece);
+            }
+        }
+
+        return (!Board.isSquareAttackedByPieceList(kingPosition, opponentsPieceList, nonEmptySquares));
+
+    }
+
+    private int getKing(List<Piece> pieceList, Color color) {
+        for (Piece piece : pieceList) {
+            if (piece.getPieceColor().equals(color) && piece.getPieceType().equals(PieceType.KING)) {
+                return piece.getPiecePosition();
+            }
+        }
+        throw new RuntimeException("there must be a king");
+    }
+
+
+    private List<Piece> simulatePieceList() {
+        List<Piece> pieceList = new ArrayList<>(board.getAllActivePieces());
+        updateMovedPiece(pieceList);
+        removeCapturedPiece(pieceList);
+        return pieceList;
+    }
+
+    protected void removeCapturedPiece(List<Piece> pieceList) {
+        pieceList.remove(this.getCapturedPiece());
+    }
+
+    protected void updateMovedPiece(List<Piece> pieceList) {
+        pieceList.remove(this.getMovedPiece());
+        pieceList.add(this.getMovedPiece().movePiece(this));
     }
 
 
@@ -324,6 +365,12 @@ public abstract class Move {
         }
 
         @Override
+        protected void updateMovedPiece(List<Piece> pieceList) {
+            pieceList.remove(this.getMovedPiece());
+            pieceList.add(getPromotedPiece());
+        }
+
+        @Override
         public boolean isCapture() {
             return this.decoratedMove.isCapture();
         }
@@ -455,6 +502,11 @@ public abstract class Move {
         public int getCurrentCoordinate() {
             return -1;
         }
+
+        @Override
+        public Boolean isLegal() {
+            return false;
+        }
     }
 
     public static class MoveFactory {
@@ -464,7 +516,7 @@ public abstract class Move {
         }
 
         public static Move createMove(final Board board, final int currentCoordinate, final int destinationCoordinate) {
-            for (final Move move : board.getAllLegalMoves()) {
+            for (final Move move : board.getLegalMoves()) {
                 if (move.getCurrentCoordinate() == currentCoordinate && move.getDestinationCoordinate() == destinationCoordinate) {
                     if (move instanceof PawnPromotionMove) {
                         return new PawnPromotionMove(move.getDecoratedMove(), getPromotionPiece());

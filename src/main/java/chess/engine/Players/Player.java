@@ -9,39 +9,17 @@ import chess.engine.pieces.King;
 import chess.engine.pieces.Piece;
 import com.google.common.collect.ImmutableList;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Stream;
+import java.util.*;
 
 public abstract class Player {
 
     protected final Board board;
     protected final King playerKing;
-    protected final List<Move> legalMoves;
-    private final boolean isInCheck;
 
 
-    Player(final Board board,
-           final List<Move> possibleMoves,
-           final List<Move> opponentMoves) {
+    Player(final Board board) {
         this.board = board;
         this.playerKing = establishKing();
-        this.isInCheck = !calculateAttacksOnTile(this.playerKing.getPiecePosition(), opponentMoves).isEmpty();
-        this.legalMoves = Stream.concat(
-                possibleMoves.stream(),
-                calculateKingCastlingCollection(possibleMoves, opponentMoves).stream()
-        ).toList();
-    }
-
-    protected static List<Move> calculateAttacksOnTile(int tileCoordinate, List<Move> moves) {
-        final List<Move> attackMoves = new ArrayList<>();
-
-        for (final Move move : moves) {
-            if (tileCoordinate == move.getDestinationCoordinate()) {
-                attackMoves.add(move);
-            }
-        }
-        return ImmutableList.copyOf(attackMoves);
     }
 
     public King getPlayerKing() {
@@ -49,7 +27,37 @@ public abstract class Player {
     }
 
     public List<Move> getLegalMoves() {
-        return this.legalMoves;
+        if (this.equals(board.currentPlayer())) {
+            return board.getLegalMoves();
+        } else return null;
+    }
+
+    public HashSet<Integer> controlSquares() {
+        HashSet<Integer> controlledSquares = new HashSet<>();
+        List<Move> possibleMoves = this.calculatePossibleMoves();
+        for (Move move : possibleMoves) {
+            controlledSquares.add(move.getMovedPiece().getPiecePosition());
+        }
+        return controlledSquares;
+    }
+
+    public List<Move> calculatePossibleMoves() {
+        List<Piece> pieceList = getActivePieces();
+        final List<Move> possibleMoves = new ArrayList<>();
+        for (final Piece piece : pieceList) {
+            possibleMoves.addAll(piece.calculateLegalMoves(this.board));
+        }
+        return ImmutableList.copyOf(possibleMoves);
+    }
+
+    public List<Move> calculatePossibleMoves(List<Piece> pieceList, Color pieceColor) {
+        final List<Move> possibleMoves = new ArrayList<>();
+        for (final Piece piece : pieceList) {
+            if (piece.getPieceColor().equals(pieceColor)) {
+                possibleMoves.addAll(piece.calculateLegalMoves(this.board));
+            }
+        }
+        return ImmutableList.copyOf(possibleMoves);
     }
 
 
@@ -64,19 +72,19 @@ public abstract class Player {
     }
 
     public boolean isMoveLegal(final Move move) {
-        return this.legalMoves.contains(move);
+        return move.isLegal();
     }
 
     public boolean isInCheck() {
-        return this.isInCheck;
+        return board.getOpponentBoardControl().contains(this.getPlayerKing().getPiecePosition());
     }
 
     public boolean isInCheckMate() {
-        return (this.isInCheck && hasNoLegalMove());
+        return (this.isInCheck() && hasNoLegalMove());
     }
 
     public boolean isInStaleMate() {
-        return (!this.isInCheck && hasNoLegalMove());
+        return (!this.isInCheck() && hasNoLegalMove());
     }
 
     public boolean isKingSideCastleCapable() {
@@ -88,16 +96,13 @@ public abstract class Player {
     }
 
     protected boolean hasNoLegalMove() {
-        for (final Move move : this.legalMoves) {
-            final MoveTransition transition = makeMove(move);
-            if (transition.moveStatus().isDone()) {
-                return false;
-            }
+        if (this.equals(board.currentPlayer())) {
+            return board.getLegalMoves().isEmpty();
         }
-        return true;
+        return false;
     }
 
-    public boolean isCastled() {
+    public boolean isCastled() { //TODO: not implemented
         return false;
     }
 
@@ -109,13 +114,6 @@ public abstract class Player {
 
         final Board boardAfterMove = move.execute();
 
-        final List<Move> kingAttacks = Player.calculateAttacksOnTile(boardAfterMove.currentPlayer().getOpponent().getPlayerKing().getPiecePosition(),
-                boardAfterMove.currentPlayer().getLegalMoves());
-
-        if (!kingAttacks.isEmpty()) {
-            return new MoveTransition(this.board, this.board, move, MoveStatus.LEAVES_PLAYER_IN_CHECK);
-        }
-
         return new MoveTransition(this.board, boardAfterMove, move, MoveStatus.DONE);
     }
 
@@ -125,5 +123,16 @@ public abstract class Player {
 
     public abstract Player getOpponent();
 
-    protected abstract List<Move> calculateKingCastlingCollection(List<Move> playerLegals, List<Move> opponentsLegals);
+    public abstract List<Move> getCastlingMoves();
+
+    public List<Move> createLegalStandardMoves() { //Standard moves are non-castling moves
+        List<Move> possibleMoves = this.calculatePossibleMoves();
+        List<Move> legalStandardMoves = new ArrayList<>();
+        for (Move move : possibleMoves) {
+            if (move.isLegal()) {
+                legalStandardMoves.add(move);
+            }
+        }
+        return ImmutableList.copyOf(legalStandardMoves);
+    }
 }
