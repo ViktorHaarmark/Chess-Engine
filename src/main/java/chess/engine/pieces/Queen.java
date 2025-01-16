@@ -1,6 +1,7 @@
 package chess.engine.pieces;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -58,6 +59,27 @@ public class Queen extends Piece {
             }
         }
         return ImmutableList.copyOf(legalMoves);
+    }
+
+    public HashSet<Integer> controlSquares(final HashSet<Integer> nonEmptySquares) {
+        HashSet<Integer> controlledSquares = new HashSet<>();
+        int candidateDestinationCoordinate;
+
+        for (final int direction : DIRECTION) {
+            for (int i = 1; i < 8; i++) {
+                candidateDestinationCoordinate = this.piecePosition + i * direction;
+                if (!BoardUtils.isValidTileCoordinate(candidateDestinationCoordinate) ||
+                        (isRookDirection(direction) && !isRookMove(candidateDestinationCoordinate)) ||
+                        (isBishopDirection(direction) && !isBishopMove(candidateDestinationCoordinate))) {
+                    break;
+                }
+                controlledSquares.add(candidateDestinationCoordinate);
+                if (nonEmptySquares.contains(candidateDestinationCoordinate)) {
+                    break;
+                }
+            }
+        }
+        return controlledSquares;
     }
 
     @Override

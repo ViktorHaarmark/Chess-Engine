@@ -11,6 +11,7 @@ import java.util.List;
 public class AlphaBeta implements MoveStrategy {
     private final BoardEvaluator boardEvaluator;
     private final int searchDepth;
+    private int numPosition;
 
 
     public AlphaBeta(final int searchDepth) {
@@ -36,8 +37,8 @@ public class AlphaBeta implements MoveStrategy {
             final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
             if (moveTransition.moveStatus().isDone()) {
                 currentValue = board.currentPlayer().getColor().isWhite() ?
-                        alphaBetaSearch(moveTransition.toBoard(), searchDepth-1, Integer.MIN_VALUE, Integer.MAX_VALUE, false) :
-                        alphaBetaSearch(moveTransition.toBoard(), searchDepth-1, Integer.MAX_VALUE, Integer.MAX_VALUE, true);
+                        alphaBetaSearch(moveTransition.toBoard(), searchDepth-1, -100000, 100000, false) :
+                        alphaBetaSearch(moveTransition.toBoard(), searchDepth-1, -100000, 100000, true);
 
                 if (board.currentPlayer().getColor().isWhite() && currentValue >= highestSeenValue) {
                     highestSeenValue = currentValue;
@@ -51,13 +52,16 @@ public class AlphaBeta implements MoveStrategy {
 
         final long executionTime = System.currentTimeMillis() - startTime;
         System.out.println("Thiking time: " + executionTime / 1000.0);
+        System.out.println("Number of positions evaluated: " + numPosition);
+        numPosition = 0;
 
         return bestMove;
     }
 
     public int alphaBetaSearch(final Board board, final int depth, int alpha, int beta, boolean maximizingPlayer) {
         if (depth == 0 || BoardUtils.isEndGame(board)) {
-            return this.boardEvaluator.evaluate(board, depth);
+            numPosition += 1;
+            return this.boardEvaluator.evaluate(board);
         }
         if (!maximizingPlayer) {
             int lowestSeenValue = Integer.MAX_VALUE;
@@ -94,5 +98,14 @@ public class AlphaBeta implements MoveStrategy {
 
 
     }
+
+//    private int searchAllCaptures(Board board, int alpha, int beta) {
+//        int evaluation = boardEvaluator.evaluate(board);
+//        if (evaluation > beta) {
+//            return beta;
+//        }
+//        alpha = Math.max(alpha, evaluation);
+//        List<Move> captureMoves =
+//    }
 
 }

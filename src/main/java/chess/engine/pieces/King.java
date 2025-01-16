@@ -10,6 +10,8 @@ import chess.engine.board.Tile;
 import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import static chess.engine.pieces.PieceType.KING;
@@ -19,20 +21,11 @@ public class King extends Piece {
     private final static int[] DIRECTION = {-8, -1, 1, 8, -9, -7, 7, 9};
     private final boolean isKingSideCastleCapable;
     private final boolean isQueenSideCastleCapable;
-    private final boolean isCastled;
 
     public King(final int piecePosition, final Color color, final boolean isKingSideCastleCapable, final boolean isQueenSideCastleCapable) {
         super(piecePosition, color, KING, false);
         this.isKingSideCastleCapable = isKingSideCastleCapable;
         this.isQueenSideCastleCapable = isQueenSideCastleCapable;
-        this.isCastled = false;
-    }
-
-    public King(final int piecePosition, final Color color, final boolean isCastled, final boolean isKingSideCastleCapable, final boolean isQueenSideCastleCapable) {
-        super(piecePosition, color, KING, false);
-        this.isKingSideCastleCapable = isKingSideCastleCapable;
-        this.isQueenSideCastleCapable = isQueenSideCastleCapable;
-        this.isCastled = isCastled;
     }
 
     public boolean isKingSideCastleCapable() {
@@ -69,6 +62,21 @@ public class King extends Piece {
         return ImmutableList.copyOf(legalMoves);
     }
 
+    public HashSet<Integer> controlSquares(final HashSet<Integer> nonEmptySquares) {
+        HashSet<Integer> controlledSquares = new HashSet<>();
+        int candidateDestinationCoordinate;
+
+        for (final int direction : DIRECTION) {
+
+            candidateDestinationCoordinate = this.piecePosition + direction;
+            if (!isKingMove(candidateDestinationCoordinate)) {
+                continue;
+            }
+            controlledSquares.add(candidateDestinationCoordinate);
+        }
+        return controlledSquares;
+    }
+
 
     public boolean isKingMove(final int coordinate) {
         return BoardUtils.isValidTileCoordinate(coordinate) && BoardUtils.rowDifference(coordinate, this.piecePosition) + BoardUtils.columnDifference(coordinate, this.piecePosition) <= 2;
@@ -82,7 +90,7 @@ public class King extends Piece {
 
     @Override
     public King movePiece(Move move) {
-        return new King(move.getDestinationCoordinate(), move.getMovedPiece().getPieceColor(), move.isCastlingMove(), false, false);
+        return new King(move.getDestinationCoordinate(), move.getMovedPiece().getPieceColor(), false, false);
     }
 
 }

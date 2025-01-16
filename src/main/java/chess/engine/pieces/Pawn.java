@@ -7,6 +7,7 @@ import chess.engine.board.Move;
 import chess.engine.board.Move.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import static chess.engine.pieces.PieceType.PAWN;
@@ -71,6 +72,19 @@ public class Pawn extends Piece {
 
         }
         return legalMoves;
+    }
+
+    public HashSet<Integer> controlSquares(final HashSet<Integer> nonEmptySquares) {
+        HashSet<Integer> controlledSquares = new HashSet<>();
+        int candidateDestinationCoordinate;
+
+        for (final int direction : DIRECTION) {
+            if (direction != 8) {
+                candidateDestinationCoordinate = this.piecePosition + direction * this.color.getDirection();
+                controlledSquares.add(candidateDestinationCoordinate);
+            }
+        }
+        return controlledSquares;
     }
 
     @Override

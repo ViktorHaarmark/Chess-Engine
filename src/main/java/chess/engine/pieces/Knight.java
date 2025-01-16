@@ -10,13 +10,14 @@ import chess.engine.board.Tile;
 import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import static chess.engine.pieces.PieceType.KNIGHT;
 
 public class Knight extends Piece {
 
-    private final static int[] CANDIDATE_MOVE_COORDINATES = {-17, -15, -10, -6, 6, 10, 15, 17};
+    private final static int[] DIRECTION = {-17, -15, -10, -6, 6, 10, 15, 17};
 
     public Knight(final int piecePosition, final Color color, final boolean isFirstMove) {
         super(piecePosition, color, KNIGHT, isFirstMove);
@@ -32,7 +33,7 @@ public class Knight extends Piece {
         int candidateDestinationCoordinate;
         final List<Move> legalMoves = new ArrayList<>();
 
-        for (final int currentMoveOffset : CANDIDATE_MOVE_COORDINATES) {
+        for (final int currentMoveOffset : DIRECTION) {
 
             candidateDestinationCoordinate = this.piecePosition + currentMoveOffset;
 
@@ -51,6 +52,20 @@ public class Knight extends Piece {
             }
         }
         return ImmutableList.copyOf(legalMoves);
+    }
+
+    public HashSet<Integer> controlSquares(final HashSet<Integer> nonEmptySquares) {
+        HashSet<Integer> controlledSquares = new HashSet<>();
+        int candidateDestinationCoordinate;
+
+        for (final int currentMoveOffset : DIRECTION) {
+
+            candidateDestinationCoordinate = this.piecePosition + currentMoveOffset;
+            if (BoardUtils.isValidTileCoordinate(candidateDestinationCoordinate) && isValidKnightMove(currentMoveOffset, candidateDestinationCoordinate)) {
+                controlledSquares.add(candidateDestinationCoordinate);
+            }
+        }
+        return controlledSquares;
     }
 
     private boolean isValidKnightMove(int candidateOffset, int candidateDestinationCoordinate) { //Can be implemented in a different way, see video 5

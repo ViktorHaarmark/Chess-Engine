@@ -1,7 +1,6 @@
 package chess.engine.Players.ai;
 
 import chess.engine.board.Move;
-import chess.engine.pieces.Piece;
 
 import java.util.Comparator;
 
@@ -20,16 +19,20 @@ public class MoveSorter implements Comparator<Move> {
     private int getMoveScore(Move move) {
 
         int moveScore = 0;
-        Piece piece = move.getMovedPiece();
+        int movedPieceValue = move.getMovedPiece().getPieceValue();
+        int capturedPieceValue = 0;
         if (move.isCapture()) {
-            moveScore += 2 * (move.getCapturedPiece().getPieceValue() - piece.getPieceValue());
+            capturedPieceValue = move.getCapturedPiece().getPieceValue();
+        }
+        if (move.isCapture()) {
+            moveScore += 10 * capturedPieceValue - movedPieceValue;
         }
 //        if (move.isPromotionMove()) {
 //            moveScore += move.getPromotedPiece().getPieceValue();
 //        }
-//        if (move.execute().currentPlayer().isInCheck()) {
-//            moveScore += 50;
-//        }
+        if (move.execute().currentPlayer().isInCheck()) {
+            moveScore += 100;
+        }
         return moveScore;
 
     }

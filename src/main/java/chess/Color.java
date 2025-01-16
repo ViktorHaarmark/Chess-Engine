@@ -32,6 +32,11 @@ public enum Color {
         }
 
         @Override
+        public Color getOpponentColor() {
+            return Color.BLACK;
+        }
+
+        @Override
         public String toString() {
             return "white";
         }
@@ -69,6 +74,11 @@ public enum Color {
         }
 
         @Override
+        public Color getOpponentColor() {
+            return Color.WHITE;
+        }
+
+        @Override
         public String toString() {
             return "black";
         }
@@ -90,6 +100,8 @@ public enum Color {
     public abstract boolean isWhite();
 
     public abstract Player choosePlayer(final WhitePlayer whitePlayer, final BlackPlayer blackPlayer);
+
+    public abstract Color getOpponentColor();
 
     public abstract String toString();
 }

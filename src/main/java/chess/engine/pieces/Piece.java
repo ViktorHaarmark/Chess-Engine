@@ -5,6 +5,7 @@ import chess.engine.board.Board;
 import chess.engine.board.BoardUtils;
 import chess.engine.board.Move;
 
+import java.util.HashSet;
 import java.util.List;
 
 public abstract class Piece {
@@ -49,6 +50,8 @@ public abstract class Piece {
     }
 
     public abstract List<Move> calculateLegalMoves(final Board board);
+
+    public abstract HashSet<Integer> controlSquares(final HashSet<Integer> nonEmptySquares);
 
     public abstract Piece movePiece(Move move);
 

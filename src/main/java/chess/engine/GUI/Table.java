@@ -51,8 +51,9 @@ public class Table extends Observable {
 
         final JMenuBar tableMenuBar = createTableMenuBar();
         this.gameFrame.setJMenuBar(tableMenuBar);
-        this.chessBoard = BoardSetup.createStandardBoard();
+        //this.chessBoard = BoardSetup.createStandardBoard();
         //this.chessBoard = FenUtility.createGameFromFEN("4k3/8/8/8/8/8/5n2/4K2R b K - 0 1");
+        this.chessBoard = BoardSetup.InterestingPosition();
         this.boardDirection = BoardDirection.NORMAL;
         this.showLegalMoves = true;
         this.computerMove = null;
@@ -248,7 +249,7 @@ public class Table extends Observable {
         }
 
         @Override
-        protected Move doInBackground() throws Exception {
+        protected Move doInBackground() throws RuntimeException {
             final MoveStrategy engine = new AlphaBeta(Table.get().getGameSetup().getSearchDepth());
             final Move bestMove = engine.execute(Table.get().getGameBoard());
             return bestMove;

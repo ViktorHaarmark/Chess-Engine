@@ -10,6 +10,7 @@ import chess.engine.board.Tile;
 import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import static chess.engine.pieces.PieceType.BISHOP;
@@ -51,6 +52,25 @@ public class Bishop extends Piece {
             }
         }
         return ImmutableList.copyOf(legalMoves);
+    }
+
+    public HashSet<Integer> controlSquares(final HashSet<Integer> nonEmptySquares) {
+        HashSet<Integer> controlledSquares = new HashSet<>();
+        int candidateDestinationCoordinate;
+
+        for (final int direction : DIRECTION) {
+            for (int i = 1; i < 8; i++) {
+                candidateDestinationCoordinate = this.piecePosition + i * direction;
+                if (!BoardUtils.isValidTileCoordinate(candidateDestinationCoordinate) || !isBishopMove(candidateDestinationCoordinate)) {
+                    break;
+                }
+                controlledSquares.add(candidateDestinationCoordinate);
+                if (nonEmptySquares.contains(candidateDestinationCoordinate)) {
+                    break;
+                }
+            }
+        }
+    return controlledSquares;
     }
 
     @Override
