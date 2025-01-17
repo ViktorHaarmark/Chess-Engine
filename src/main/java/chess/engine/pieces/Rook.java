@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import chess.engine.Players.ai.PieceSquareTables;
 import com.google.common.collect.ImmutableList;
 
 import chess.Color;
@@ -84,5 +85,10 @@ public class Rook extends Piece {
     @Override
     public Rook movePiece(Move move) {
         return new Rook(move.getDestinationCoordinate(), move.getMovedPiece().getPieceColor(), false);
+    }
+
+    @Override
+    protected int[] getPieceSquareTable() {
+        return PieceSquareTables.ROOK_SQUARE_TABLE;
     }
 }

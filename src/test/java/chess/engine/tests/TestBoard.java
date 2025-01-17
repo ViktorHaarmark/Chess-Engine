@@ -74,8 +74,8 @@ public class TestBoard {
         assertEquals(board.currentPlayer(), board.whitePlayer());
         assertEquals(board.currentPlayer().getOpponent(), board.blackPlayer());
         StandardBoardEvaluator evaluator = new StandardBoardEvaluator();
-        System.out.println(evaluator.evaluate(board, 0));
-        assertEquals(0, evaluator.evaluate(board, 0));
+        System.out.println(evaluator.evaluate(board));
+        assertEquals(0, evaluator.evaluate(board));
 
         final Move move = MoveFactory.createMove(board, BoardUtils.getCoordinateAtPosition("e1"),
                 BoardUtils.getCoordinateAtPosition("f1"));

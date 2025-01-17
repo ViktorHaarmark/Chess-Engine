@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import chess.engine.Players.ai.PieceSquareTables;
 import com.google.common.collect.ImmutableList;
 
 import chess.Color;
@@ -90,6 +91,11 @@ public class Queen extends Piece {
     @Override
     public Queen movePiece(Move move) {
         return new Queen(move.getDestinationCoordinate(), move.getMovedPiece().getPieceColor(), false);
+    }
+
+    @Override
+    protected int[] getPieceSquareTable() {
+        return PieceSquareTables.QUEEN_SQUARE_TABLE;
     }
 
 

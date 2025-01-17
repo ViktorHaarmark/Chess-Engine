@@ -51,9 +51,9 @@ public class Table extends Observable {
 
         final JMenuBar tableMenuBar = createTableMenuBar();
         this.gameFrame.setJMenuBar(tableMenuBar);
-        //this.chessBoard = BoardSetup.createStandardBoard();
+        this.chessBoard = BoardSetup.createStandardBoard();
         //this.chessBoard = FenUtility.createGameFromFEN("4k3/8/8/8/8/8/5n2/4K2R b K - 0 1");
-        this.chessBoard = BoardSetup.InterestingPosition();
+        //this.chessBoard = BoardSetup.InterestingPosition();
         this.boardDirection = BoardDirection.NORMAL;
         this.showLegalMoves = true;
         this.computerMove = null;

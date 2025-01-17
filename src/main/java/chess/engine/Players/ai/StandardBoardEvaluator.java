@@ -8,22 +8,21 @@ public final class StandardBoardEvaluator implements BoardEvaluator {
 
     private static final int CHECK_BONUS = 50;
     private static final int CHECKMATE_BONUS = 10000;
-    private static final int DEPTH_BONUS = 100;
     private static final int CASTLED_BONUS = 60;
 
     @Override
-    public int evaluate(Board board, int depth) {
+    public int evaluate(Board board) {
 
-        return ScorePlayer(board, board.whitePlayer(), depth) - ScorePlayer(board, board.blackPlayer(), depth);
+        return ScorePlayer(board, board.whitePlayer()) - ScorePlayer(board, board.blackPlayer());
     }
 
     private int ScorePlayer(Board board,
-                            Player player,
-                            int depth) {
+                            Player player
+                            ) {
         return pieceValue(player)
                 + mobility(player)
                 + check(player)
-                + checkmate(player, depth)
+                + checkmate(player)
                 + castled(player);
     }
 
@@ -32,6 +31,7 @@ public final class StandardBoardEvaluator implements BoardEvaluator {
 
         for (Piece piece : player.getActivePieces()) {
             pieceValueScore += piece.getPieceValue();
+            pieceValueScore += piece.getPiecePositionValue();
         }
 
         return pieceValueScore;
@@ -45,15 +45,12 @@ public final class StandardBoardEvaluator implements BoardEvaluator {
         return player.getOpponent().isInCheck() ? CHECK_BONUS : 0;
     }
 
-    private static int checkmate(final Player player, final int depth) {
-        return player.getOpponent().isInCheckMate() ? CHECKMATE_BONUS * depthBonus(depth) : 0;
+    private static int checkmate(final Player player) {
+        return player.getOpponent().isInCheckMate() ? CHECKMATE_BONUS : 0;
     }
 
     private static int castled(final Player player) {
         return player.isCastled() ? CASTLED_BONUS : 0;
     }
 
-    private static int depthBonus(final int depth) {
-        return depth == 0 ? 1 : DEPTH_BONUS * depth;
-    }
 }

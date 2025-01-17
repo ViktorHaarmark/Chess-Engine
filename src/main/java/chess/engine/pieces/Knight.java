@@ -1,6 +1,7 @@
 package chess.engine.pieces;
 
 import chess.Color;
+import chess.engine.Players.ai.PieceSquareTables;
 import chess.engine.board.Board;
 import chess.engine.board.BoardUtils;
 import chess.engine.board.Move;
@@ -89,6 +90,11 @@ public class Knight extends Piece {
     @Override
     public Knight movePiece(Move move) {
         return new Knight(move.getDestinationCoordinate(), move.getMovedPiece().getPieceColor(), false);
+    }
+
+    @Override
+    protected int[] getPieceSquareTable() {
+        return PieceSquareTables.KNIGHT_SQUARE_TABLE;
     }
 
 }

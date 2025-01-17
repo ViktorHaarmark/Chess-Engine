@@ -1,6 +1,7 @@
 package chess.engine.pieces;
 
 import chess.Color;
+import chess.engine.Players.ai.PieceSquareTables;
 import chess.engine.board.Board;
 import chess.engine.board.BoardUtils;
 import chess.engine.board.Move;
@@ -81,6 +82,11 @@ public class Bishop extends Piece {
     @Override
     public Bishop movePiece(Move move) {
         return new Bishop(move.getDestinationCoordinate(), move.getMovedPiece().getPieceColor(), false);
+    }
+
+    @Override
+    protected int[] getPieceSquareTable() {
+        return PieceSquareTables.BISHOP_SQUARE_TABLE;
     }
 
 }

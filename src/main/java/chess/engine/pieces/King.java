@@ -1,6 +1,7 @@
 package chess.engine.pieces;
 
 import chess.Color;
+import chess.engine.Players.ai.PieceSquareTables;
 import chess.engine.board.Board;
 import chess.engine.board.BoardUtils;
 import chess.engine.board.Move;
@@ -10,7 +11,6 @@ import chess.engine.board.Tile;
 import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
@@ -91,6 +91,11 @@ public class King extends Piece {
     @Override
     public King movePiece(Move move) {
         return new King(move.getDestinationCoordinate(), move.getMovedPiece().getPieceColor(), false, false);
+    }
+
+    @Override
+    protected int[] getPieceSquareTable() {
+        return PieceSquareTables.KING_SQUARE_TABLE;
     }
 
 }

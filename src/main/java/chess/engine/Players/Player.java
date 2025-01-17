@@ -52,6 +52,16 @@ public abstract class Player {
         return this.legalMoves;
     }
 
+    public List<Move> getCaptureMoves() {
+        List<Move> captureMoves = new ArrayList<>();
+        for (Move move : getLegalMoves()) {
+            if (move.isCapture()) {
+                captureMoves.add(move);
+            }
+        }
+        return ImmutableList.copyOf(captureMoves);
+    }
+
 
     private King establishKing() {
 
@@ -126,4 +136,5 @@ public abstract class Player {
     public abstract Player getOpponent();
 
     protected abstract List<Move> calculateKingCastlingCollection(List<Move> playerLegals, List<Move> opponentsLegals);
+
 }

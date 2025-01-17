@@ -8,6 +8,8 @@ import chess.engine.board.MoveTransition;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.Math.round;
+
 public class AlphaBeta implements MoveStrategy {
     private final BoardEvaluator boardEvaluator;
     private final int searchDepth;
@@ -26,11 +28,11 @@ public class AlphaBeta implements MoveStrategy {
 
         Move bestMove = null;
 
-        int highestSeenValue = Integer.MIN_VALUE;
-        int lowestSeenValue = Integer.MAX_VALUE;
-        int currentValue;
+        int highestSeenValue = -100000;
+        int lowestSeenValue = 100000;
+        int currentValue = 0;
 
-        System.out.println(board.currentPlayer() + "THINKING with alphaBeta search and depth = " + searchDepth);
+        System.out.println(board.currentPlayer() + " thinking with alphaBeta search and depth = " + searchDepth);
 
         for (final Move move : board.currentPlayer().getLegalMoves()) {
 
@@ -49,10 +51,12 @@ public class AlphaBeta implements MoveStrategy {
                 }
             }
         }
-
-        final long executionTime = System.currentTimeMillis() - startTime;
-        System.out.println("Thiking time: " + executionTime / 1000.0);
+        int bestMoveEval = (board.currentPlayer().getColor().isWhite() ? highestSeenValue : lowestSeenValue);
+        final double executionTime = (System.currentTimeMillis() - startTime)/1000.0;
+        System.out.println("Thinking time: " + executionTime);
         System.out.println("Number of positions evaluated: " + numPosition);
+        System.out.println("Positions evaluated per second: " + round((numPosition/executionTime)));
+        System.out.println("The evaluation of " + bestMove.toString() + " is: " + bestMoveEval);
         numPosition = 0;
 
         return bestMove;
@@ -64,9 +68,9 @@ public class AlphaBeta implements MoveStrategy {
             return this.boardEvaluator.evaluate(board);
         }
         if (!maximizingPlayer) {
-            int lowestSeenValue = Integer.MAX_VALUE;
+            int lowestSeenValue = 100000;
             List<Move> legalMoves = new ArrayList<>(board.currentPlayer().getLegalMoves());
-            //legalMoves.sort(new MoveSorter());
+            //legalMoves.sort(new MoveSorter()); TODO: Why is this so slow?
             for (final Move move : legalMoves) {
                 final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
                 if (moveTransition.moveStatus().isDone()) {
@@ -81,7 +85,7 @@ public class AlphaBeta implements MoveStrategy {
             return lowestSeenValue;
         }
         else {
-            int highestSeenValue = Integer.MIN_VALUE;
+            int highestSeenValue = -100000;
             for (final Move move : board.currentPlayer().getLegalMoves()) {
                 final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
                 if (moveTransition.moveStatus().isDone()) {
@@ -99,13 +103,25 @@ public class AlphaBeta implements MoveStrategy {
 
     }
 
-//    private int searchAllCaptures(Board board, int alpha, int beta) {
-//        int evaluation = boardEvaluator.evaluate(board);
-//        if (evaluation > beta) {
-//            return beta;
-//        }
-//        alpha = Math.max(alpha, evaluation);
-//        List<Move> captureMoves =
-//    }
+    private int searchAllCaptures(Board board, int alpha, int beta) {
+        int evaluation = boardEvaluator.evaluate(board);
+        if (evaluation > beta) {
+            return beta;
+        }
+        alpha = Math.max(alpha, evaluation);
+        List<Move> captureMoves = new ArrayList<>(board.currentPlayer().getCaptureMoves());
+        captureMoves.sort(new MoveSorter());
+        for (Move move : captureMoves) {
+            MoveTransition moveTransition = board.currentPlayer().makeMove(move);
+            if (moveTransition.getMoveStatus().isDone()) {
+                evaluation = -searchAllCaptures(moveTransition.toBoard(), -beta, -alpha);
+            }
+            if (evaluation >= beta) {
+                return beta;
+            }
+            alpha = Math.max(alpha, evaluation);
+        }
+        return alpha;
+    }
 
 }

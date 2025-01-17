@@ -84,8 +84,9 @@ public class TestEngine {
         final MoveStrategy alphaBeta = new AlphaBeta(4);
 
         final Move bestMove = alphaBeta.execute(board);
-        assertEquals(bestMove, Move.MoveFactory
-                .createMove(board, BoardUtils.getCoordinateAtPosition("d6"), BoardUtils.getCoordinateAtPosition("e6")));
+        assertEquals(Move.MoveFactory
+                .createMove(board, BoardUtils.getCoordinateAtPosition("d6"), BoardUtils.getCoordinateAtPosition("e6")), bestMove);
+        //Last seen speed was 4.6s and pos/sec was 56k, eval +10
     }
 
     @Test

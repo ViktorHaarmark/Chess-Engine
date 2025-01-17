@@ -91,5 +91,13 @@ public abstract class Piece {
         return direction == -9 || direction == -7 || direction == 7 || direction == 9;
     }
 
+    protected abstract int[] getPieceSquareTable();
 
+    public int getPiecePositionValue() {
+        if (this.getPieceColor().isWhite()) {
+            return getPieceSquareTable()[this.getPiecePosition()];
+        } else {
+            return getPieceSquareTable()[63 - this.getPiecePosition()]; //TODO: spejlvendt lige nu, er det et problem?
+        }
+    }
 }
