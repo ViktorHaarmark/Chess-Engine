@@ -24,18 +24,18 @@ public class TestBoard {
         assertFalse(board.currentPlayer().isCastled());
         //assertTrue(board.currentPlayer().isKingSideCastleCapable());
         //assertTrue(board.currentPlayer().isQueenSideCastleCapable());
-        assertEquals(board.currentPlayer(), board.whitePlayer());
-        assertEquals(board.currentPlayer().getOpponent(), board.blackPlayer());
+        assertEquals(board.currentPlayer(), board.getWhitePlayer());
+        assertEquals(board.currentPlayer().getOpponent(), board.getBlackPlayer());
         assertFalse(board.currentPlayer().getOpponent().isInCheck());
         assertFalse(board.currentPlayer().getOpponent().isInCheckMate());
         assertFalse(board.currentPlayer().getOpponent().isCastled());
         //assertTrue(board.currentPlayer().getOpponent().isKingSideCastleCapable());
         //assertTrue(board.currentPlayer().getOpponent().isQueenSideCastleCapable());
-        assertEquals("White", board.whitePlayer().toString());
-        assertEquals("Black", board.blackPlayer().toString());
+        assertEquals("White", board.getWhitePlayer().toString());
+        assertEquals("Black", board.getBlackPlayer().toString());
 
         final Iterable<Piece> allPieces = board.getAllPieces();
-        final Iterable<Move> allMoves = Iterables.concat(board.whitePlayer().getLegalMoves(), board.blackPlayer().getLegalMoves());
+        final Iterable<Move> allMoves = Iterables.concat(board.getWhitePlayer().getLegalMoves(), board.getBlackPlayer().getLegalMoves());
         for (final Move move : allMoves) {
             assertFalse(move.isCapture());
             assertFalse(move.isCastlingMove());
@@ -65,14 +65,14 @@ public class TestBoard {
         final Board board = builder.build();
         System.out.println(board);
 
-        assertEquals(6, board.whitePlayer().getLegalMoves().size());
-        assertEquals(6, board.blackPlayer().getLegalMoves().size());
+        assertEquals(6, board.getWhitePlayer().getLegalMoves().size());
+        assertEquals(6, board.getBlackPlayer().getLegalMoves().size());
         assertFalse(board.currentPlayer().isInCheck());
         assertFalse(board.currentPlayer().isInCheckMate());
         assertFalse(board.currentPlayer().getOpponent().isInCheck());
         assertFalse(board.currentPlayer().getOpponent().isInCheckMate());
-        assertEquals(board.currentPlayer(), board.whitePlayer());
-        assertEquals(board.currentPlayer().getOpponent(), board.blackPlayer());
+        assertEquals(board.currentPlayer(), board.getWhitePlayer());
+        assertEquals(board.currentPlayer().getOpponent(), board.getBlackPlayer());
         StandardBoardEvaluator evaluator = new StandardBoardEvaluator();
         System.out.println(evaluator.evaluate(board));
         assertEquals(0, evaluator.evaluate(board));
@@ -85,10 +85,10 @@ public class TestBoard {
 
         assertEquals(moveTransition.move(), move);
         assertEquals(moveTransition.fromBoard(), board);
-        assertEquals(moveTransition.toBoard().currentPlayer(), moveTransition.toBoard().blackPlayer());
+        assertEquals(moveTransition.toBoard().currentPlayer(), moveTransition.toBoard().getBlackPlayer());
 
         assertTrue(moveTransition.moveStatus().isDone());
-        assertEquals(61, moveTransition.toBoard().whitePlayer().getPlayerKing().getPiecePosition());
+        assertEquals(61, moveTransition.toBoard().getWhitePlayer().getPlayerKing().getPiecePosition());
         System.out.println(moveTransition.toBoard());
 
     }
@@ -96,7 +96,7 @@ public class TestBoard {
     @Test
     public void testBoardConsistency() {
         final Board board = BoardSetup.createStandardBoard();
-        assertEquals(board.currentPlayer(), board.whitePlayer());
+        assertEquals(board.currentPlayer(), board.getWhitePlayer());
 
         final MoveTransition t1 = board.currentPlayer()
                 .makeMove(MoveFactory.createMove(board, BoardUtils.getCoordinateAtPosition("e2"),
@@ -160,8 +160,8 @@ public class TestBoard {
                 .makeMove(MoveFactory.createMove(t13.toBoard(), BoardUtils.getCoordinateAtPosition("d5"),
                         BoardUtils.getCoordinateAtPosition("e4")));
 
-        assertEquals(t14.toBoard().whitePlayer().getActivePieces().size(), calculatedActivesFor(t14.toBoard(), Color.WHITE));
-        assertEquals(t14.toBoard().blackPlayer().getActivePieces().size(), calculatedActivesFor(t14.toBoard(), Color.BLACK));
+        assertEquals(t14.toBoard().getWhitePlayer().getActivePieces().size(), calculatedActivesFor(t14.toBoard(), Color.WHITE));
+        assertEquals(t14.toBoard().getBlackPlayer().getActivePieces().size(), calculatedActivesFor(t14.toBoard(), Color.BLACK));
 
     }
 

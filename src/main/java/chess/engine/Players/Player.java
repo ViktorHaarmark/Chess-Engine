@@ -8,6 +8,7 @@ import chess.engine.board.MoveTransition;
 import chess.engine.pieces.King;
 import chess.engine.pieces.Piece;
 import com.google.common.collect.ImmutableList;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,9 @@ import java.util.stream.Stream;
 public abstract class Player {
 
     protected final Board board;
+    @Getter
     protected final King playerKing;
+    @Getter
     protected final List<Move> legalMoves;
     private final boolean isInCheck;
 
@@ -42,14 +45,6 @@ public abstract class Player {
             }
         }
         return ImmutableList.copyOf(attackMoves);
-    }
-
-    public King getPlayerKing() {
-        return this.playerKing;
-    }
-
-    public List<Move> getLegalMoves() {
-        return this.legalMoves;
     }
 
     public List<Move> getCaptureMoves() {

@@ -103,8 +103,8 @@ public class TestPieces {
         // Set the current player
         builder.setMoveMaker(Color.WHITE);
         final Board board = builder.build();
-        final Collection<Move> whiteLegals = board.whitePlayer().getLegalMoves();
-        final Collection<Move> blackLegals = board.blackPlayer().getLegalMoves();
+        final Collection<Move> whiteLegals = board.getWhitePlayer().getLegalMoves();
+        final Collection<Move> blackLegals = board.getBlackPlayer().getLegalMoves();
         assertEquals(31, whiteLegals.size());
         assertEquals(5, blackLegals.size());
         assertTrue(whiteLegals.contains(Move.MoveFactory
@@ -148,7 +148,7 @@ public class TestPieces {
         // Set the current player
         boardBuilder.setMoveMaker(Color.WHITE);
         final Board board = boardBuilder.build();
-        final Collection<Move> whiteLegals = board.whitePlayer().getLegalMoves();
+        final Collection<Move> whiteLegals = board.getWhitePlayer().getLegalMoves();
         assertEquals(13, whiteLegals.size());
         final Move wm1 = Move.MoveFactory
                 .createMove(board, BoardUtils.getCoordinateAtPosition("e4"), BoardUtils.getCoordinateAtPosition("d6"));
@@ -186,7 +186,7 @@ public class TestPieces {
         // Set the current player
         boardBuilder2.setMoveMaker(Color.BLACK);
         final Board board2 = boardBuilder2.build();
-        final Collection<Move> blackLegals = board2.blackPlayer().getLegalMoves();
+        final Collection<Move> blackLegals = board2.getBlackPlayer().getLegalMoves();
 
         final Move bm1 = Move.MoveFactory
                 .createMove(board2, BoardUtils.getCoordinateAtPosition("e5"), BoardUtils.getCoordinateAtPosition("d7"));
@@ -227,8 +227,8 @@ public class TestPieces {
         boardBuilder.setPiece(new King(60, Color.WHITE, false, false));
         boardBuilder.setMoveMaker(Color.WHITE);
         final Board board = boardBuilder.build();
-        final Collection<Move> whiteLegals = board.whitePlayer().getLegalMoves();
-        final Collection<Move> blackLegals = board.blackPlayer().getLegalMoves();
+        final Collection<Move> whiteLegals = board.getWhitePlayer().getLegalMoves();
+        final Collection<Move> blackLegals = board.getBlackPlayer().getLegalMoves();
         assertEquals(7, whiteLegals.size());
         assertEquals(7, blackLegals.size());
 
@@ -261,8 +261,8 @@ public class TestPieces {
         builder.setMoveMaker(Color.WHITE);
         //build the board
         final Board board = builder.build();
-        final Collection<Move> whiteLegals = board.whitePlayer().getLegalMoves();
-        final Collection<Move> blackLegals = board.blackPlayer().getLegalMoves();
+        final Collection<Move> whiteLegals = board.getWhitePlayer().getLegalMoves();
+        final Collection<Move> blackLegals = board.getBlackPlayer().getLegalMoves();
         assertEquals(18, whiteLegals.size());
         assertEquals(5, blackLegals.size());
 
@@ -294,8 +294,8 @@ public class TestPieces {
         builder.setMoveMaker(Color.WHITE);
         //build the board
         final Board board = builder.build();
-        final Collection<Move> whiteLegals = board.whitePlayer().getLegalMoves();
-        final Collection<Move> blackLegals = board.blackPlayer().getLegalMoves();
+        final Collection<Move> whiteLegals = board.getWhitePlayer().getLegalMoves();
+        final Collection<Move> blackLegals = board.getBlackPlayer().getLegalMoves();
         assertEquals(board.getPiece(0), board.getPiece(0));
         assertNotNull(board.getPiece(0));
         assertEquals(12, whiteLegals.size());
@@ -329,8 +329,8 @@ public class TestPieces {
         builder.setMoveMaker(Color.WHITE);
         //build the board
         final Board board = builder.build();
-        final Collection<Move> whiteLegals = board.whitePlayer().getLegalMoves();
-        final Collection<Move> blackLegals = board.blackPlayer().getLegalMoves();
+        final Collection<Move> whiteLegals = board.getWhitePlayer().getLegalMoves();
+        final Collection<Move> blackLegals = board.getBlackPlayer().getLegalMoves();
         assertEquals(12, whiteLegals.size());
         assertEquals(5, blackLegals.size());
         assertTrue(whiteLegals.contains(Move.MoveFactory
@@ -361,8 +361,8 @@ public class TestPieces {
         builder.setMoveMaker(Color.WHITE);
         //build the board
         final Board board = builder.build();
-        final Collection<Move> whiteLegals = board.whitePlayer().getLegalMoves();
-        final Collection<Move> blackLegals = board.blackPlayer().getLegalMoves();
+        final Collection<Move> whiteLegals = board.getWhitePlayer().getLegalMoves();
+        final Collection<Move> blackLegals = board.getBlackPlayer().getLegalMoves();
         assertEquals(12, whiteLegals.size());
         assertEquals(5, blackLegals.size());
         assertTrue(whiteLegals.contains(Move.MoveFactory
@@ -393,8 +393,8 @@ public class TestPieces {
         builder.setMoveMaker(Color.WHITE);
         //build the board
         final Board board = builder.build();
-        final Collection<Move> whiteLegals = board.whitePlayer().getLegalMoves();
-        final Collection<Move> blackLegals = board.blackPlayer().getLegalMoves();
+        final Collection<Move> whiteLegals = board.getWhitePlayer().getLegalMoves();
+        final Collection<Move> blackLegals = board.getBlackPlayer().getLegalMoves();
         assertEquals(12, whiteLegals.size());
         assertEquals(5, blackLegals.size());
         assertTrue(whiteLegals.contains(Move.MoveFactory
@@ -424,8 +424,8 @@ public class TestPieces {
         // Set the current player
         builder.setMoveMaker(Color.WHITE);
         final Board board = builder.build();
-        final Collection<Move> whiteLegals = board.whitePlayer().getLegalMoves();
-        final Collection<Move> blackLegals = board.blackPlayer().getLegalMoves();
+        final Collection<Move> whiteLegals = board.getWhitePlayer().getLegalMoves();
+        final Collection<Move> blackLegals = board.getBlackPlayer().getLegalMoves();
         assertEquals(18, whiteLegals.size());
         assertEquals(5, blackLegals.size());
         assertTrue(whiteLegals.contains(Move.MoveFactory

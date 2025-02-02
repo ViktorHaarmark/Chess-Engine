@@ -8,6 +8,7 @@ import chess.engine.pieces.Pawn;
 import chess.engine.pieces.Piece;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import lombok.Getter;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -15,15 +16,17 @@ import java.util.stream.Stream;
 public class Board {
 
     private final List<Tile> gameBoard;
+    @Getter
     private final List<Piece> whitePieces;
+    @Getter
     private final List<Piece> blackPieces;
-    private final List<Piece> allPieces;
 
     private final WhitePlayer whitePlayer;
     private final BlackPlayer blackPlayer;
 
     private final Player currentPlayer;
 
+    @Getter
     private final Pawn enPassantPawn;
 
     @VisibleForTesting
@@ -31,7 +34,6 @@ public class Board {
         this.gameBoard = createGameBoard(builder);
         this.whitePieces = calculateActivePieces(this.gameBoard, Color.WHITE);
         this.blackPieces = calculateActivePieces(this.gameBoard, Color.BLACK);
-        this.allPieces = getAllActivePieces();
         this.enPassantPawn = builder.enPassantPawn;
 
         final List<Move> whiteStandardPossibleMoves = calculatePossibleMoves(this.whitePieces);
@@ -40,7 +42,6 @@ public class Board {
         this.whitePlayer = new WhitePlayer(this, whiteStandardPossibleMoves, blackStandardPossibleMoves);
 
         this.blackPlayer = new BlackPlayer(this, whiteStandardPossibleMoves, blackStandardPossibleMoves);
-
 
         this.currentPlayer = builder.nextPlayer.choosePlayer(this.whitePlayer, this.blackPlayer);
     }
@@ -51,18 +52,18 @@ public class Board {
         for (int i = 0; i < BoardUtils.NUM_TILES; i++) {
             final String tileText = this.gameBoard.get(i).toString();
             builder.append(String.format("%3s", tileText));
-            if((i+1) % BoardUtils.ROW_LENGTH == 0) {
+            if ((i + 1) % BoardUtils.ROW_LENGTH == 0) {
                 builder.append("\n");
             }
         }
         return builder.toString();
     }
 
-    public Player blackPlayer() {
+    public Player getBlackPlayer() {
         return this.blackPlayer;
     }
 
-    public Player whitePlayer() {
+    public Player getWhitePlayer() {
         return this.whitePlayer;
     }
 
@@ -70,20 +71,8 @@ public class Board {
         return this.currentPlayer;
     }
 
-    public List<Piece> getBlackPieces() {
-        return this.blackPieces;
-    }
-
-    public List<Piece> getWhitePieces() {
-        return this.whitePieces;
-    }
-
     public List<Piece> getAllPieces() {
-        return this.allPieces;
-    }
-
-    public Pawn getEnPassantPawn() {
-        return this.enPassantPawn;
+        return getAllActivePieces();
     }
 
     public Piece getPiece(final int coordinate) {
@@ -94,11 +83,11 @@ public class Board {
     }
 
     public List<Move> calculatePossibleMoves(List<Piece> pieceList) {
-        final List<Move> legalMoves = new ArrayList<>();
+        final List<Move> possibleMoves = new ArrayList<>();
         for (final Piece piece : pieceList) {
-            legalMoves.addAll(piece.calculateLegalMoves(this));
+            possibleMoves.addAll(piece.calculateLegalMoves(this));
         }
-        return ImmutableList.copyOf(legalMoves);
+        return ImmutableList.copyOf(possibleMoves);
     }
 
     private static List<Piece> calculateActivePieces(final List<Tile> gameBoard, final Color color) {
@@ -121,15 +110,15 @@ public class Board {
         return ImmutableList.copyOf(activePieces);
     }
 
-    private static List<Piece> calculateAllActivePieces(final List<Tile> gameBoard) {
-        final List<Piece> activePieces = new ArrayList<>();
-        for (final Tile tile : gameBoard) {
-            if (tile.isTileOccupied()) {
-                activePieces.add(tile.getPiece());
-            }
-        }
-        return ImmutableList.copyOf(activePieces);
-    }
+//    private static List<Piece> calculateAllActivePieces(final List<Tile> gameBoard) {
+//        final List<Piece> activePieces = new ArrayList<>();
+//        for (final Tile tile : gameBoard) {
+//            if (tile.isTileOccupied()) {
+//                activePieces.add(tile.getPiece());
+//            }
+//        }
+//        return ImmutableList.copyOf(activePieces);
+//    }
 
     public Tile getTile(int tileCoordinate) {
         return gameBoard.get(tileCoordinate);
@@ -137,12 +126,12 @@ public class Board {
 
     private static List<Tile> createGameBoard(final Builder builder) {
         final Tile[] tiles = new Tile[BoardUtils.NUM_TILES];
-        for(int i = 0; i < BoardUtils.NUM_TILES; i++) {
+        for (int i = 0; i < BoardUtils.NUM_TILES; i++) {
             tiles[i] = Tile.createTile(i, builder.boardConfig.get(i));
         }
-        return ImmutableList.copyOf(tiles); 
+        return ImmutableList.copyOf(tiles);
     }
-    
+
     public static class Builder {
 
         Map<Integer, Piece> boardConfig;
@@ -171,9 +160,9 @@ public class Board {
             return new Board(this);
         }
 
-		public void setEnPassant(Pawn enPassantPawn) {
-			this.enPassantPawn = enPassantPawn;
-		}
+        public void setEnPassant(Pawn enPassantPawn) {
+            this.enPassantPawn = enPassantPawn;
+        }
 
         public void setCastlingRights(boolean whiteKingSideCastle, boolean whiteQueenSideCastle, boolean blackKingSideCastle, boolean blackQueenSideCastle) {
             this.whiteKingSideCastle = whiteKingSideCastle;
@@ -186,14 +175,12 @@ public class Board {
     }
 
     public Iterable<Move> getAllLegalMoves() {
-
-    Stream<Move> combinedStream = Stream.concat(
-            this.whitePlayer.getLegalMoves().stream(),
-            this.blackPlayer.getLegalMoves().stream()
-    );
-    
-    return combinedStream.toList();
-}
+        Stream<Move> combinedStream = Stream.concat(
+                this.whitePlayer.getLegalMoves().stream(),
+                this.blackPlayer.getLegalMoves().stream()
+        );
+        return combinedStream.toList();
+    }
 
 
 }

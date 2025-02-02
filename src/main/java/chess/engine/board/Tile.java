@@ -6,8 +6,10 @@ import java.util.Map;
 import com.google.common.collect.ImmutableMap;
 
 import chess.engine.pieces.Piece;
+import lombok.Getter;
 
 
+@Getter
 public abstract class Tile {
 
     protected final int tileCoordinate;
@@ -29,10 +31,6 @@ public abstract class Tile {
 
     private Tile(int tileCoordinate) {
         this.tileCoordinate = tileCoordinate;
-    }
-
-    public int getTileCoordinate() {
-        return this.tileCoordinate;
     }
 
     public abstract boolean isTileOccupied();
@@ -66,12 +64,12 @@ public abstract class Tile {
 
 
     public static final class OccupiedTile extends Tile {
-        private final Piece pieceOnTile;
+        private final Piece piece;
 
         OccupiedTile(int coordinate, Piece pieceOnTile) {
             super(coordinate);
 
-            this.pieceOnTile = pieceOnTile;
+            this.piece = pieceOnTile;
         }
 
         @Override
@@ -81,7 +79,7 @@ public abstract class Tile {
 
         @Override
         public Piece getPiece() {
-            return this.pieceOnTile;
+            return this.piece;
         }
 
         @Override

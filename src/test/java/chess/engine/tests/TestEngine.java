@@ -55,7 +55,7 @@ public class TestEngine {
     @Test
     public void testMinMaxEqualsAlphaBeta() {
         final Board board = BoardSetup.createStandardBoard();
-        assertEquals(board.currentPlayer(), board.whitePlayer());
+        assertEquals(board.currentPlayer(), board.getWhitePlayer());
 
         final MoveTransition t1 = board.currentPlayer()
                 .makeMove(MoveFactory.createMove(board, BoardUtils.getCoordinateAtPosition("e2"),

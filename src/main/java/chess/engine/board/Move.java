@@ -10,7 +10,11 @@ import chess.engine.pieces.Pawn;
 import chess.engine.pieces.Piece;
 import chess.engine.pieces.Queen;
 import chess.engine.pieces.Rook;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
+@Getter
+@EqualsAndHashCode
 public abstract class Move {
 
     protected Board board;
@@ -34,45 +38,16 @@ public abstract class Move {
         this.isFirstMove = false;
     }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
 
-        result = prime * result + this.destinationCoordinate;
-        result = prime * result + this.movedPiece.hashCode();
-        result = prime * result + this.movedPiece.getPiecePosition();
-        return result;
-    }
-
-    @Override
-    public boolean equals(final Object other) {
-        if (this == other) {
-            return true;
-        }
-        if (!(other instanceof Move otherMove)) {
-            return false;
-        }
-
-        return (getDestinationCoordinate() == otherMove.getDestinationCoordinate() &&
-                getMovedPiece() == otherMove.getMovedPiece() &&
-                getCurrentCoordinate() == otherMove.getCurrentCoordinate());
-    }
-
-    public int getDestinationCoordinate() {
-        return this.destinationCoordinate;
-    }
-
-    public Board getBoard() {
-        return this.board;
+    public String toUCI() {
+        StringBuilder uci = new StringBuilder();
+        uci.append(BoardUtils.getPositionAtCoordinate(movedPiece.getPiecePosition()));
+        uci.append(BoardUtils.getPositionAtCoordinate(destinationCoordinate));
+        return uci.toString();
     }
 
     public int getCurrentCoordinate() {
         return this.movedPiece.getPiecePosition();
-    }
-
-    public Piece getMovedPiece() {
-        return this.movedPiece;
     }
 
     public boolean isCapture() {
@@ -281,6 +256,7 @@ public abstract class Move {
 
     public static final class PawnPromotionMove extends Move {
 
+        @Getter
         final Move decoratedMove;
         final Pawn promotedPawn;
         Piece promotedPiece;
@@ -324,6 +300,15 @@ public abstract class Move {
         }
 
         @Override
+        public String toUCI() {
+            StringBuilder uci = new StringBuilder();
+            uci.append(BoardUtils.getPositionAtCoordinate(promotedPawn.getPiecePosition()));
+            uci.append(BoardUtils.getPositionAtCoordinate(destinationCoordinate));
+            uci.append(promotedPiece.toString().toLowerCase());
+            return uci.toString();
+        }
+
+        @Override
         public boolean isCapture() {
             return this.decoratedMove.isCapture();
         }
@@ -336,10 +321,6 @@ public abstract class Move {
         @Override
         public Piece getPromotedPiece() {
             return this.promotedPiece;
-        }
-
-        public Move getDecoratedMove() {
-            return this.decoratedMove;
         }
 
         @Override
@@ -357,6 +338,7 @@ public abstract class Move {
 
     static abstract class CastlingMove extends Move {
 
+        @Getter
         protected final Rook castlingRook;
         protected final int castlingRookStartPosition;
         protected final int castlingRookDestination;
@@ -372,10 +354,6 @@ public abstract class Move {
             this.castlingRook = castlingRook;
             this.castlingRookStartPosition = castlingRookStartPosition;
             this.castlingRookDestination = castlingRookDestination;
-        }
-
-        public Rook getCastlingRook() {
-            return this.castlingRook;
         }
 
         @Override
@@ -475,6 +453,29 @@ public abstract class Move {
             }
             return NULL_MOVE;
         }
+
+        public static Move createLichessMove(final Board board, final int currentCoordinate, final int destinationCoordinate, final String promotionPiece) {
+            for (final Move move : board.getAllLegalMoves()) {
+                if (move.getCurrentCoordinate() == currentCoordinate && move.getDestinationCoordinate() == destinationCoordinate) {
+                    if (move instanceof PawnPromotionMove) {
+                        return new PawnPromotionMove(move.getDecoratedMove(), getPromotionPiece(promotionPiece));
+                    }
+                    return move;
+                }
+
+            }
+            throw new RuntimeException("Cannot make the move");
+        }
+    }
+
+    private static String getPromotionPiece(String piece) {
+        return switch (piece) {
+            case "q" -> "Queen";
+            case "r" -> "Rook";
+            case "b" -> "Bishop";
+            case "n" -> "Knight";
+            default -> "Queen";
+        };
     }
 
     private static String getPromotionPiece() {

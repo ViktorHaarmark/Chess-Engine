@@ -65,16 +65,16 @@ public class FenUtility { //TODO: When rook moves, remove castling rights
     private static String calculateCastlingInformation(final Board board) {
         final StringBuilder builder = new StringBuilder();
 
-        if (board.whitePlayer().isKingSideCastleCapable()) {
+        if (board.getWhitePlayer().isKingSideCastleCapable()) {
             builder.append("K");
         }
-        if (board.whitePlayer().isQueenSideCastleCapable()) {
+        if (board.getWhitePlayer().isQueenSideCastleCapable()) {
             builder.append("Q");
         }
-        if (board.blackPlayer().isKingSideCastleCapable()) {
+        if (board.getBlackPlayer().isKingSideCastleCapable()) {
             builder.append("k");
         }
-        if (board.blackPlayer().isQueenSideCastleCapable()) {
+        if (board.getBlackPlayer().isQueenSideCastleCapable()) {
             builder.append("q");
         }
 
@@ -83,7 +83,6 @@ public class FenUtility { //TODO: When rook moves, remove castling rights
     }
 
     private static String calculateEnPassantSquare(final Board board) {
-        final Player player = board.currentPlayer();
         if (board.getEnPassantPawn() != null) {
             return BoardUtils.getPositionAtCoordinate(board.getEnPassantPawn().getPiecePosition() - (8 * board.getEnPassantPawn().getPieceColor().getDirection()));
         }
@@ -134,7 +133,6 @@ public class FenUtility { //TODO: When rook moves, remove castling rights
                     i++;
                     break;
                 case 'k':
-                    final boolean isCastled = !blackKingSideCastle && !blackQueenSideCastle;
                     builder.setPiece(new King(i, Color.BLACK, blackKingSideCastle, blackQueenSideCastle));
                     i++;
                     break;
@@ -195,6 +193,11 @@ public class FenUtility { //TODO: When rook moves, remove castling rights
 
     private static Color moveMaker(final String moveMaker) {
         return moveMaker.equals("w") ? Color.WHITE : Color.BLACK;
+    }
+
+    public static Color getCurrentMoveMakerFromFen(final String fen) {
+        final String[] fenPartitions = fen.trim().split(" ");
+        return moveMaker(fenPartitions[1]);
     }
 
     // Region end 

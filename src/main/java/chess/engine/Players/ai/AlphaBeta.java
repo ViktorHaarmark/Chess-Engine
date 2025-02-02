@@ -14,11 +14,13 @@ public class AlphaBeta implements MoveStrategy {
     private final BoardEvaluator boardEvaluator;
     private final int searchDepth;
     private int numPosition;
+    private final MoveSorter sorter;
 
 
     public AlphaBeta(final int searchDepth) {
         this.boardEvaluator = new StandardBoardEvaluator();
         this.searchDepth = searchDepth;
+        this.sorter = new MoveSorter();
     }
 
     @Override
@@ -30,7 +32,7 @@ public class AlphaBeta implements MoveStrategy {
 
         int highestSeenValue = -100000;
         int lowestSeenValue = 100000;
-        int currentValue = 0;
+        int currentValue;
 
         System.out.println(board.currentPlayer() + " thinking with alphaBeta search and depth = " + searchDepth);
 
@@ -70,7 +72,7 @@ public class AlphaBeta implements MoveStrategy {
         if (!maximizingPlayer) {
             int lowestSeenValue = 100000;
             List<Move> legalMoves = new ArrayList<>(board.currentPlayer().getLegalMoves());
-            //legalMoves.sort(new MoveSorter()); TODO: Why is this so slow?
+            legalMoves.sort(sorter); //TODO: Why is this so slow?
             for (final Move move : legalMoves) {
                 final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
                 if (moveTransition.moveStatus().isDone()) {
