@@ -38,10 +38,10 @@ public class King extends Piece {
 
 
     @Override
-    public List<Move> calculateLegalMoves(final Board board) {
+    public List<Move> calculatePossibleMoves(final Board board) {
 
         int candidateDestinationCoordinate;
-        final List<Move> legalMoves = new ArrayList<>();
+        final List<Move> possibleMoves = new ArrayList<>();
 
         for (final int direction : DIRECTION) {
 
@@ -51,15 +51,15 @@ public class King extends Piece {
             }
             final Tile candidateDestinationTile = board.getTile(candidateDestinationCoordinate);
             if (!candidateDestinationTile.isTileOccupied()) {
-                legalMoves.add(new MajorPieceMove(board, this, candidateDestinationCoordinate));
+                possibleMoves.add(new MajorPieceMove(board, this, candidateDestinationCoordinate));
             } else {
                 final Piece pieceOnDestination = candidateDestinationTile.getPiece();
                 if (pieceOnDestination.getPieceColor() != this.color) {
-                    legalMoves.add(new CaptureMove(board, this, pieceOnDestination, candidateDestinationCoordinate));
+                    possibleMoves.add(new CaptureMove(board, this, pieceOnDestination, candidateDestinationCoordinate));
                 }
             }
         }
-        return ImmutableList.copyOf(legalMoves);
+        return ImmutableList.copyOf(possibleMoves);
     }
 
     public HashSet<Integer> controlSquares(final HashSet<Integer> nonEmptySquares) {

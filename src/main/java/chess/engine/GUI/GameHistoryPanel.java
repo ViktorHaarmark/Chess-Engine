@@ -14,6 +14,8 @@ import javax.swing.table.DefaultTableModel;
 import chess.engine.GUI.Table.MoveLog;
 import chess.engine.board.Board;
 import chess.engine.board.Move;
+import lombok.Getter;
+import lombok.Setter;
 
 public class GameHistoryPanel extends JPanel {
 
@@ -64,9 +66,9 @@ public class GameHistoryPanel extends JPanel {
     }
 
     private String calculateCheckAndCheckMateHash(final Board board) {
-        if (board.currentPlayer().isInCheckMate()) {
+        if (board.getCurrentPlayer().isInCheckMate()) {
             return "#";
-        } else if (board.currentPlayer().isInCheck()) {
+        } else if (board.getCurrentPlayer().isInCheck()) {
             return "+";
         }
         return "";
@@ -146,28 +148,14 @@ public class GameHistoryPanel extends JPanel {
 
     }
 
+    @Setter
+    @Getter
     private static class Row {
 
         private String whiteMove;
         private String blackMove;
 
         Row() {
-        }
-
-        public String getWhiteMove() {
-            return this.whiteMove;
-        }
-
-        public String getBlackMove() {
-            return this.blackMove;
-        }
-
-        public void setWhiteMove(final String move) {
-            this.whiteMove = move;
-        }
-
-        public void setBlackMove(final String move) {
-            this.blackMove = move;
         }
 
     }

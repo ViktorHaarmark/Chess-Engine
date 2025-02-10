@@ -8,10 +8,12 @@ import chess.engine.board.Move.QueensideCastlingMove;
 import chess.engine.board.Tile;
 import chess.engine.pieces.Piece;
 import chess.engine.pieces.Rook;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public class WhitePlayer extends Player {
 
     public WhitePlayer(final Board board,
@@ -42,7 +44,7 @@ public class WhitePlayer extends Player {
 
     @Override
     protected List<Move> calculateKingCastlingCollection(final List<Move> playerLegals,
-                                                               final List<Move> opponentsLegals) {
+                                                         final List<Move> opponentsLegals) {
 
         final List<Move> castlingMoves = new ArrayList<>();
 

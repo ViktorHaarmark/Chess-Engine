@@ -31,14 +31,14 @@ public class TestStalemate {
         // Set the current player
         builder.setMoveMaker(Color.BLACK);
         final Board board = builder.build();
-        assertFalse(board.currentPlayer().isInStaleMate());
-        final MoveTransition t1 = board.currentPlayer()
+        assertFalse(board.getCurrentPlayer().isInStaleMate());
+        final MoveTransition t1 = board.getCurrentPlayer()
                 .makeMove(MoveFactory.createMove(board, BoardUtils.getCoordinateAtPosition("e4"),
                         BoardUtils.getCoordinateAtPosition("f5")));
         assertTrue(t1.moveStatus().isDone());
-        assertTrue(t1.toBoard().currentPlayer().isInStaleMate());
-        assertFalse(t1.toBoard().currentPlayer().isInCheck());
-        assertFalse(t1.toBoard().currentPlayer().isInCheckMate());
+        assertTrue(t1.toBoard().getCurrentPlayer().isInStaleMate());
+        assertFalse(t1.toBoard().getCurrentPlayer().isInCheck());
+        assertFalse(t1.toBoard().getCurrentPlayer().isInCheckMate());
     }
 
     @Test
@@ -52,14 +52,14 @@ public class TestStalemate {
         // Set the current player
         builder.setMoveMaker(Color.WHITE);
         final Board board = builder.build();
-        assertFalse(board.currentPlayer().isInStaleMate());
-        final MoveTransition t1 = board.currentPlayer()
+        assertFalse(board.getCurrentPlayer().isInStaleMate());
+        final MoveTransition t1 = board.getCurrentPlayer()
                 .makeMove(MoveFactory.createMove(board, BoardUtils.getCoordinateAtPosition("c5"),
                         BoardUtils.getCoordinateAtPosition("c6")));
         assertTrue(t1.moveStatus().isDone());
-        assertTrue(t1.toBoard().currentPlayer().isInStaleMate());
-        assertFalse(t1.toBoard().currentPlayer().isInCheck());
-        assertFalse(t1.toBoard().currentPlayer().isInCheckMate());
+        assertTrue(t1.toBoard().getCurrentPlayer().isInStaleMate());
+        assertFalse(t1.toBoard().getCurrentPlayer().isInCheck());
+        assertFalse(t1.toBoard().getCurrentPlayer().isInCheckMate());
     }
 
     @Test
@@ -74,13 +74,13 @@ public class TestStalemate {
         // Set the current player
         builder.setMoveMaker(Color.WHITE);
         final Board board = builder.build();
-        assertFalse(board.currentPlayer().isInStaleMate());
-        final MoveTransition t1 = board.currentPlayer()
+        assertFalse(board.getCurrentPlayer().isInStaleMate());
+        final MoveTransition t1 = board.getCurrentPlayer()
                 .makeMove(MoveFactory.createMove(board, BoardUtils.getCoordinateAtPosition("a6"),
                         BoardUtils.getCoordinateAtPosition("a7")));
         assertTrue(t1.moveStatus().isDone());
-        assertTrue(t1.toBoard().currentPlayer().isInStaleMate());
-        assertFalse(t1.toBoard().currentPlayer().isInCheck());
-        assertFalse(t1.toBoard().currentPlayer().isInCheckMate());
+        assertTrue(t1.toBoard().getCurrentPlayer().isInStaleMate());
+        assertFalse(t1.toBoard().getCurrentPlayer().isInCheck());
+        assertFalse(t1.toBoard().getCurrentPlayer().isInCheckMate());
     }
 }

@@ -8,16 +8,18 @@ import chess.engine.board.Move.QueensideCastlingMove;
 import chess.engine.board.Tile;
 import chess.engine.pieces.Piece;
 import chess.engine.pieces.Rook;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public class BlackPlayer extends Player {
 
     public BlackPlayer(final Board board,
-                       final List<Move> whiteStandardLegalMoves,
-                       final List<Move> blackStandardLegalMoves) {
-        super(board, blackStandardLegalMoves, whiteStandardLegalMoves);
+                       final List<Move> whiteStandardPossibleMoves,
+                       final List<Move> blackStandardPossibleMoves) {
+        super(board, blackStandardPossibleMoves, whiteStandardPossibleMoves);
     }
 
     @Override

@@ -4,13 +4,16 @@ import chess.Color;
 import chess.engine.board.Board;
 import chess.engine.board.BoardUtils;
 import chess.engine.board.Move;
+import lombok.Getter;
 
 import java.util.HashSet;
 import java.util.List;
 
 public abstract class Piece {
 
+    @Getter
     protected final PieceType pieceType;
+    @Getter
     protected final int piecePosition;
     protected final Color color;
     private final boolean isFirstMove;
@@ -49,7 +52,7 @@ public abstract class Piece {
         return cachedHashCode;
     }
 
-    public abstract List<Move> calculateLegalMoves(final Board board);
+    public abstract List<Move> calculatePossibleMoves(final Board board);
 
     public abstract HashSet<Integer> controlSquares(final HashSet<Integer> nonEmptySquares);
 
@@ -65,14 +68,6 @@ public abstract class Piece {
 
     protected boolean isRookMove(int tileCoordinate) {
         return (BoardUtils.rowDifference(tileCoordinate, this.piecePosition) == 0 || BoardUtils.columnDifference(tileCoordinate, this.piecePosition) == 0);
-    }
-
-    public int getPiecePosition() {
-        return piecePosition;
-    }
-
-    public PieceType getPieceType() {
-        return this.pieceType;
     }
 
     public boolean isFirstMove() {

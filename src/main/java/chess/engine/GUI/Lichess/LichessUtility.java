@@ -22,7 +22,7 @@ public class LichessUtility {
         if (uci.length() == 5) {
             promotionPiece = uci.substring(4);
         }
-        MoveTransition moveTransition = board.currentPlayer().makeMove(Move.MoveFactory.createLichessMove(board,
+        MoveTransition moveTransition = board.getCurrentPlayer().makeMove(Move.MoveFactory.createLichessMove(board,
                 BoardUtils.getCoordinateAtPosition(startingSquare),
                 BoardUtils.getCoordinateAtPosition(endingSquare),
                 promotionPiece));

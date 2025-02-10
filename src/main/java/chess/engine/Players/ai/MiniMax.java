@@ -7,7 +7,7 @@ import chess.engine.board.MoveTransition;
 
 public class MiniMax implements MoveStrategy {
 
-    private final BoardEvaluator boardEvaluator;
+    private final StandardBoardEvaluator boardEvaluator;
     private final int searchDepth;
 
     public MiniMax(final int searchDepth) {
@@ -31,21 +31,20 @@ public class MiniMax implements MoveStrategy {
         int lowestSeenValue = Integer.MAX_VALUE;
         int currentValue;
 
-        System.out.println(board.currentPlayer() + "THINKING with depth = " + searchDepth);
-        int numMoves = board.currentPlayer().getLegalMoves().size();
+        System.out.println(board.getCurrentPlayer() + " THINKING with depth = " + searchDepth);
 
-        for (final Move move : board.currentPlayer().getLegalMoves()) {
+        for (final Move move : board.getCurrentPlayer().getPossibleMoves()) {
 
-            final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
+            final MoveTransition moveTransition = board.getCurrentPlayer().makeMove(move);
             if (moveTransition.moveStatus().isDone()) {
-                currentValue = board.currentPlayer().getColor().isWhite() ?
-                        min(moveTransition.getToBoard(), searchDepth - 1) :
-                        max(moveTransition.getToBoard(), searchDepth - 1);
+                currentValue = board.getCurrentPlayer().getColor().isWhite() ?
+                        -miniMax(moveTransition.getToBoard(), searchDepth - 1) :
+                        miniMax(moveTransition.getToBoard(), searchDepth - 1);
 
-                if (board.currentPlayer().getColor().isWhite() && currentValue >= highestSeenValue) {
+                if (board.getCurrentPlayer().getColor().isWhite() && currentValue >= highestSeenValue) {
                     highestSeenValue = currentValue;
                     bestMove = move;
-                } else if (board.currentPlayer().getColor().isBlack() && currentValue <= lowestSeenValue) {
+                } else if (board.getCurrentPlayer().getColor().isBlack() && currentValue <= lowestSeenValue) {
                     lowestSeenValue = currentValue;
                     bestMove = move;
                 }
@@ -53,47 +52,29 @@ public class MiniMax implements MoveStrategy {
         }
 
         final long executionTime = System.currentTimeMillis() - startTime;
-        System.out.println("Thiking time: " + executionTime / 1000.0);
+        System.out.println("Thinking time: " + executionTime / 1000.0);
 
         return bestMove;
     }
 
-    public int min(final Board board, final int depth) {
-        if (depth == 0 || BoardUtils.isEndGame(board)) {
-            return this.boardEvaluator.evaluate(board);
-        }
-
-        int lowestSeenValue = Integer.MAX_VALUE;
-        for (final Move move : board.currentPlayer().getLegalMoves()) {
-            final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
-            if (moveTransition.getMoveStatus().isDone()) {
-                final int currentValue = max(moveTransition.getToBoard(), depth - 1);
-                if (currentValue <= lowestSeenValue) {
-                    lowestSeenValue = currentValue;
-                }
-            }
-        }
-        return lowestSeenValue;
-
-
-    }
-
-    public int max(final Board board, final int depth) {
+    private int miniMax(final Board board, final int depth) {
         if (depth == 0 || BoardUtils.isEndGame(board)) {
             return this.boardEvaluator.evaluate(board);
         }
 
         int highestSeenValue = Integer.MIN_VALUE;
-        for (final Move move : board.currentPlayer().getLegalMoves()) {
-            final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
+        for (final Move move : board.getCurrentPlayer().getPossibleMoves()) {
+            final MoveTransition moveTransition = board.getCurrentPlayer().makeMove(move);
             if (moveTransition.getMoveStatus().isDone()) {
-                final int currentValue = min(moveTransition.getToBoard(), depth - 1);
+                int currentValue;
+
+                currentValue = -miniMax(moveTransition.getToBoard(), depth - 1);
+
                 if (currentValue >= highestSeenValue) {
                     highestSeenValue = currentValue;
                 }
             }
         }
         return highestSeenValue;
-
     }
 }

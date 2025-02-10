@@ -17,25 +17,25 @@ public class TestBoard {
     public void initialBoard() {
 
         final Board board = BoardSetup.createStandardBoard();
-        assertEquals(20, board.currentPlayer().getLegalMoves().size());
-        assertEquals(20, board.currentPlayer().getOpponent().getLegalMoves().size());
-        assertFalse(board.currentPlayer().isInCheck());
-        assertFalse(board.currentPlayer().isInCheckMate());
-        assertFalse(board.currentPlayer().isCastled());
-        //assertTrue(board.currentPlayer().isKingSideCastleCapable());
-        //assertTrue(board.currentPlayer().isQueenSideCastleCapable());
-        assertEquals(board.currentPlayer(), board.getWhitePlayer());
-        assertEquals(board.currentPlayer().getOpponent(), board.getBlackPlayer());
-        assertFalse(board.currentPlayer().getOpponent().isInCheck());
-        assertFalse(board.currentPlayer().getOpponent().isInCheckMate());
-        assertFalse(board.currentPlayer().getOpponent().isCastled());
-        //assertTrue(board.currentPlayer().getOpponent().isKingSideCastleCapable());
-        //assertTrue(board.currentPlayer().getOpponent().isQueenSideCastleCapable());
+        assertEquals(20, board.getCurrentPlayer().getPossibleMoves().size());
+        assertEquals(20, board.getCurrentPlayer().getOpponent().getPossibleMoves().size());
+        assertFalse(board.getCurrentPlayer().isInCheck());
+        assertFalse(board.getCurrentPlayer().isInCheckMate());
+        assertFalse(board.getCurrentPlayer().isCastled());
+        //assertTrue(board.getCurrentPlayer().isKingSideCastleCapable());
+        //assertTrue(board.getCurrentPlayer().isQueenSideCastleCapable());
+        assertEquals(board.getCurrentPlayer(), board.getWhitePlayer());
+        assertEquals(board.getCurrentPlayer().getOpponent(), board.getBlackPlayer());
+        assertFalse(board.getCurrentPlayer().getOpponent().isInCheck());
+        assertFalse(board.getCurrentPlayer().getOpponent().isInCheckMate());
+        assertFalse(board.getCurrentPlayer().getOpponent().isCastled());
+        //assertTrue(board.getCurrentPlayer().getOpponent().isKingSideCastleCapable());
+        //assertTrue(board.getCurrentPlayer().getOpponent().isQueenSideCastleCapable());
         assertEquals("White", board.getWhitePlayer().toString());
         assertEquals("Black", board.getBlackPlayer().toString());
 
         final Iterable<Piece> allPieces = board.getAllPieces();
-        final Iterable<Move> allMoves = Iterables.concat(board.getWhitePlayer().getLegalMoves(), board.getBlackPlayer().getLegalMoves());
+        final Iterable<Move> allMoves = Iterables.concat(board.getWhitePlayer().getPossibleMoves(), board.getBlackPlayer().getPossibleMoves());
         for (final Move move : allMoves) {
             assertFalse(move.isCapture());
             assertFalse(move.isCastlingMove());
@@ -65,14 +65,14 @@ public class TestBoard {
         final Board board = builder.build();
         System.out.println(board);
 
-        assertEquals(6, board.getWhitePlayer().getLegalMoves().size());
-        assertEquals(6, board.getBlackPlayer().getLegalMoves().size());
-        assertFalse(board.currentPlayer().isInCheck());
-        assertFalse(board.currentPlayer().isInCheckMate());
-        assertFalse(board.currentPlayer().getOpponent().isInCheck());
-        assertFalse(board.currentPlayer().getOpponent().isInCheckMate());
-        assertEquals(board.currentPlayer(), board.getWhitePlayer());
-        assertEquals(board.currentPlayer().getOpponent(), board.getBlackPlayer());
+        assertEquals(6, board.getWhitePlayer().getPossibleMoves().size());
+        assertEquals(6, board.getBlackPlayer().getPossibleMoves().size());
+        assertFalse(board.getCurrentPlayer().isInCheck());
+        assertFalse(board.getCurrentPlayer().isInCheckMate());
+        assertFalse(board.getCurrentPlayer().getOpponent().isInCheck());
+        assertFalse(board.getCurrentPlayer().getOpponent().isInCheckMate());
+        assertEquals(board.getCurrentPlayer(), board.getWhitePlayer());
+        assertEquals(board.getCurrentPlayer().getOpponent(), board.getBlackPlayer());
         StandardBoardEvaluator evaluator = new StandardBoardEvaluator();
         System.out.println(evaluator.evaluate(board));
         assertEquals(0, evaluator.evaluate(board));
@@ -80,12 +80,12 @@ public class TestBoard {
         final Move move = MoveFactory.createMove(board, BoardUtils.getCoordinateAtPosition("e1"),
                 BoardUtils.getCoordinateAtPosition("f1"));
 
-        final MoveTransition moveTransition = board.currentPlayer()
+        final MoveTransition moveTransition = board.getCurrentPlayer()
                 .makeMove(move);
 
         assertEquals(moveTransition.move(), move);
         assertEquals(moveTransition.fromBoard(), board);
-        assertEquals(moveTransition.toBoard().currentPlayer(), moveTransition.toBoard().getBlackPlayer());
+        assertEquals(moveTransition.toBoard().getCurrentPlayer(), moveTransition.toBoard().getBlackPlayer());
 
         assertTrue(moveTransition.moveStatus().isDone());
         assertEquals(61, moveTransition.toBoard().getWhitePlayer().getPlayerKing().getPiecePosition());
@@ -96,67 +96,67 @@ public class TestBoard {
     @Test
     public void testBoardConsistency() {
         final Board board = BoardSetup.createStandardBoard();
-        assertEquals(board.currentPlayer(), board.getWhitePlayer());
+        assertEquals(board.getCurrentPlayer(), board.getWhitePlayer());
 
-        final MoveTransition t1 = board.currentPlayer()
+        final MoveTransition t1 = board.getCurrentPlayer()
                 .makeMove(MoveFactory.createMove(board, BoardUtils.getCoordinateAtPosition("e2"),
                         BoardUtils.getCoordinateAtPosition("e4")));
         final MoveTransition t2 = t1.toBoard()
-                .currentPlayer()
+                .getCurrentPlayer()
                 .makeMove(MoveFactory.createMove(t1.toBoard(), BoardUtils.getCoordinateAtPosition("e7"),
                         BoardUtils.getCoordinateAtPosition("e5")));
 
         final MoveTransition t3 = t2.toBoard()
-                .currentPlayer()
+                .getCurrentPlayer()
                 .makeMove(MoveFactory.createMove(t2.toBoard(), BoardUtils.getCoordinateAtPosition("g1"),
                         BoardUtils.getCoordinateAtPosition("f3")));
         final MoveTransition t4 = t3.toBoard()
-                .currentPlayer()
+                .getCurrentPlayer()
                 .makeMove(MoveFactory.createMove(t3.toBoard(), BoardUtils.getCoordinateAtPosition("d7"),
                         BoardUtils.getCoordinateAtPosition("d5")));
 
         final MoveTransition t5 = t4.toBoard()
-                .currentPlayer()
+                .getCurrentPlayer()
                 .makeMove(MoveFactory.createMove(t4.toBoard(), BoardUtils.getCoordinateAtPosition("e4"),
                         BoardUtils.getCoordinateAtPosition("d5")));
         final MoveTransition t6 = t5.toBoard()
-                .currentPlayer()
+                .getCurrentPlayer()
                 .makeMove(MoveFactory.createMove(t5.toBoard(), BoardUtils.getCoordinateAtPosition("d8"),
                         BoardUtils.getCoordinateAtPosition("d5")));
 
         final MoveTransition t7 = t6.toBoard()
-                .currentPlayer()
+                .getCurrentPlayer()
                 .makeMove(MoveFactory.createMove(t6.toBoard(), BoardUtils.getCoordinateAtPosition("f3"),
                         BoardUtils.getCoordinateAtPosition("g5")));
         final MoveTransition t8 = t7.toBoard()
-                .currentPlayer()
+                .getCurrentPlayer()
                 .makeMove(MoveFactory.createMove(t7.toBoard(), BoardUtils.getCoordinateAtPosition("f7"),
                         BoardUtils.getCoordinateAtPosition("f6")));
 
         final MoveTransition t9 = t8.toBoard()
-                .currentPlayer()
+                .getCurrentPlayer()
                 .makeMove(MoveFactory.createMove(t8.toBoard(), BoardUtils.getCoordinateAtPosition("d1"),
                         BoardUtils.getCoordinateAtPosition("h5")));
         final MoveTransition t10 = t9.toBoard()
-                .currentPlayer()
+                .getCurrentPlayer()
                 .makeMove(MoveFactory.createMove(t9.toBoard(), BoardUtils.getCoordinateAtPosition("g7"),
                         BoardUtils.getCoordinateAtPosition("g6")));
 
         final MoveTransition t11 = t10.toBoard()
-                .currentPlayer()
+                .getCurrentPlayer()
                 .makeMove(MoveFactory.createMove(t10.toBoard(), BoardUtils.getCoordinateAtPosition("h5"),
                         BoardUtils.getCoordinateAtPosition("h4")));
         final MoveTransition t12 = t11.toBoard()
-                .currentPlayer()
+                .getCurrentPlayer()
                 .makeMove(MoveFactory.createMove(t11.toBoard(), BoardUtils.getCoordinateAtPosition("f6"),
                         BoardUtils.getCoordinateAtPosition("g5")));
 
         final MoveTransition t13 = t12.toBoard()
-                .currentPlayer()
+                .getCurrentPlayer()
                 .makeMove(MoveFactory.createMove(t12.toBoard(), BoardUtils.getCoordinateAtPosition("h4"),
                         BoardUtils.getCoordinateAtPosition("g5")));
         final MoveTransition t14 = t13.toBoard()
-                .currentPlayer()
+                .getCurrentPlayer()
                 .makeMove(MoveFactory.createMove(t13.toBoard(), BoardUtils.getCoordinateAtPosition("d5"),
                         BoardUtils.getCoordinateAtPosition("e4")));
 

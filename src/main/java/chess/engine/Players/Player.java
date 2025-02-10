@@ -14,14 +14,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+@Getter
 public abstract class Player {
 
     protected final Board board;
-    @Getter
     protected final King playerKing;
-    @Getter
-    protected final List<Move> legalMoves;
+    protected final List<Move> possibleMoves;
     private final boolean isInCheck;
+
+//    @Setter
+//    private List<Move> LEGAL_MOVES_CACHE = null;
+//    @Setter
+//    private List<Move> LEGAL_CAPTURE_MOVES_CACHE = null;
 
 
     Player(final Board board,
@@ -30,7 +34,7 @@ public abstract class Player {
         this.board = board;
         this.playerKing = establishKing();
         this.isInCheck = !calculateAttacksOnTile(this.playerKing.getPiecePosition(), opponentMoves).isEmpty();
-        this.legalMoves = Stream.concat(
+        this.possibleMoves = Stream.concat(
                 possibleMoves.stream(),
                 calculateKingCastlingCollection(possibleMoves, opponentMoves).stream()
         ).toList();
@@ -47,11 +51,11 @@ public abstract class Player {
         return ImmutableList.copyOf(attackMoves);
     }
 
-    public List<Move> getCaptureMoves() {
-        List<Move> captureMoves = new ArrayList<>();
-        for (Move move : getLegalMoves()) {
+    public List<Move.CaptureMove> getCaptureMoves() {
+        List<Move.CaptureMove> captureMoves = new ArrayList<>();
+        for (Move move : getPossibleMoves()) {
             if (move.isCapture()) {
-                captureMoves.add(move);
+                captureMoves.add((Move.CaptureMove) move);
             }
         }
         return ImmutableList.copyOf(captureMoves);
@@ -69,7 +73,7 @@ public abstract class Player {
     }
 
     public boolean isMoveLegal(final Move move) {
-        return this.legalMoves.contains(move);
+        return this.possibleMoves.contains(move);
     }
 
     public boolean isInCheck() {
@@ -93,7 +97,7 @@ public abstract class Player {
     }
 
     protected boolean hasNoLegalMove() {
-        for (final Move move : this.legalMoves) {
+        for (final Move move : this.possibleMoves) {
             final MoveTransition transition = makeMove(move);
             if (transition.moveStatus().isDone()) {
                 return false;
@@ -114,8 +118,8 @@ public abstract class Player {
 
         final Board boardAfterMove = move.execute();
 
-        final List<Move> kingAttacks = Player.calculateAttacksOnTile(boardAfterMove.currentPlayer().getOpponent().getPlayerKing().getPiecePosition(),
-                boardAfterMove.currentPlayer().getLegalMoves());
+        final List<Move> kingAttacks = Player.calculateAttacksOnTile(boardAfterMove.getCurrentPlayer().getOpponent().getPlayerKing().getPiecePosition(),
+                boardAfterMove.getCurrentPlayer().getPossibleMoves());
 
         if (!kingAttacks.isEmpty()) {
             return new MoveTransition(this.board, this.board, move, MoveStatus.LEAVES_PLAYER_IN_CHECK);
@@ -130,6 +134,24 @@ public abstract class Player {
 
     public abstract Player getOpponent();
 
-    protected abstract List<Move> calculateKingCastlingCollection(List<Move> playerLegals, List<Move> opponentsLegals);
+    protected abstract List<Move> calculateKingCastlingCollection(List<Move> playerPossibleMoves, List<Move> opponentsPossibleMoves);
 
+//    public List<Move> getLegalMoves() {
+//
+//        if (this.getLEGAL_MOVES_CACHE() != null) {
+//            return getLEGAL_MOVES_CACHE();
+//        } else {
+//            List<Move> legalMoves = new ArrayList<>();
+//            List<Move> possibleMoves = getPossibleMoves();
+//            for (Move move : possibleMoves) {
+//                if (this.makeMove(move).getMoveStatus().isDone()) {
+//                    legalMoves.add(move);
+//                    //TODO: Fill the capture move cache
+//                }
+//            }
+//            setLEGAL_MOVES_CACHE(legalMoves);
+//            return legalMoves;
+//        }
 }
+
+
