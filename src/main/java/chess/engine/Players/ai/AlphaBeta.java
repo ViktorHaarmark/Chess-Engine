@@ -14,15 +14,15 @@ public class AlphaBeta implements MoveStrategy {
     private final StandardBoardEvaluator boardEvaluator;
     private final int searchDepth;
     private int numPosition;
-    private final MoveSorter sorter;
-    private final CaptureMoveSorter captureMoveSorter;
+    private final static MoveSorter MOVE_SORTER = new MoveSorter();
+    private final static CaptureMoveSorter CAPTURE_MOVE_SORTER = new CaptureMoveSorter();
+    private final static int QUISCENCE_SEARCH_DEPTH = 4;
+
 
 
     public AlphaBeta(final int searchDepth) {
         this.boardEvaluator = new StandardBoardEvaluator();
         this.searchDepth = searchDepth;
-        this.sorter = new MoveSorter();
-        this.captureMoveSorter = new CaptureMoveSorter();
     }
 
     @Override
@@ -69,14 +69,14 @@ public class AlphaBeta implements MoveStrategy {
     public int alphaBetaSearch(final Board board, final int depth, int alpha, int beta) {
         if (depth == 0 || BoardUtils.isEndGame(board)) {
             numPosition += 1;
-            return quiescenceSearch(board, alpha, beta);
+            return quiescenceSearch(board, alpha, beta, QUISCENCE_SEARCH_DEPTH);
             //return boardEvaluator.evaluate(board);
         }
 
 
         int highestSeenValue = -100000;
         List<Move> possibleMoves = new ArrayList<>(board.getCurrentPlayer().getPossibleMoves());
-        possibleMoves.sort(sorter);
+        possibleMoves.sort(MOVE_SORTER);
 
         for (final Move move : board.getCurrentPlayer().getPossibleMoves()) {
             final MoveTransition moveTransition = board.getCurrentPlayer().makeMove(move);
@@ -94,8 +94,12 @@ public class AlphaBeta implements MoveStrategy {
 
     }
 
-    private int quiescenceSearch(final Board board, int alpha, int beta) {
-        int evaluation = boardEvaluator.evaluate(board);
+    private int quiescenceSearch(final Board board, int alpha, int beta, int depth) {
+        int evaluation = boardEvaluator.evaluate(board); //TODO: Improve quiscence search
+        if (depth <= 0) {
+            return evaluation;
+        }
+
         if (evaluation >= beta) {
             return beta;
         }
@@ -110,7 +114,7 @@ public class AlphaBeta implements MoveStrategy {
         for (Move move : captureMoves) {
             MoveTransition moveTransition = board.getCurrentPlayer().makeMove(move);
             if (moveTransition.getMoveStatus().isDone()) {
-                int score = -quiescenceSearch(moveTransition.toBoard(), -beta, -alpha);
+                int score = -quiescenceSearch(moveTransition.toBoard(), -beta, -alpha, depth-1);
                 if (score >= beta) {
                     return beta;
                 }
