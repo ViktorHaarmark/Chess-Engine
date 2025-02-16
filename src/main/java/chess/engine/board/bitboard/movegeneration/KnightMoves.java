@@ -29,8 +29,8 @@ public class KnightMoves {
         return moves;
     }
 
-    public static long getMoves(int square) {
-        return KNIGHT_ATTACKS[square]; //Needs to be masked with the friendly pieces
+    public static long getKnightMoves(int square, long friendlyPieces) {
+        return KNIGHT_ATTACKS[square] & ~friendlyPieces;
     }
 }
 
