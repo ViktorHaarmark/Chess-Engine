@@ -12,17 +12,19 @@ import java.util.concurrent.CompletableFuture;
 
 
 public class LichessDao {
-    final static String API_TOKEN = "";
-    final static String LICHESS_BASE_URL = "https://lichess.org/api/";
-    final static String STREAM_EVENT_PATH = "stream/event";
-    final static String STREAM_GAME_PATH = "bot/game/stream/";
-    final static String SEND_MOVE_PATH = "bot/game/{gameId}/move/{move}";
-    final static String CHALLENGE_PATH = "challenge/{challengeId}/accept";
-    final static String BOT_UPGRADE_PATH = "bot/account/upgrade";
-    final static String DRAW_PATH = "bot/game/{gameId}/draw/{accept}";
+    final private static String API_TOKEN_PATH = "C:\\Users\\hrhaa\\kodeord\\lichessapikey.txt";
+    final private static String API_TOKEN = LichessUtility.readPasswordFromFile(API_TOKEN_PATH);
+    final private static String LICHESS_BASE_URL = "https://lichess.org/api/";
+    final private static String STREAM_EVENT_PATH = "stream/event";
+    final private static String STREAM_GAME_PATH = "bot/game/stream/";
+    final private static String SEND_MOVE_PATH = "bot/game/{gameId}/move/{move}";
+    final private static String CHALLENGE_PATH = "challenge/{challengeId}/accept";
+    final private static String BOT_UPGRADE_PATH = "bot/account/upgrade";
+    final private static String DRAW_PATH = "bot/game/{gameId}/draw/{accept}";
 
 
     static void streamEvents() {
+        System.out.println(API_TOKEN);
         String url = LICHESS_BASE_URL + STREAM_EVENT_PATH;
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = buildGetEvent(url);

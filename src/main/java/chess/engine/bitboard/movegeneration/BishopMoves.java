@@ -1,4 +1,4 @@
-package chess.engine.board.bitboard.movegeneration;
+package chess.engine.bitboard.movegeneration;
 
 public class BishopMoves {
     static long[][] bishopsRays = new long[64][4];

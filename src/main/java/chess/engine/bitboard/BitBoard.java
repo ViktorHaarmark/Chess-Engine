@@ -1,22 +1,14 @@
-package chess.engine.board.bitboard;
+package chess.engine.bitboard;
 
 import chess.engine.board.BoardUtils;
-import chess.engine.board.bitboard.movegeneration.BishopMoves;
-import chess.engine.board.bitboard.movegeneration.RookMoves;
+import chess.engine.bitboard.movegeneration.MoveGeneration;
 
-import java.util.Arrays;
+import java.util.List;
 
-import static chess.engine.board.bitboard.FenUtility.printBoard;
+import static chess.engine.bitboard.BitBoardUtils.*;
+import static chess.engine.bitboard.FenUtility.printBoard;
 
 public class BitBoard {
-    static int WHITE = 0;
-    static int BLACK = 1;
-    static int PAWNS = 0;
-    static int KNIGHTS = 1;
-    static int BISHOPS = 2;
-    static int ROOKS = 3;
-    static int QUEENS = 4;
-    static int KINGS = 5;
 
     public static long wPawns, wKnights, wBishops, wRooks, wQueens, wKings, bPawns, bKnights, bBishops, bRooks, bQueens, bKings;
     public static long whitePieces, blackPieces, allPieces;
@@ -71,9 +63,14 @@ public class BitBoard {
         return (allPieces & 1L << square) != 0;
     }
 
-    private boolean isAttacked(int square, long whitePieces, long blackPieces) {
-        int pieceSquare = 36;
-        return (RookMoves.getRookMoves( pieceSquare, whitePieces, blackPieces) & 1L << square) != 0;
+    private boolean isAttacked(int square, long friendlyPieces, long enemyPieces) {
+        int pieceSquare = 53;
+//        List<Move> moves = MoveGeneration.generateMovesFromSquareAndPieceType(pieceSquare, MoveGeneration.getPawnMoves(pieceSquare, friendlyPieces, enemyPieces), blackPieces, true, false);
+        return (MoveGeneration.getPawnMoves(pieceSquare, friendlyPieces, enemyPieces) & 1L << square) != 0;
+    }
+
+    public static int getPieceType(int square) {
+        return 0; //TODO: Not implemented yet
     }
 
 }

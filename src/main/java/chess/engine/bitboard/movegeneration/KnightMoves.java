@@ -1,4 +1,4 @@
-package chess.engine.board.bitboard.movegeneration;
+package chess.engine.bitboard.movegeneration;
 
 public class KnightMoves {
     private static final long[] KNIGHT_ATTACKS = new long[64];
@@ -17,14 +17,14 @@ public class KnightMoves {
         long bitboard = 1L << square;
         long moves = 0L;
 
-        moves |= (bitboard << 6) & ~LEFT_2_MASK;  // Up-left
-        moves |= (bitboard << 15) & ~LEFT_1_MASK; // Up-right
-        moves |= (bitboard << 17) & ~RIGHT_2_MASK; // Right-up
-        moves |= (bitboard << 10) & ~RIGHT_1_MASK; // Right-down
-        moves |= (bitboard >> 6) & ~RIGHT_1_MASK;  // Down-right
-        moves |= (bitboard >> 15) & ~RIGHT_2_MASK; // Down-left
-        moves |= (bitboard >> 17) & ~LEFT_1_MASK; // Left-down
-        moves |= (bitboard >> 10) & ~LEFT_2_MASK; // Left-up
+        moves |= (bitboard << 6) & ~RIGHT_1_MASK;  // Up-left
+        moves |= (bitboard << 15) & ~RIGHT_2_MASK; // Up-right
+        moves |= (bitboard << 17) & ~LEFT_1_MASK; // Right-up
+        moves |= (bitboard << 10) & ~LEFT_2_MASK; // Right-down
+        moves |= (bitboard >> 6) & ~LEFT_2_MASK;  // Down-right
+        moves |= (bitboard >> 15) & ~LEFT_1_MASK; // Down-left
+        moves |= (bitboard >> 17) & ~RIGHT_2_MASK; // Left-down
+        moves |= (bitboard >> 10) & ~RIGHT_1_MASK; // Left-up
 
         return moves;
     }

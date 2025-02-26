@@ -1,8 +1,8 @@
-package chess.engine.board.bitboard;
+package chess.engine.bitboard;
 
 import java.util.Arrays;
 
-import static chess.engine.board.bitboard.BitBoard.*;
+import static chess.engine.bitboard.BitBoard.*;
 
 public class FenUtility {
 
