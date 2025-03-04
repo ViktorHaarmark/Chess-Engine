@@ -1,123 +1,186 @@
-package chess.engine.bitboard;
-
-import java.util.Arrays;
-
-import static chess.engine.bitboard.BitBoard.*;
-
-public class FenUtility {
-
-    public static void parseFEN(final String fenString) {
-        final String[] fenPartitions = fenString.trim().split(" ");
-
-//        final boolean whiteKingSideCastle = whiteKingSideCastle(fenPartitions[2]);
-//        final boolean whiteQueenSideCastle = whiteQueenSideCastle(fenPartitions[2]);
-//        final boolean blackKingSideCastle = blackKingSideCastle(fenPartitions[2]);
-//        final boolean blackQueenSideCastle = blackQueenSideCastle(fenPartitions[2]);
-        final String gameConfiguration = fenPartitions[0];
-        final char[] boardTiles = gameConfiguration.replaceAll("/", "")
-                .replaceAll("8", "--------")
-                .replaceAll("7", "-------")
-                .replaceAll("6", "------")
-                .replaceAll("5", "-----")
-                .replaceAll("4", "----")
-                .replaceAll("3", "---")
-                .replaceAll("2", "--")
-                .replaceAll("1", "-")
-                .toCharArray();
-        int i = 0;
-        while (i < boardTiles.length) {
-            switch (boardTiles[i]) {
-                case 'r':
-                    BitBoard.bRooks |= (1L << i);
-                    i++;
-                    break;
-                case 'n':
-                    BitBoard.bKnights |= (1L << i);
-                    i++;
-                    break;
-                case 'b':
-                    BitBoard.bBishops |= (1L << i);
-                    i++;
-                    break;
-                case 'q':
-                    BitBoard.bQueens |= (1L << i);
-                    i++;
-                    break;
-                case 'k':
-                    BitBoard.bKings |= (1L << i);
-                    i++;
-                    break;
-                case 'p':
-                    BitBoard.bPawns |= (1L << i);
-                    i++;
-                    break;
-                case 'R':
-                    BitBoard.wRooks |= (1L << i);
-                    i++;
-                    break;
-                case 'N':
-                    wKnights |= (1L << i);
-                    i++;
-                    break;
-                case 'B':
-                    BitBoard.wBishops |= (1L << i);
-                    i++;
-                    break;
-                case 'Q':
-                    BitBoard.wQueens |= (1L << i);
-                    i++;
-                    break;
-                case 'K':
-                    BitBoard.wKings |= (1L << i);
-                    i++;
-                    break;
-                case 'P':
-                    wPawns |= (1L << i);
-                    i++;
-                    break;
-                case '-':
-                    i++;
-                    break;
-                default:
-                    throw new RuntimeException("Invalid FEN String " + gameConfiguration);
-            }
-        }
-    }
-
-    public static void printBoard() {
-        char[] board = new char[64];
-        Arrays.fill(board, '.'); // Fill board with empty squares
-
-        // Set white pieces
-        setBoardPieces(board, wPawns, 'P');
-        setBoardPieces(board, wKnights, 'N');
-        setBoardPieces(board, wBishops, 'B');
-        setBoardPieces(board, wRooks, 'R');
-        setBoardPieces(board, wQueens, 'Q');
-        setBoardPieces(board, wKings, 'K');
-
-        // Set black pieces
-        setBoardPieces(board, bPawns, 'p');
-        setBoardPieces(board, bKnights, 'n');
-        setBoardPieces(board, bBishops, 'b');
-        setBoardPieces(board, bRooks, 'r');
-        setBoardPieces(board, bQueens, 'q');
-        setBoardPieces(board, bKings, 'k');
-
-        for (int rank = 0; rank < 8; rank++) {
-            for (int file = 0; file < 8; file++) {
-                System.out.print(board[rank * 8 + file] + " ");
-            }
-            System.out.println();
-        }
-        System.out.println();
-    }
-
-    private static void setBoardPieces(char[] board, long bitboard, char piece) {
-        for (int square = 0; square < 64; square++) {
-            if ((bitboard & (1L << square)) != 0) {
-                board[square] = piece;
-            }
-        }
-    }
-}
+//package chess.engine.bitboard;
+//
+//
+//// Helper class for dealing with FEN strings
+//public static class FenUtility {
+//    public final static String StartPositionFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+//
+//    // Load position from fen string
+//    public static PositionInfo PositionFromFen(String fen) {
+//        PositionInfo loadedPositionInfo = new (fen);
+//        return loadedPositionInfo;
+//    }
+//
+//    /// <summary>
+//    /// Get the fen string of the current position
+//    /// When alwaysIncludeEPSquare is true the en passant square will be included
+//    /// in the fen string even if no enemy pawn is in a position to capture it.
+//    /// </summary>
+//    public static string CurrentFen(Board board, bool alwaysIncludeEPSquare =true) {
+//        string fen = "";
+//        for (int rank = 7; rank >= 0; rank--) {
+//            int numEmptyFiles = 0;
+//            for (int file = 0; file < 8; file++) {
+//                int i = rank * 8 + file;
+//                int piece = board.Square[i];
+//                if (piece != 0) {
+//                    if (numEmptyFiles != 0) {
+//                        fen += numEmptyFiles;
+//                        numEmptyFiles = 0;
+//                    }
+//                    bool isBlack = Piece.IsColour(piece, Piece.Black);
+//                    int pieceType = Piece.PieceType(piece);
+//                    char pieceChar = ' ';
+//                    switch (pieceType) {
+//                        case Piece.Rook:
+//                            pieceChar = 'R';
+//                            break;
+//                        case Piece.Knight:
+//                            pieceChar = 'N';
+//                            break;
+//                        case Piece.Bishop:
+//                            pieceChar = 'B';
+//                            break;
+//                        case Piece.Queen:
+//                            pieceChar = 'Q';
+//                            break;
+//                        case Piece.King:
+//                            pieceChar = 'K';
+//                            break;
+//                        case Piece.Pawn:
+//                            pieceChar = 'P';
+//                            break;
+//                    }
+//                    fen += (isBlack) ? pieceChar.ToString().ToLower() : pieceChar.ToString();
+//                } else {
+//                    numEmptyFiles++;
+//                }
+//
+//            }
+//            if (numEmptyFiles != 0) {
+//                fen += numEmptyFiles;
+//            }
+//            if (rank != 0) {
+//                fen += '/';
+//            }
+//        }
+//
+//        // Side to move
+//        fen += ' ';
+//        fen += (board.IsWhiteToMove) ? 'w' : 'b';
+//
+//        // Castling
+//        bool whiteKingside = (board.CurrentGameState.castlingRights & 1) == 1;
+//        bool whiteQueenside = (board.CurrentGameState.castlingRights >> 1 & 1) == 1;
+//        bool blackKingside = (board.CurrentGameState.castlingRights >> 2 & 1) == 1;
+//        bool blackQueenside = (board.CurrentGameState.castlingRights >> 3 & 1) == 1;
+//        fen += ' ';
+//        fen += (whiteKingside) ? "K" : "";
+//        fen += (whiteQueenside) ? "Q" : "";
+//        fen += (blackKingside) ? "k" : "";
+//        fen += (blackQueenside) ? "q" : "";
+//        fen += ((board.CurrentGameState.castlingRights) == 0) ? "-" : "";
+//
+//        // En-passant
+//        fen += ' ';
+//        int epFileIndex = board.CurrentGameState.enPassantFile - 1;
+//        int epRankIndex = (board.IsWhiteToMove) ? 5 : 2;
+//
+//        bool isEnPassant = epFileIndex != -1;
+//        bool includeEP = alwaysIncludeEPSquare || EnPassantCanBeCaptured(epFileIndex, epRankIndex, board);
+//        if (isEnPassant && includeEP) {
+//            fen += BoardHelper.SquareNameFromCoordinate(epFileIndex, epRankIndex);
+//        } else {
+//            fen += '-';
+//        }
+//
+//        // 50 move counter
+//        fen += ' ';
+//        fen += board.CurrentGameState.fiftyMoveCounter;
+//
+//        // Full-move count (should be one at start, and increase after each move by black)
+//        fen += ' ';
+//        fen += (board.PlyCount / 2) + 1;
+//
+//        return fen;
+//    }
+//
+//    static bool EnPassantCanBeCaptured(int epFileIndex, int epRankIndex, Board board) {
+//        Coord captureFromA = new Coord(epFileIndex - 1, epRankIndex + (board.IsWhiteToMove ? -1 : 1));
+//        Coord captureFromB = new Coord(epFileIndex + 1, epRankIndex + (board.IsWhiteToMove ? -1 : 1));
+//        int epCaptureSquare = new Coord(epFileIndex, epRankIndex).SquareIndex;
+//        int friendlyPawn = Piece.MakePiece(Piece.Pawn, board.MoveColour);
+//
+//
+//        return CanCapture(captureFromA) || CanCapture(captureFromB);
+//
+//
+//        bool CanCapture (Coord from)
+//        {
+//            bool isPawnOnSquare = board.Square[from.SquareIndex] == friendlyPawn;
+//            if (from.IsValidSquare() && isPawnOnSquare) {
+//                Move move = new Move(from.SquareIndex, epCaptureSquare, Move.EnPassantCaptureFlag);
+//                board.MakeMove(move);
+//                board.MakeNullMove();
+//                bool wasLegalMove = !board.CalculateInCheckState();
+//
+//                board.UnmakeNullMove();
+//                board.UnmakeMove(move);
+//                return wasLegalMove;
+//            }
+//
+//            return false;
+//        }
+//    }
+//
+//    public static string FlipFen(string fen) {
+//        string flippedFen = "";
+//        string[] sections = fen.Split(' ');
+//
+//        List<char> invertedFenChars = new ();
+//        string[] fenRanks = sections[0].Split('/');
+//
+//        for (int i = fenRanks.Length - 1; i >= 0; i--) {
+//            string rank = fenRanks[i];
+//            foreach( char c in rank)
+//            {
+//                flippedFen += InvertCase(c);
+//            }
+//            if (i != 0) {
+//                flippedFen += '/';
+//            }
+//        }
+//
+//        flippedFen += " " + (sections[1][0] == 'w' ? 'b' : 'w');
+//        string castlingRights = sections[2];
+//        string flippedRights = "";
+//        foreach( char c in "kqKQ")
+//        {
+//            if (castlingRights.Contains(c)) {
+//                flippedRights += InvertCase(c);
+//            }
+//        }
+//        flippedFen += " " + (flippedRights.Length == 0 ? "-" : flippedRights);
+//
+//        string ep = sections[3];
+//        string flippedEp = ep[0] + "";
+//        if (ep.Length > 1) {
+//            flippedEp += ep[1] == '6' ? '3' : '6';
+//        }
+//        flippedFen += " " + flippedEp;
+//        flippedFen += " " + sections[4] + " " + sections[5];
+//
+//
+//        return flippedFen;
+//
+//        char InvertCase ( char c)
+//        {
+//            if (char.IsLower(c)) {
+//                return char.ToUpper(c);
+//            }
+//            return char.ToLower(c);
+//        }
+//    }
+//
+//
+//}
