@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import javax.swing.*;
+import java.util.List;
 
 @Getter
 @EqualsAndHashCode
@@ -73,7 +74,7 @@ public abstract class Move {
 
         for (final Piece piece : this.board.getCurrentPlayer().getActivePieces()) {
             if (!this.movedPiece.equals(piece)) {
-                builder.setPiece(piece);
+                builder.setPiece(piece); //TODO: This might be shitty, why not just copy the list?
             }
         }
 

@@ -22,12 +22,6 @@ public abstract class Player {
     protected final List<Move> possibleMoves;
     private final boolean isInCheck;
 
-//    @Setter
-//    private List<Move> LEGAL_MOVES_CACHE = null;
-//    @Setter
-//    private List<Move> LEGAL_CAPTURE_MOVES_CACHE = null;
-
-
     Player(final Board board,
            final List<Move> possibleMoves,
            final List<Move> opponentMoves) {

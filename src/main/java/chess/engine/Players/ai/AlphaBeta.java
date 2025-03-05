@@ -69,8 +69,8 @@ public class AlphaBeta implements MoveStrategy {
     public int alphaBetaSearch(final Board board, final int depth, int alpha, int beta) {
         if (depth == 0 || BoardUtils.isEndGame(board)) {
             numPosition += 1;
-            return quiescenceSearch(board, alpha, beta, QUISCENCE_SEARCH_DEPTH);
-            //return boardEvaluator.evaluate(board);
+            //return quiescenceSearch(board, alpha, beta, QUISCENCE_SEARCH_DEPTH);
+            return boardEvaluator.evaluate(board);
         }
 
 

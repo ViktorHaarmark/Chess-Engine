@@ -51,6 +51,7 @@ public class LichessUtility {
     }
 
     public static String readPasswordFromFile(String filePath) {
+        System.out.println(System.getProperty("user.dir"));
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             return reader.readLine(); // Read the first line (assuming the password is on the first line)
         } catch (IOException e) {
