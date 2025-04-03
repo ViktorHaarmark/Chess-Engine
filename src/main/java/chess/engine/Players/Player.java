@@ -59,7 +59,7 @@ public abstract class Player {
     private King establishKing() {
 
         for (final Piece piece : getActivePieces()) {
-            if (piece.getPieceType().isKing()) {
+            if (piece instanceof King) {
                 return (King) piece;
             }
         }
@@ -110,7 +110,7 @@ public abstract class Player {
             return new MoveTransition(this.board, this.board, move, MoveStatus.ILLEGAL_MOVE);
         }
 
-        final Board boardAfterMove = move.execute();
+        final Board boardAfterMove = board.execute(move);
 
         final List<Move> kingAttacks = Player.calculateAttacksOnTile(boardAfterMove.getCurrentPlayer().getOpponent().getPlayerKing().getPiecePosition(),
                 boardAfterMove.getCurrentPlayer().getPossibleMoves());

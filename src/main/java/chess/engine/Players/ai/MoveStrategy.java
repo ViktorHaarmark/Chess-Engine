@@ -1,8 +1,8 @@
 package chess.engine.Players.ai;
 
 import chess.engine.board.Board;
-import chess.engine.board.Move;
+import chess.engine.board.ChessMove;
 
 public interface MoveStrategy {
-    Move execute(Board board);
+    ChessMove execute(Board board);
 }

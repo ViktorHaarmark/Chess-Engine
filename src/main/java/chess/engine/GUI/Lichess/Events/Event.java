@@ -5,6 +5,5 @@ import lombok.Data;
 @Data
 public abstract class Event {
 
-    Type type;
 
 }

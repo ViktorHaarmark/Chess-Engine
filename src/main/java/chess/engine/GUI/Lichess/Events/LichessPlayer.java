@@ -11,7 +11,7 @@ public class LichessPlayer {
 
     String id;
 
-    String name;
+    String username;
 
     int rating;
 

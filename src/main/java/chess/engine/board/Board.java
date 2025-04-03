@@ -25,10 +25,12 @@ public class Board {
 
     private final Pawn enPassantPawn;
 
+
     private final List<Tile> gameBoard;
 
     private Board(Builder builder) {
         this.gameBoard = createGameBoard(builder);
+
         this.whitePieces = calculateActivePieces(this.gameBoard, Color.WHITE);
         this.blackPieces = calculateActivePieces(this.gameBoard, Color.BLACK);
         this.enPassantPawn = builder.enPassantPawn;
@@ -107,6 +109,29 @@ public class Board {
         return ImmutableList.copyOf(tiles);
     }
 
+    public Board execute(Move move) {
+        final Builder builder = new Builder();
+
+        for (final Piece piece : this.getCurrentPlayer().getActivePieces()) {
+            if (!move.movedPiece.equals(piece)) {
+                builder.setPiece(piece); //TODO: This might be shitty, why not just copy the list?
+            }
+        }
+
+        for (final Piece piece : this.getCurrentPlayer().getOpponent().getActivePieces()) {
+            builder.setPiece(piece);
+        }
+        builder.setCastlingRights(this.getCurrentPlayer().isKingSideCastleCapable(),
+                this.getCurrentPlayer().isQueenSideCastleCapable(),
+                this.getCurrentPlayer().getOpponent().isKingSideCastleCapable(),
+                this.getCurrentPlayer().getOpponent().isQueenSideCastleCapable());
+
+        builder.setPiece(move.movedPiece.movePiece(move));
+        builder.setMoveMaker(this.getCurrentPlayer().getOpponent().getColor());
+
+        return builder.build();
+    }
+
     public static class Builder {
 
         Map<Integer, Piece> boardConfig;
@@ -145,8 +170,6 @@ public class Board {
             this.blackKingSideCastle = blackKingSideCastle;
             this.blackQueenSideCastle = blackQueenSideCastle;
         }
-
-
     }
 
     public Iterable<Move> getAllPossibleMoves() {

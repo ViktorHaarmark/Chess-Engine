@@ -32,7 +32,7 @@ public class Table extends Observable {
     private Board chessBoard;
     private BoardDirection boardDirection;
     private boolean showLegalMoves;
-    private Move computerMove;
+    private ChessMove computerMove;
 
     private Tile sourceTile;
     private Tile destinationTile;
@@ -53,8 +53,6 @@ public class Table extends Observable {
         final JMenuBar tableMenuBar = createTableMenuBar();
         this.gameFrame.setJMenuBar(tableMenuBar);
         this.chessBoard = BoardSetup.createStandardBoard();
-        //this.chessBoard = FenUtility.createGameFromFEN("4k3/8/8/8/8/8/5n2/4K2R b K - 0 1");
-        //this.chessBoard = BoardSetup.InterestingPosition();
         this.boardDirection = BoardDirection.NORMAL;
         this.showLegalMoves = true;
         this.computerMove = null;

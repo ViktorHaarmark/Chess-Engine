@@ -6,11 +6,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import javax.swing.*;
-import java.util.List;
 
 @Getter
 @EqualsAndHashCode
-public abstract class Move {
+public abstract class Move implements ChessMove{
 
     @Getter
     protected Board board;
@@ -37,7 +36,7 @@ public abstract class Move {
     }
 
 
-    public String toUCI() {
+    public String getUCIMove() {
         return BoardUtils.getPositionAtCoordinate(
                 movedPiece.getPiecePosition()) +
                 BoardUtils.getPositionAtCoordinate(destinationCoordinate);
@@ -297,7 +296,7 @@ public abstract class Move {
         }
 
         @Override
-        public String toUCI() {
+        public String getUCIMove() {
             return BoardUtils.getPositionAtCoordinate(
                     promotedPawn.getPiecePosition()) +
                     BoardUtils.getPositionAtCoordinate(destinationCoordinate) +

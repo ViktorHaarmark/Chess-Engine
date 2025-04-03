@@ -13,25 +13,58 @@ import static chess.engine.GUI.Lichess.LichessUtility.STARTING_POSITION;
 @Setter
 @Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class GameStatus extends Event {
-
-    Type type = GAME_STATUS;
-
-    String fullId;
+public class GameStatus {
 
     String gameId;
 
-    TimeControl timeControl;
-
-    String initialFen;
+    String fullId;
 
     @JsonProperty("color")
     String myColor;
 
+    @JsonProperty("fen")
+    String initialFen;
+
+    Boolean hasMoved;
+
+    Boolean isMyTurn;
+
+    String lastMove;
+
+    LichessPlayer opponent;
+
+    String perf;
+
+    Boolean rated;
+
+    int secondsLeft;
+
+    String source;
+
+    Status status;
+
+    String speed;
+
+    GameUpdate.Variant variant;
+
+    Compat compat;
+
+    String id;
+
+    String winner;
+
+    int ratingDiff;
+
+    //TODO: FIX THIS MESS
+
+    TimeControl timeControl;
+
+
+
     @JsonProperty("status")
     chess.engine.GUI.Lichess.Events.Status status;
 
-    String InitialFen;
+
 
     String[] moves;
 
@@ -44,6 +77,8 @@ public class GameStatus extends Event {
     String winner;
 
     Boolean drawOffer;
+
+
 
     public void update(GameUpdate gameUpdate) {
         Optional.ofNullable(gameUpdate.getInitialFen()).ifPresent(this::setInitialFen);

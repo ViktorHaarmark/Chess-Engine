@@ -13,7 +13,7 @@ import java.util.concurrent.CompletableFuture;
 
 
 public class LichessDao {
-    final private static String API_TOKEN_PATH = "kodeord\\lichessapikey.txt";
+    final private static String API_TOKEN_PATH = "kodeord/lichessapikey.txt";
     final private static String API_TOKEN = LichessUtility.readPasswordFromFile(API_TOKEN_PATH);
     final private static String LICHESS_BASE_URL = "https://lichess.org/api/";
     final private static String STREAM_EVENT_PATH = "stream/event";

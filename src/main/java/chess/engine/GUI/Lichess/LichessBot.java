@@ -1,6 +1,5 @@
 package chess.engine.GUI.Lichess;
 
-import chess.Color;
 import chess.engine.GUI.Lichess.Events.GameStatus;
 import chess.engine.GUI.Lichess.Events.GameUpdate;
 import chess.engine.GUI.Lichess.Events.LichessEvent;
@@ -74,7 +73,7 @@ public class LichessBot {
     private static String calculateBestMove(String fen) {
         Board board = FenUtility.createGameFromFEN(fen);
         Move bestMove = engine.execute(board);
-        return bestMove.toUCI();
+        return bestMove.getUCIMove();
     }
 
 

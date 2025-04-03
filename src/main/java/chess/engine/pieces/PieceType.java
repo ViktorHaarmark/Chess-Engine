@@ -6,19 +6,9 @@ public enum PieceType {
     PAWN("P", 100),
     KNIGHT("N", 300),
     BISHOP("B", 300),
-    ROOK("R", 500) {
-        @Override
-        public boolean isRook() {
-            return true;
-        }
-    },
+    ROOK("R", 500),
     QUEEN("Q", 900),
-    KING("K", 100000) {
-        @Override
-        public boolean isKing() {
-            return true;
-        }
-    };
+    KING("K", 100000);
 
 
     private final String pieceName;
@@ -36,14 +26,6 @@ public enum PieceType {
 
     public int getPieceValue() {
         return this.pieceValue;
-    }
-
-    public boolean isKing() {
-        return false;
-    }
-
-    public boolean isRook() {
-        return false;
     }
 
 }

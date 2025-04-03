@@ -85,13 +85,10 @@ public class BoardHelper {
         return (x >= 0 && x < 8 && y >= 0 && y < 8);
     }
 
-//    /// <summary>
-//    /// Creates an ASCII-diagram of the current position.
-//    /// </summary>
-//    public static String CreateDiagram(Board board, bool blackAtTop =true, bool includeFen =true, bool includeZobristKey =true) {
-//        // Thanks to ernestoyaquello
-//        System.Text.StringBuilder result = new ();
-//        int lastMoveSquare = board.AllGameMoves.Count > 0 ? board.AllGameMoves[ ^ 1].TargetSquare:
+
+//    public static String createDiagram(Board board) {
+//        StringBuilder result = new StringBuilder();
+//        int lastMoveSquare = !board.AllGameMoves.isEmpty() ? board.AllGameMoves[ ^ 1].TargetSquare:
 //        -1;
 //
 //        for (int y = 0; y < 8; y++) {
