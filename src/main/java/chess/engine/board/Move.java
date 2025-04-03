@@ -9,7 +9,7 @@ import javax.swing.*;
 
 @Getter
 @EqualsAndHashCode
-public abstract class Move implements ChessMove{
+public abstract class Move {
 
     @Getter
     protected Board board;

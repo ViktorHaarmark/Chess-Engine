@@ -4,7 +4,6 @@ import chess.engine.Players.ai.AlphaBeta;
 import chess.engine.Players.ai.MoveStrategy;
 import chess.engine.board.Board;
 import chess.engine.board.BoardUtils;
-import chess.engine.board.ChessMove;
 import chess.engine.board.Move;
 import chess.pgn.FenUtility;
 import org.junit.jupiter.api.Test;

@@ -6,8 +6,8 @@ public class KingMoves {
     private static final long H_FILE_MASK = 0x8080808080808080L;
 
     static {
-        for (int square = 0; square < 64; square++) {
-            KING_ATTACKS[square] = computeKingMoves(square);
+        for (int square22 = 0; square22 < 64; square22++) {
+            KING_ATTACKS[square22] = computeKingMoves(square22);
         }
     }
 

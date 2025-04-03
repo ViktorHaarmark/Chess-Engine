@@ -32,7 +32,7 @@ public class Table extends Observable {
     private Board chessBoard;
     private BoardDirection boardDirection;
     private boolean showLegalMoves;
-    private ChessMove computerMove;
+    private Move computerMove;
 
     private Tile sourceTile;
     private Tile destinationTile;

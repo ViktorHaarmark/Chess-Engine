@@ -2,7 +2,7 @@ package chess.engine.board;
 
 import chess.engine.pieces.Piece;
 
-public class Move2 implements ChessMove {
+public class Move2  {
     private Board board;
     private int fromSquare;
     private int toSquare;
@@ -62,7 +62,7 @@ public class Move2 implements ChessMove {
         return false;
     }
 
-    @Override
+
     public String getUCIMove() {
         return BoardUtils.getPositionAtCoordinate(fromSquare) + BoardUtils.getPositionAtCoordinate(toSquare); //TODO: Add promotion piece?
     }
