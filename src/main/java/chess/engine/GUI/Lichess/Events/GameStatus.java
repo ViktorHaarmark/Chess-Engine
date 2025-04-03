@@ -47,7 +47,7 @@ public class GameStatus {
 
     GameUpdate.Variant variant;
 
-    Compat compat;
+//    Compat compat;
 
     String id;
 
@@ -59,12 +59,8 @@ public class GameStatus {
 
     TimeControl timeControl;
 
-
-
-    @JsonProperty("status")
-    chess.engine.GUI.Lichess.Events.Status status;
-
-
+//    @JsonProperty("status")
+//    chess.engine.GUI.Lichess.Events.Status status;
 
     String[] moves;
 
@@ -72,9 +68,9 @@ public class GameStatus {
 
     LichessPlayer blackPlayer;
 
-    Boolean rated;
-
-    String winner;
+//    Boolean rated;
+//
+//    String winner;
 
     Boolean drawOffer;
 
@@ -86,7 +82,7 @@ public class GameStatus {
         Optional.ofNullable(gameUpdate.getWhitePlayer()).ifPresent(this::setWhitePlayer);
         Optional.ofNullable(gameUpdate.getBlackPlayer()).ifPresent(this::setBlackPlayer);
         if (gameUpdate.getGameState() != null) {
-            Optional.ofNullable(gameUpdate.getGameState().getStatus()).ifPresent(this::setStatus);
+//            Optional.ofNullable(gameUpdate.getGameState().getStatus()).ifPresent(this::setStatus);
             Optional.ofNullable(gameUpdate.getGameState().getMoves()).ifPresent(this::setMoves);
             this.setDrawOffer(gameUpdate.getGameState().getWhiteDrawOffer() || gameUpdate.getGameState().getBlackDrawOffer());
         }

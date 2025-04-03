@@ -21,7 +21,7 @@ public class Challenge {
 
     LichessPlayer destUser;
 
-    Variant variant;
+//    Variant variant;
 
     Boolean rated;
 
@@ -33,7 +33,7 @@ public class Challenge {
 
     String finalColor;
 
-    Perf perf;
+//    Perf perf;
 
     String direction;
 

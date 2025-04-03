@@ -18,7 +18,10 @@ C:\Users\hrhaa\IdeaProjects\Chess-Engine\src\main\java\chess\engine\bitboard\Pos
 C:\Users\hrhaa\IdeaProjects\Chess-Engine\src\main\java\chess\engine\board\Board.java
 C:\Users\hrhaa\IdeaProjects\Chess-Engine\src\main\java\chess\engine\board\BoardSetup.java
 C:\Users\hrhaa\IdeaProjects\Chess-Engine\src\main\java\chess\engine\board\BoardUtils.java
+C:\Users\hrhaa\IdeaProjects\Chess-Engine\src\main\java\chess\engine\board\ChessMove.java
 C:\Users\hrhaa\IdeaProjects\Chess-Engine\src\main\java\chess\engine\board\Move.java
+C:\Users\hrhaa\IdeaProjects\Chess-Engine\src\main\java\chess\engine\board\Move2.java
+C:\Users\hrhaa\IdeaProjects\Chess-Engine\src\main\java\chess\engine\board\MoveBuilder.java
 C:\Users\hrhaa\IdeaProjects\Chess-Engine\src\main\java\chess\engine\board\MoveStatus.java
 C:\Users\hrhaa\IdeaProjects\Chess-Engine\src\main\java\chess\engine\board\MoveTransition.java
 C:\Users\hrhaa\IdeaProjects\Chess-Engine\src\main\java\chess\engine\board\Tile.java
