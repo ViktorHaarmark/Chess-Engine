@@ -6,19 +6,16 @@ import chess.engine.Players.Player;
 import chess.engine.Players.WhitePlayer;
 import chess.engine.pieces.Pawn;
 import chess.engine.pieces.Piece;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import lombok.Getter;
 
 import java.util.*;
 import java.util.stream.Stream;
 
+@Getter
 public class Board {
 
-    private final List<Tile> gameBoard;
-    @Getter
     private final List<Piece> whitePieces;
-    @Getter
     private final List<Piece> blackPieces;
 
     private final WhitePlayer whitePlayer;
@@ -26,12 +23,14 @@ public class Board {
 
     private final Player currentPlayer;
 
-    @Getter
     private final Pawn enPassantPawn;
 
-    @VisibleForTesting
+
+    private final List<Tile> gameBoard;
+
     private Board(Builder builder) {
         this.gameBoard = createGameBoard(builder);
+
         this.whitePieces = calculateActivePieces(this.gameBoard, Color.WHITE);
         this.blackPieces = calculateActivePieces(this.gameBoard, Color.BLACK);
         this.enPassantPawn = builder.enPassantPawn;
@@ -59,18 +58,6 @@ public class Board {
         return builder.toString();
     }
 
-    public Player getBlackPlayer() {
-        return this.blackPlayer;
-    }
-
-    public Player getWhitePlayer() {
-        return this.whitePlayer;
-    }
-
-    public Player currentPlayer() {
-        return this.currentPlayer;
-    }
-
     public List<Piece> getAllPieces() {
         return getAllActivePieces();
     }
@@ -85,7 +72,7 @@ public class Board {
     public List<Move> calculatePossibleMoves(List<Piece> pieceList) {
         final List<Move> possibleMoves = new ArrayList<>();
         for (final Piece piece : pieceList) {
-            possibleMoves.addAll(piece.calculateLegalMoves(this));
+            possibleMoves.addAll(piece.calculatePossibleMoves(this));
         }
         return ImmutableList.copyOf(possibleMoves);
     }
@@ -110,16 +97,6 @@ public class Board {
         return ImmutableList.copyOf(activePieces);
     }
 
-//    private static List<Piece> calculateAllActivePieces(final List<Tile> gameBoard) {
-//        final List<Piece> activePieces = new ArrayList<>();
-//        for (final Tile tile : gameBoard) {
-//            if (tile.isTileOccupied()) {
-//                activePieces.add(tile.getPiece());
-//            }
-//        }
-//        return ImmutableList.copyOf(activePieces);
-//    }
-
     public Tile getTile(int tileCoordinate) {
         return gameBoard.get(tileCoordinate);
     }
@@ -130,6 +107,29 @@ public class Board {
             tiles[i] = Tile.createTile(i, builder.boardConfig.get(i));
         }
         return ImmutableList.copyOf(tiles);
+    }
+
+    public Board execute(Move move) {
+        final Builder builder = new Builder();
+
+        for (final Piece piece : this.getCurrentPlayer().getActivePieces()) {
+            if (!move.movedPiece.equals(piece)) {
+                builder.setPiece(piece); //TODO: This might be shitty, why not just copy the list?
+            }
+        }
+
+        for (final Piece piece : this.getCurrentPlayer().getOpponent().getActivePieces()) {
+            builder.setPiece(piece);
+        }
+        builder.setCastlingRights(this.getCurrentPlayer().isKingSideCastleCapable(),
+                this.getCurrentPlayer().isQueenSideCastleCapable(),
+                this.getCurrentPlayer().getOpponent().isKingSideCastleCapable(),
+                this.getCurrentPlayer().getOpponent().isQueenSideCastleCapable());
+
+        builder.setPiece(move.movedPiece.movePiece(move));
+        builder.setMoveMaker(this.getCurrentPlayer().getOpponent().getColor());
+
+        return builder.build();
     }
 
     public static class Builder {
@@ -170,14 +170,12 @@ public class Board {
             this.blackKingSideCastle = blackKingSideCastle;
             this.blackQueenSideCastle = blackQueenSideCastle;
         }
-
-
     }
 
-    public Iterable<Move> getAllLegalMoves() {
+    public Iterable<Move> getAllPossibleMoves() {
         Stream<Move> combinedStream = Stream.concat(
-                this.whitePlayer.getLegalMoves().stream(),
-                this.blackPlayer.getLegalMoves().stream()
+                this.whitePlayer.getPossibleMoves().stream(),
+                this.blackPlayer.getPossibleMoves().stream()
         );
         return combinedStream.toList();
     }

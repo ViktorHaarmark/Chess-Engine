@@ -5,11 +5,9 @@ import chess.engine.board.Move;
 import java.util.Comparator;
 
 public class MoveSorter implements Comparator<Move> {
-    private final BoardEvaluator boardEvaluator;
 
 
     public MoveSorter() {
-        this.boardEvaluator = new StandardBoardEvaluator();
     }
 
 
@@ -35,7 +33,7 @@ public class MoveSorter implements Comparator<Move> {
 //        if (move.isPromotionMove()) {
 //            moveScore += move.getPromotedPiece().getPieceValue();
 //        }
-//        if (move.execute().currentPlayer().isInCheck()) {
+//        if (move.execute().getCurrentPlayer().isInCheck()) {
 //            moveScore += 100;
 //        }
         return moveScore;

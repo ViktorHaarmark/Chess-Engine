@@ -22,12 +22,12 @@ public class TestPlayer {
     @Test
     public void testSimpleEvaluation() {
         final Board board = BoardSetup.createStandardBoard();
-        final MoveTransition t1 = board.currentPlayer()
+        final MoveTransition t1 = board.getCurrentPlayer()
                 .makeMove(MoveFactory.createMove(board, BoardUtils.getCoordinateAtPosition("e2"),
                         BoardUtils.getCoordinateAtPosition("e4")));
         assertTrue(t1.moveStatus().isDone());
         final MoveTransition t2 = t1.toBoard()
-                .currentPlayer()
+                .getCurrentPlayer()
                 .makeMove(MoveFactory.createMove(t1.toBoard(), BoardUtils.getCoordinateAtPosition("e7"),
                         BoardUtils.getCoordinateAtPosition("e5")));
         assertTrue(t2.moveStatus().isDone());
@@ -37,22 +37,22 @@ public class TestPlayer {
     @Test
     public void testBug() {
         final Board board = BoardSetup.createStandardBoard();
-        final MoveTransition t1 = board.currentPlayer()
+        final MoveTransition t1 = board.getCurrentPlayer()
                 .makeMove(MoveFactory.createMove(board, BoardUtils.getCoordinateAtPosition("c2"),
                         BoardUtils.getCoordinateAtPosition("c3")));
         assertTrue(t1.moveStatus().isDone());
         final MoveTransition t2 = t1.toBoard()
-                .currentPlayer()
+                .getCurrentPlayer()
                 .makeMove(MoveFactory.createMove(t1.toBoard(), BoardUtils.getCoordinateAtPosition("b8"),
                         BoardUtils.getCoordinateAtPosition("a6")));
         assertTrue(t2.moveStatus().isDone());
         final MoveTransition t3 = t2.toBoard()
-                .currentPlayer()
+                .getCurrentPlayer()
                 .makeMove(MoveFactory.createMove(t2.toBoard(), BoardUtils.getCoordinateAtPosition("d1"),
                         BoardUtils.getCoordinateAtPosition("a4")));
         assertTrue(t3.moveStatus().isDone());
         final MoveTransition t4 = t3.toBoard()
-                .currentPlayer()
+                .getCurrentPlayer()
                 .makeMove(MoveFactory.createMove(t3.toBoard(), BoardUtils.getCoordinateAtPosition("d7"),
                         BoardUtils.getCoordinateAtPosition("d6")));
         assertFalse(t4.moveStatus().isDone());
@@ -71,18 +71,18 @@ public class TestPlayer {
         // Set the current player
         builder.setMoveMaker(Color.WHITE);
         final Board board = builder.build();
-        final MoveTransition t1 = board.currentPlayer()
+        final MoveTransition t1 = board.getCurrentPlayer()
                 .makeMove(MoveFactory.createMove(board, BoardUtils.getCoordinateAtPosition("e3"),
                         BoardUtils.getCoordinateAtPosition("b6")));
         assertTrue(t1.moveStatus().isDone());
-        assertTrue(t1.toBoard().currentPlayer().isInCheck());
+        assertTrue(t1.toBoard().getCurrentPlayer().isInCheck());
         final MoveTransition t2 = t1.toBoard()
-                .currentPlayer()
+                .getCurrentPlayer()
                 .makeMove(MoveFactory.createMove(t1.toBoard(), BoardUtils.getCoordinateAtPosition("a5"),
                         BoardUtils.getCoordinateAtPosition("b5")));
         assertFalse(t2.moveStatus().isDone());
         final MoveTransition t3 = t1.toBoard()
-                .currentPlayer()
+                .getCurrentPlayer()
                 .makeMove(MoveFactory.createMove(t1.toBoard(), BoardUtils.getCoordinateAtPosition("a5"),
                         BoardUtils.getCoordinateAtPosition("e5")));
         assertTrue(t3.moveStatus().isDone());
@@ -93,10 +93,10 @@ public class TestPlayer {
         final Board board = BoardSetup.createStandardBoard();
         final Move m1 = MoveFactory.createMove(board, BoardUtils.getCoordinateAtPosition("e2"),
                 BoardUtils.getCoordinateAtPosition("e4"));
-        final MoveTransition t1 = board.currentPlayer()
+        final MoveTransition t1 = board.getCurrentPlayer()
                 .makeMove(m1);
         assertTrue(t1.moveStatus().isDone());
-        //t1.getToBoard().currentPlayer().getOpponent().unMakeMove(m1); //TODO: createunMakeMove method
+        //t1.getToBoard().getCurrentPlayer().getOpponent().unMakeMove(m1); //TODO: createunMakeMove method
     }
 
     @Test
@@ -104,7 +104,7 @@ public class TestPlayer {
         final Board board = BoardSetup.createStandardBoard();
         final Move m1 = MoveFactory.createMove(board, BoardUtils.getCoordinateAtPosition("e2"),
                 BoardUtils.getCoordinateAtPosition("e6"));
-        final MoveTransition t1 = board.currentPlayer()
+        final MoveTransition t1 = board.getCurrentPlayer()
                 .makeMove(m1);
         assertFalse(t1.moveStatus().isDone());
     }

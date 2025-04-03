@@ -10,15 +10,17 @@ public final class StandardBoardEvaluator implements BoardEvaluator {
     private static final int CHECKMATE_BONUS = 10000;
     private static final int CASTLED_BONUS = 60;
 
+
     @Override
     public int evaluate(Board board) {
+        int score = ScorePlayer(board, board.getWhitePlayer()) - ScorePlayer(board, board.getBlackPlayer());
 
-        return ScorePlayer(board, board.getWhitePlayer()) - ScorePlayer(board, board.getBlackPlayer());
+        return (board.getCurrentPlayer().getColor().isWhite() ? score : -score);
     }
 
     private int ScorePlayer(Board board,
                             Player player
-                            ) {
+    ) {
         return pieceValue(player)
                 + mobility(player)
                 + check(player)
@@ -38,7 +40,7 @@ public final class StandardBoardEvaluator implements BoardEvaluator {
     }
 
     private static int mobility(final Player player) {
-        return player.getLegalMoves().size();
+        return player.getPossibleMoves().size();
     }
 
     private static int check(final Player player) {

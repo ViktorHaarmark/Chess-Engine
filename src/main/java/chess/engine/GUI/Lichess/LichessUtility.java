@@ -8,6 +8,10 @@ import chess.engine.board.Move;
 import chess.engine.board.MoveTransition;
 import chess.pgn.FenUtility;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
 public class LichessUtility {
     public final static String STARTING_POSITION = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
@@ -22,7 +26,7 @@ public class LichessUtility {
         if (uci.length() == 5) {
             promotionPiece = uci.substring(4);
         }
-        MoveTransition moveTransition = board.currentPlayer().makeMove(Move.MoveFactory.createLichessMove(board,
+        MoveTransition moveTransition = board.getCurrentPlayer().makeMove(Move.MoveFactory.createLichessMove(board,
                 BoardUtils.getCoordinateAtPosition(startingSquare),
                 BoardUtils.getCoordinateAtPosition(endingSquare),
                 promotionPiece));
@@ -44,6 +48,16 @@ public class LichessUtility {
     public static Color getBotColor(LichessEvent event) {
         String color = event.getGame().getMyColor();
         return (color.equals("white") ? Color.WHITE : Color.BLACK);
+    }
+
+    public static String readPasswordFromFile(String filePath) {
+        System.out.println(System.getProperty("user.dir"));
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            return reader.readLine(); // Read the first line (assuming the password is on the first line)
+        } catch (IOException e) {
+            System.err.println("Error reading file: " + e.getMessage());
+            return null;
+        }
     }
 
 }

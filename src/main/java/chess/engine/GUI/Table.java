@@ -6,6 +6,7 @@ import chess.engine.Players.ai.MoveStrategy;
 import chess.engine.board.*;
 import chess.engine.pieces.Piece;
 import chess.pgn.PgnUtility;
+import lombok.Getter;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -52,8 +53,6 @@ public class Table extends Observable {
         final JMenuBar tableMenuBar = createTableMenuBar();
         this.gameFrame.setJMenuBar(tableMenuBar);
         this.chessBoard = BoardSetup.createStandardBoard();
-        //this.chessBoard = FenUtility.createGameFromFEN("4k3/8/8/8/8/8/5n2/4K2R b K - 0 1");
-        //this.chessBoard = BoardSetup.InterestingPosition();
         this.boardDirection = BoardDirection.NORMAL;
         this.showLegalMoves = true;
         this.computerMove = null;
@@ -225,18 +224,18 @@ public class Table extends Observable {
 
         @Override
         public void update(Observable o, Object arg) {
-            if (Table.get().getGameSetup().isAIPlayer(Table.get().getGameBoard().currentPlayer()) &&
-                    !Table.get().chessBoard.currentPlayer().isInCheckMate() &&
-                    !Table.get().chessBoard.currentPlayer().isInStaleMate()) {
+            if (Table.get().getGameSetup().isAIPlayer(Table.get().getGameBoard().getCurrentPlayer()) &&
+                    !Table.get().chessBoard.getCurrentPlayer().isInCheckMate() &&
+                    !Table.get().chessBoard.getCurrentPlayer().isInStaleMate()) {
                 final AIThinkTank thinkTank = new AIThinkTank();
                 thinkTank.execute();
 
             }
-            if (Table.get().chessBoard.currentPlayer().isInCheckMate()) {
-                System.out.println("Game Over, " + Table.get().chessBoard.currentPlayer() + " is in checkmate!");
+            if (Table.get().chessBoard.getCurrentPlayer().isInCheckMate()) {
+                System.out.println("Game Over, " + Table.get().chessBoard.getCurrentPlayer() + " is in checkmate!");
             }
-            if (Table.get().chessBoard.currentPlayer().isInStaleMate()) {
-                System.out.println("Game Over, " + Table.get().chessBoard.currentPlayer() + " is in stalemate!");
+            if (Table.get().chessBoard.getCurrentPlayer().isInStaleMate()) {
+                System.out.println("Game Over, " + Table.get().chessBoard.getCurrentPlayer() + " is in stalemate!");
             }
         }
 
@@ -260,7 +259,7 @@ public class Table extends Observable {
             try {
                 final Move bestMove = get();
                 Table.get().updateComputerMove(bestMove);
-                Table.get().updateGameBoard(Table.get().getGameBoard().currentPlayer().makeMove(bestMove).toBoard());
+                Table.get().updateGameBoard(Table.get().getGameBoard().getCurrentPlayer().makeMove(bestMove).toBoard());
                 Table.get().getMoveLog().addMove(bestMove);
                 Table.get().getGameHistoryPanel().redo(Table.get().getGameBoard(), Table.get().getMoveLog());
                 Table.get().getTakenPiecePanel().redo(Table.get().getMoveLog());
@@ -301,6 +300,7 @@ public class Table extends Observable {
 
     }
 
+    @Getter
     public static class MoveLog {
 
         private final List<Move> moves;
@@ -310,14 +310,9 @@ public class Table extends Observable {
             this.moves = new ArrayList<>();
         }
 
-        public List<Move> getMoves() {
-            return this.moves;
-        }
-
         public void addMove(final Move move) {
             this.moves.add(move);
         }
-
 
         public int size() {
             return this.moves.size();
@@ -365,7 +360,7 @@ public class Table extends Observable {
                         } else { //second click
                             destinationTile = chessBoard.getTile(tileId);
                             final Move move = Move.MoveFactory.createMove(chessBoard, sourceTile.getTileCoordinate(), destinationTile.getTileCoordinate());
-                            final MoveTransition transition = chessBoard.currentPlayer().makeMove(move);
+                            final MoveTransition transition = chessBoard.getCurrentPlayer().makeMove(move);
                             if (transition.moveStatus().isDone()) {
                                 chessBoard = transition.toBoard();
                                 moveLog.addMove(move);
@@ -378,7 +373,7 @@ public class Table extends Observable {
                             gameHistoryPanel.redo(chessBoard, moveLog);
                             takenPiecePanel.redo(moveLog);
 
-                            if (gameSetup.isAIPlayer(chessBoard.currentPlayer())) {
+                            if (gameSetup.isAIPlayer(chessBoard.getCurrentPlayer())) {
                                 Table.get().moveMadeUpdate();
                             }
                             boardPanel.drawBoard(chessBoard);
@@ -446,8 +441,8 @@ public class Table extends Observable {
 
         private Collection<Move> pieceLegalMoves(final Board board) {
             Collection<Move> pieceLegalMoves = new ArrayList<>();
-            if (humanMovedPiece != null && humanMovedPiece.getPieceColor() == board.currentPlayer().getColor()) {
-                Collection<Move> legalMoveList = board.currentPlayer().getLegalMoves();
+            if (humanMovedPiece != null && humanMovedPiece.getPieceColor() == board.getCurrentPlayer().getColor()) {
+                Collection<Move> legalMoveList = board.getCurrentPlayer().getPossibleMoves();
                 for (Move move : legalMoveList) {
                     if (move.getMovedPiece().equals(humanMovedPiece)) {
                         pieceLegalMoves.add(move);

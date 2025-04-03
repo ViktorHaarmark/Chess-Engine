@@ -4,8 +4,6 @@ package chess.engine.tests;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
-
 import org.junit.jupiter.api.Test;
 
 import chess.engine.board.Board;
@@ -28,13 +26,13 @@ public class TestFEN {
     @Test
     public void testWriteFEN2()  {
         final Board board = BoardSetup.createStandardBoard();
-        final MoveTransition t1 = board.currentPlayer()
+        final MoveTransition t1 = board.getCurrentPlayer()
                 .makeMove(Move.MoveFactory.createMove(board, BoardUtils.getCoordinateAtPosition("e2"),
                         BoardUtils.getCoordinateAtPosition("e4")));
         assertTrue(t1.moveStatus().isDone());
         final String fenString = FenUtility.createFENFromGame(t1.toBoard());
         assertEquals("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1", fenString);
-        final MoveTransition t2 = t1.toBoard().currentPlayer()
+        final MoveTransition t2 = t1.toBoard().getCurrentPlayer()
                 .makeMove(Move.MoveFactory.createMove(t1.toBoard(), BoardUtils.getCoordinateAtPosition("c7"),
                         BoardUtils.getCoordinateAtPosition("c5")));
         assertTrue(t2.moveStatus().isDone());

@@ -13,25 +13,54 @@ import static chess.engine.GUI.Lichess.LichessUtility.STARTING_POSITION;
 @Setter
 @Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class GameStatus extends Event {
-
-    Type type = GAME_STATUS;
-
-    String fullId;
+public class GameStatus {
 
     String gameId;
 
-    TimeControl timeControl;
-
-    String initialFen;
+    String fullId;
 
     @JsonProperty("color")
     String myColor;
 
-    @JsonProperty("status")
-    chess.engine.GUI.Lichess.Events.Status status;
+    @JsonProperty("fen")
+    String initialFen;
 
-    String InitialFen;
+    Boolean hasMoved;
+
+    Boolean isMyTurn;
+
+    String lastMove;
+
+    LichessPlayer opponent;
+
+    String perf;
+
+    Boolean rated;
+
+    int secondsLeft;
+
+    String source;
+
+    Status status;
+
+    String speed;
+
+    GameUpdate.Variant variant;
+
+//    Compat compat;
+
+    String id;
+
+    String winner;
+
+    int ratingDiff;
+
+    //TODO: FIX THIS MESS
+
+    TimeControl timeControl;
+
+//    @JsonProperty("status")
+//    chess.engine.GUI.Lichess.Events.Status status;
 
     String[] moves;
 
@@ -39,11 +68,13 @@ public class GameStatus extends Event {
 
     LichessPlayer blackPlayer;
 
-    Boolean rated;
-
-    String winner;
+//    Boolean rated;
+//
+//    String winner;
 
     Boolean drawOffer;
+
+
 
     public void update(GameUpdate gameUpdate) {
         Optional.ofNullable(gameUpdate.getInitialFen()).ifPresent(this::setInitialFen);
@@ -51,7 +82,7 @@ public class GameStatus extends Event {
         Optional.ofNullable(gameUpdate.getWhitePlayer()).ifPresent(this::setWhitePlayer);
         Optional.ofNullable(gameUpdate.getBlackPlayer()).ifPresent(this::setBlackPlayer);
         if (gameUpdate.getGameState() != null) {
-            Optional.ofNullable(gameUpdate.getGameState().getStatus()).ifPresent(this::setStatus);
+//            Optional.ofNullable(gameUpdate.getGameState().getStatus()).ifPresent(this::setStatus);
             Optional.ofNullable(gameUpdate.getGameState().getMoves()).ifPresent(this::setMoves);
             this.setDrawOffer(gameUpdate.getGameState().getWhiteDrawOffer() || gameUpdate.getGameState().getBlackDrawOffer());
         }

@@ -7,7 +7,9 @@ import lombok.Setter;
 @Setter
 @Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class LichessEvent extends Event {
+public class LichessEvent {
+
+    Type type;
 
     GameStatus game;
 

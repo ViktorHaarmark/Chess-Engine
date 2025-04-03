@@ -8,16 +8,18 @@ import chess.engine.board.Move.QueensideCastlingMove;
 import chess.engine.board.Tile;
 import chess.engine.pieces.Piece;
 import chess.engine.pieces.Rook;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public class BlackPlayer extends Player {
 
     public BlackPlayer(final Board board,
-                       final List<Move> whiteStandardLegalMoves,
-                       final List<Move> blackStandardLegalMoves) {
-        super(board, blackStandardLegalMoves, whiteStandardLegalMoves);
+                       final List<Move> whiteStandardPossibleMoves,
+                       final List<Move> blackStandardPossibleMoves) {
+        super(board, blackStandardPossibleMoves, whiteStandardPossibleMoves);
     }
 
     @Override
@@ -57,7 +59,7 @@ public class BlackPlayer extends Player {
                 if (Player.calculateAttacksOnTile(5, opponentsLegals).isEmpty() && Player.calculateAttacksOnTile(6, opponentsLegals).isEmpty()) {
                     final Tile rookTile = this.board.getTile(7);
 
-                    if (rookTile.isTileOccupied() && rookTile.getPiece().getPieceType().isRook() && rookTile.getPiece().isFirstMove()) {
+                    if (rookTile.isTileOccupied() && rookTile.getPiece() instanceof Rook && rookTile.getPiece().isFirstMove()) {
                         castlingMoves.add(new KingsideCastlingMove(this.board,
                                 this.playerKing,
                                 6,
@@ -73,7 +75,7 @@ public class BlackPlayer extends Player {
                 if (Player.calculateAttacksOnTile(2, opponentsLegals).isEmpty() && Player.calculateAttacksOnTile(3, opponentsLegals).isEmpty()) {
                     final Tile rookTile = this.board.getTile(0);
 
-                    if (rookTile.isTileOccupied() && rookTile.getPiece().getPieceType().isRook() && rookTile.getPiece().isFirstMove()) {
+                    if (rookTile.isTileOccupied() && rookTile.getPiece() instanceof Rook && rookTile.getPiece().isFirstMove()) {
                         castlingMoves.add(new QueensideCastlingMove(this.board,
                                 this.playerKing,
                                 2,

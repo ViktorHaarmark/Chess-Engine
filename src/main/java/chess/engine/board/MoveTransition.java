@@ -1,5 +1,6 @@
 package chess.engine.board;
 
+
 public record MoveTransition(Board fromBoard, Board toBoard, Move move, MoveStatus moveStatus) {
 
     public Move getMove() {

@@ -11,16 +11,18 @@ import java.util.List;
 import static java.lang.Math.round;
 
 public class AlphaBeta implements MoveStrategy {
-    private final BoardEvaluator boardEvaluator;
+    private final StandardBoardEvaluator boardEvaluator;
     private final int searchDepth;
     private int numPosition;
-    private final MoveSorter sorter;
+    private final static MoveSorter MOVE_SORTER = new MoveSorter();
+    private final static CaptureMoveSorter CAPTURE_MOVE_SORTER = new CaptureMoveSorter();
+    private final static int QUISCENCE_SEARCH_DEPTH = 4;
+
 
 
     public AlphaBeta(final int searchDepth) {
         this.boardEvaluator = new StandardBoardEvaluator();
         this.searchDepth = searchDepth;
-        this.sorter = new MoveSorter();
     }
 
     @Override
@@ -34,96 +36,93 @@ public class AlphaBeta implements MoveStrategy {
         int lowestSeenValue = 100000;
         int currentValue;
 
-        System.out.println(board.currentPlayer() + " thinking with alphaBeta search and depth = " + searchDepth);
+        System.out.println(board.getCurrentPlayer() + " thinking with alphaBeta search and depth = " + searchDepth);
 
-        for (final Move move : board.currentPlayer().getLegalMoves()) {
+        for (final Move move : board.getCurrentPlayer().getPossibleMoves()) {
 
-            final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
+            final MoveTransition moveTransition = board.getCurrentPlayer().makeMove(move);
             if (moveTransition.moveStatus().isDone()) {
-                currentValue = board.currentPlayer().getColor().isWhite() ?
-                        alphaBetaSearch(moveTransition.toBoard(), searchDepth-1, -100000, 100000, false) :
-                        alphaBetaSearch(moveTransition.toBoard(), searchDepth-1, -100000, 100000, true);
+                currentValue = board.getCurrentPlayer().getColor().isWhite() ?
+                        -alphaBetaSearch(moveTransition.toBoard(), searchDepth - 1, -100000, 100000) :
+                        alphaBetaSearch(moveTransition.toBoard(), searchDepth - 1, -100000, 100000);
 
-                if (board.currentPlayer().getColor().isWhite() && currentValue >= highestSeenValue) {
+                if (board.getCurrentPlayer().getColor().isWhite() && currentValue >= highestSeenValue) {
                     highestSeenValue = currentValue;
                     bestMove = move;
-                } else if (board.currentPlayer().getColor().isBlack() && currentValue <= lowestSeenValue) {
+                } else if (board.getCurrentPlayer().getColor().isBlack() && currentValue <= lowestSeenValue) {
                     lowestSeenValue = currentValue;
                     bestMove = move;
                 }
             }
         }
-        int bestMoveEval = (board.currentPlayer().getColor().isWhite() ? highestSeenValue : lowestSeenValue);
-        final double executionTime = (System.currentTimeMillis() - startTime)/1000.0;
+        int bestMoveEval = (board.getCurrentPlayer().getColor().isWhite() ? highestSeenValue : lowestSeenValue);
+        final double executionTime = (System.currentTimeMillis() - startTime) / 1000.0;
         System.out.println("Thinking time: " + executionTime);
         System.out.println("Number of positions evaluated: " + numPosition);
-        System.out.println("Positions evaluated per second: " + round((numPosition/executionTime)));
+        System.out.println("Positions evaluated per second: " + round((numPosition / executionTime)));
         System.out.println("The evaluation of " + bestMove.toString() + " is: " + bestMoveEval);
         numPosition = 0;
 
         return bestMove;
     }
 
-    public int alphaBetaSearch(final Board board, final int depth, int alpha, int beta, boolean maximizingPlayer) {
+    public int alphaBetaSearch(final Board board, final int depth, int alpha, int beta) {
         if (depth == 0 || BoardUtils.isEndGame(board)) {
             numPosition += 1;
-            return this.boardEvaluator.evaluate(board);
+            //return quiescenceSearch(board, alpha, beta, QUISCENCE_SEARCH_DEPTH);
+            return boardEvaluator.evaluate(board);
         }
-        if (!maximizingPlayer) {
-            int lowestSeenValue = 100000;
-            List<Move> legalMoves = new ArrayList<>(board.currentPlayer().getLegalMoves());
-            legalMoves.sort(sorter); //TODO: Why is this so slow?
-            for (final Move move : legalMoves) {
-                final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
-                if (moveTransition.moveStatus().isDone()) {
-                    final int currentValue = alphaBetaSearch(moveTransition.toBoard(), depth - 1, alpha, beta, true);
-                    lowestSeenValue = Math.min(lowestSeenValue, currentValue);
-                    beta = Math.min(beta, currentValue);
-                    if (beta <= alpha) {
-                        break;
-                    }
+
+
+        int highestSeenValue = -100000;
+        List<Move> possibleMoves = new ArrayList<>(board.getCurrentPlayer().getPossibleMoves());
+        possibleMoves.sort(MOVE_SORTER);
+
+        for (final Move move : board.getCurrentPlayer().getPossibleMoves()) {
+            final MoveTransition moveTransition = board.getCurrentPlayer().makeMove(move);
+            if (moveTransition.moveStatus().isDone()) {
+                final int currentValue = -alphaBetaSearch(moveTransition.toBoard(), depth - 1, -beta, -alpha);
+                highestSeenValue = Math.max(highestSeenValue, currentValue);
+                alpha = Math.max(alpha, currentValue);
+                if (beta <= alpha) {
+                    break;
                 }
             }
-            return lowestSeenValue;
         }
-        else {
-            int highestSeenValue = -100000;
-            for (final Move move : board.currentPlayer().getLegalMoves()) {
-                final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
-                if (moveTransition.moveStatus().isDone()) {
-                    final int currentValue = alphaBetaSearch(moveTransition.toBoard(), depth - 1, alpha, beta, false );
-                    highestSeenValue = Math.max(highestSeenValue, currentValue);
-                    alpha = Math.max(alpha, currentValue);
-                    if (beta <= alpha) {
-                        break;
-                    }
-                }
-            }
-            return highestSeenValue;
-        }
+        return highestSeenValue;
 
 
     }
 
-    private int searchAllCaptures(Board board, int alpha, int beta) {
-        int evaluation = boardEvaluator.evaluate(board);
-        if (evaluation > beta) {
+    private int quiescenceSearch(final Board board, int alpha, int beta, int depth) {
+        int evaluation = boardEvaluator.evaluate(board); //TODO: Improve quiscence search
+        if (depth <= 0) {
+            return evaluation;
+        }
+
+        if (evaluation >= beta) {
             return beta;
         }
-        alpha = Math.max(alpha, evaluation);
-        List<Move> captureMoves = new ArrayList<>(board.currentPlayer().getCaptureMoves());
-        captureMoves.sort(new MoveSorter());
+
+        if (evaluation >= alpha) {
+            alpha = evaluation;
+        }
+
+        List<Move.CaptureMove> captureMoves = new ArrayList<>(board.getCurrentPlayer().getCaptureMoves());
+        //captureMoves.sort(captureMoveSorter);
+
         for (Move move : captureMoves) {
-            MoveTransition moveTransition = board.currentPlayer().makeMove(move);
+            MoveTransition moveTransition = board.getCurrentPlayer().makeMove(move);
             if (moveTransition.getMoveStatus().isDone()) {
-                evaluation = -searchAllCaptures(moveTransition.toBoard(), -beta, -alpha);
+                int score = -quiescenceSearch(moveTransition.toBoard(), -beta, -alpha, depth-1);
+                if (score >= beta) {
+                    return beta;
+                }
+                if (score > alpha) {
+                    alpha = score;
+                }
             }
-            if (evaluation >= beta) {
-                return beta;
-            }
-            alpha = Math.max(alpha, evaluation);
         }
         return alpha;
     }
-
 }

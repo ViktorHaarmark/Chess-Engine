@@ -28,8 +28,8 @@ public class Pawn extends Piece {
     }
 
     @Override
-    public List<Move> calculateLegalMoves(final Board board) {
-        final List<Move> legalMoves = new ArrayList<>();
+    public List<Move> calculatePossibleMoves(final Board board) {
+        final List<Move> possibleMoves = new ArrayList<>();
 
         for (final int direction : DIRECTION) {
             int candidateDestinationCoordinate = this.piecePosition + direction * this.getPieceColor().getDirection();
@@ -40,15 +40,15 @@ public class Pawn extends Piece {
             if (direction == 8 && !board.getTile(candidateDestinationCoordinate).isTileOccupied()) {
                 if (this.getPieceColor().isPromotionRow(candidateDestinationCoordinate)) {
                     for (String piece : PromoList) {
-                        legalMoves.add(new PawnPromotionMove((new PawnMove(board, this, candidateDestinationCoordinate)), piece));
+                        possibleMoves.add(new PawnPromotionMove((new PawnMove(board, this, candidateDestinationCoordinate)), piece));
                     }
                 } else {
-                    legalMoves.add(new PawnMove(board, this, candidateDestinationCoordinate));
+                    possibleMoves.add(new PawnMove(board, this, candidateDestinationCoordinate));
                 }
                 if (this.color.isSecondRank(this.piecePosition)) {
                     candidateDestinationCoordinate = this.piecePosition + 2 * direction * this.getPieceColor().getDirection();
                     if (BoardUtils.isValidTileCoordinate(candidateDestinationCoordinate) && !board.getTile(candidateDestinationCoordinate).isTileOccupied()) {
-                        legalMoves.add(new PawnJump(board, this, candidateDestinationCoordinate));
+                        possibleMoves.add(new PawnJump(board, this, candidateDestinationCoordinate));
                     }
                 }
             } else if (board.getTile(candidateDestinationCoordinate).isTileOccupied()) {
@@ -57,22 +57,22 @@ public class Pawn extends Piece {
                     if (pieceOnDestination.getPieceColor() != this.color) {
                         if (this.getPieceColor().isPromotionRow(candidateDestinationCoordinate)) {
                             for (String piece : PromoList) {
-                                legalMoves.add(new PawnPromotionMove(new PawnCaptureMove(board, this, pieceOnDestination, candidateDestinationCoordinate), piece));
+                                possibleMoves.add(new PawnPromotionMove(new PawnCaptureMove(board, this, pieceOnDestination, candidateDestinationCoordinate), piece));
                             }
                         } else {
-                            legalMoves.add(new PawnCaptureMove(board, this, pieceOnDestination, candidateDestinationCoordinate));
+                            possibleMoves.add(new PawnCaptureMove(board, this, pieceOnDestination, candidateDestinationCoordinate));
                         }
                     }
                 }
             } else if (board.getEnPassantPawn() != null) {
                 if (board.getEnPassantPawn().getPiecePosition() + this.color.getDirection() * BoardUtils.ROW_LENGTH == candidateDestinationCoordinate && BoardUtils.columnDifference(board.getEnPassantPawn().getPiecePosition(), this.piecePosition) == 1 && BoardUtils.rowDifference(board.getEnPassantPawn().getPiecePosition(), this.piecePosition) == 0) {
                     final Pawn enPassantPawn = board.getEnPassantPawn();
-                    legalMoves.add(new PawnEnPassantMove(board, this, enPassantPawn, candidateDestinationCoordinate));
+                    possibleMoves.add(new PawnEnPassantMove(board, this, enPassantPawn, candidateDestinationCoordinate));
                 }
             }
 
         }
-        return legalMoves;
+        return possibleMoves;
     }
 
     public HashSet<Integer> controlSquares(final HashSet<Integer> nonEmptySquares) {

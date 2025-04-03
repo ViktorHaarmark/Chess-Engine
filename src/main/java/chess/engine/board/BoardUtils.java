@@ -59,8 +59,8 @@ public class BoardUtils {
 
 
     public static boolean isEndGame(Board board) {
-        return (board.currentPlayer().isInCheckMate() ||
-                board.currentPlayer().isInStaleMate());
+        return (board.getCurrentPlayer().isInCheckMate() ||
+                board.getCurrentPlayer().isInStaleMate());
     }
 
 }

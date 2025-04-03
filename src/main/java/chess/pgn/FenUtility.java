@@ -1,7 +1,6 @@
 package chess.pgn;
 
 import chess.Color;
-import chess.engine.Players.Player;
 import chess.engine.board.Board;
 import chess.engine.board.Board.Builder;
 import chess.engine.board.BoardUtils;
@@ -58,7 +57,7 @@ public class FenUtility { //TODO: When rook moves, remove castling rights
     }
 
     private static String calculateCurrentPlayerText(final Board board) {
-        return board.currentPlayer().toString().substring(0, 1).toLowerCase();
+        return board.getCurrentPlayer().toString().substring(0, 1).toLowerCase();
 
     }
 
